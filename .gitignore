@@ -1,0 +1,4 @@
+.env
+*.json
+.ipynb*
+*.ipynb
