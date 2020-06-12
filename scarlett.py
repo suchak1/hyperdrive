@@ -16,6 +16,11 @@ class Scarlett:
         positions = rh.account.get_all_positions()
         holdings = rh.build_holdings()
         # need to get historicals for all instruments in positions
-        # need to create instrument symbol lookup table
+        instruments = {}
+        for position in positions:
+            instrument = position['instrument']
+            symbol = rh.stocks.get_symbol_by_url(position['instrument'])
+            instruments[instrument] = symbol
+        symbols = dict(map(reversed, instruments.items()))
 
 Scarlett()
