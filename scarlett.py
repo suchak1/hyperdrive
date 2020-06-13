@@ -8,7 +8,8 @@ import pandas as pd
 
 
 # utils
-def flatten(l): return [item for sublist in l for item in sublist]
+def flatten(l):
+    return [item for sublist in l for item in sublist]
 
 
 def save_file(filename, data):
