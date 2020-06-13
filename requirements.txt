@@ -1,3 +1,4 @@
 python-dotenv
 robin-stocks
 pandas
+matplotlib
