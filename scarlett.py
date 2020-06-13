@@ -5,6 +5,7 @@ from pprint import pprint
 import robin_stocks as rh
 from dotenv import load_dotenv
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 # utils
@@ -63,4 +64,8 @@ class Scarlett:
         end = time.time()
         print(f'Successfully loaded portfolio in {round(end-start, 2)}s.')
 
-# Scarlett()
+    def plot(symbol, start=None, end=None, instrument=None):
+        # given a stock symbol or instrument,
+        # plot
+
+        # Scarlett()
