@@ -31,20 +31,24 @@ class Scarlett:
         self.rh = rh
         self.symbols = {}
         self.instruments = {}
+        self.hist = None
 
     def get_symbols(self, instruments):
         # given a list of instruments,
         # return a list of corresponding symbols
         return [rh.stocks.get_symbol_by_url(instrument) for instrument in instruments]
 
-    def get_hists(self, symbols, span='5year'):
+    def get_hists(self, symbols, span='week'):
         # given a list of symbols,
         # return a DataFrame with historical data
         hists = [self.rh.stocks.get_historicals(
             symbol, span) for symbol in symbols]
         clean = [hist for hist in hists if hist != [None]]
         df = pd.DataFrame.from_records(flatten(clean))
-        df['begins_at'] = pd.to_datetime(df['begins_at'])
+        # look into diff between tz_localize and tz_convert w param 'US/Eastern'
+        # ideally store utc time
+        df['begins_at'] = pd.to_datetime(df['begins_at']).apply(
+            lambda x: x.tz_localize(None))
         # df = df.sort_values('begins_at')
         return df
 
@@ -66,19 +70,18 @@ class Scarlett:
         end = time.time()
         print(f'Successfully loaded portfolio in {round(end-start, 2)}s.')
 
-    def plot(symbol, start=None, end=None, instrument=None):
+    def plot(self, symbol, start=None, end=None, instrument=None):
         # given a stock symbol or instrument,
         # plot its historical price data
 
         # first, cache the symbol if we haven't loaded in its data
         # move this to an update function if we need to use it elsewhere
         if symbol not in self.symbols:
-            instrument = self.rh.get_instruments_by_symbols(instrument)
-            print(instrument)
+            instrument = self.rh.get_instruments_by_symbols(symbol)[0]['url']
             self.symbols[symbol] = instrument
             self.instruments[instrument] = symbol
-            df = self.get_hists([instrument])
-            if self.hist:
+            df = self.get_hists([symbol])
+            if isinstance(self.hist, pd.DataFrame):
                 self.hist = pd.concat([self.hist, df])
             else:
                 self.hist = df
@@ -92,10 +95,16 @@ class Scarlett:
         # then, plot the data
         df = self.hist[
             (self.hist['symbol'] == symbol) &
-            (self.hist['begins_at'] <= start) &
-            (self.hist['begins_at'] >= end)]
+            (self.hist['begins_at'] >= start) &
+            (self.hist['begins_at'] <= end)]
         df = df.sort_values('begins_at')
+
+        # fig, ax = plt.subplots()
         plt.plot(df['begins_at'], df['close_price'])
+        # every_nth = 10
+        # for n, label in enumerate(ax.xaxis.get_ticklabels()):
+        #     if n % every_nth != 0:
+        #         label.set_visible(False)
         plt.xlabel('Time')
         plt.ylabel('Price')
         plt.title(f'{symbol} Stock Price')
