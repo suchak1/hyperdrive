@@ -76,6 +76,8 @@ class Scarlett:
 
         # first, cache the symbol if we haven't loaded in its data
         # move this to an update function if we need to use it elsewhere
+
+        # !!!! caching not working?!
         if symbol not in self.symbols:
             instrument = self.rh.get_instruments_by_symbols(symbol)[0]['url']
             self.symbols[symbol] = instrument
