@@ -1,18 +1,20 @@
 import os
 import json
 import time
-from pprint import pprint
+# from pprint import pprint
 import robin_stocks as rh
 from dotenv import load_dotenv
 import pandas as pd
 
 
 # utils
-def flatten(l):
-    return [item for sublist in l for item in sublist]
+def flatten(xxs):
+    # flattens 2d list into 1d list
+    return [x for xs in xxs for x in xs]
 
 
 def save_file(filename, data):
+    # saves data as json file with provided filename
     with open(filename, 'w') as file:
         json.dump(data, file, indent=4)
 
@@ -32,7 +34,8 @@ class Scarlett:
     def get_symbols(self, instruments):
         # given a list of instruments,
         # return a list of corresponding symbols
-        return [rh.stocks.get_symbol_by_url(instrument) for instrument in instruments]
+        return [rh.stocks.get_symbol_by_url(instrument)
+                for instrument in instruments]
 
     def get_hists(self, symbols, span='5year'):
         # given a list of symbols,
