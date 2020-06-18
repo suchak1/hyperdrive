@@ -1,6 +1,5 @@
 import os
 import sys
-import json
 sys.path.append('src')
 from scarlett import \
     flatten, save_file, load_file  # noqa autopep8
