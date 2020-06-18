@@ -10,3 +10,7 @@ def test_flatten():
     assert flatten([[1, 2]]) == [1, 2]
     # outer list length 2
     assert flatten([[1, 2], [3, 4]]) == [1, 2, 3, 4]
+
+
+def test_save_file():
+    save_file('test.json', {})
