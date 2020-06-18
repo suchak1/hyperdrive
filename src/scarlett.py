@@ -19,6 +19,12 @@ def save_file(filename, data):
         json.dump(data, file, indent=4)
 
 
+def load_file(filename):
+    # loads json file as dictionary data
+    with open(filename, 'r') as file:
+        return json.load(file)
+
+
 class Scarlett:
     def __init__(self, usr, pwd):
         # Authentication
