@@ -26,7 +26,7 @@ def load_file(filename):
 
 
 class Scarlett:
-    def __init__(self, usr, pwd):
+    def __init__(self, usr=None, pwd=None):
         # Authentication
         if usr and pwd:
             rh.login(usr, pwd)

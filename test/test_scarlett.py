@@ -2,7 +2,7 @@ import os
 import sys
 sys.path.append('src')
 from scarlett import \
-    flatten, save_file, load_file  # noqa autopep8
+    flatten, save_file, load_file, Scarlett  # noqa autopep8
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -50,3 +50,10 @@ def test_load_file():
     assert load_file(file_path1) == empty
     # mock data case from above
     assert load_file(file_path2) == data
+
+
+sl = Scarlett()
+
+
+def test_init():
+    assert hasattr(sl, 'rh') == True
