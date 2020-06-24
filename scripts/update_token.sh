@@ -36,6 +36,9 @@ if [[ $CI != "true" ]]; then
 
 # If we are in CI enviroment:
 else
+    # Make tokens dir
+    mkdir "${HOME}/.tokens"
+
     # Decrypt token
     gpg --quiet --batch --yes --decrypt --passphrase="${PASSWORD}" --output "${HOME}/.tokens/${FILE}" "${FILE}.gpg"
 
@@ -52,7 +55,16 @@ else
     rm -rf "${HOME}/.tokens"
     rm "${FILE}"
 
-# if git diff,
+# if git diff and branch == master,
 # commit and push
+# master branch: daily
+# consider just running pytest init here 
+# find a way to fail it if gpg doesn't exist
+# and adding pytest --vv as separate step in yml
+# consider moving non ci logic out
+# consider splitting ci logic into pre and post test scripts
+# pre script updates token 
+# test
+# post scripts clean up
     echo hi
 fi
