@@ -6,6 +6,7 @@ FILE="robinhood.pickle"
 
 # If we are in not in CI environment:
 if [[ $CI != "true" ]]; then
+    
     # Find most recent token on PC and update the older version
     # (either on Windows or Linux)
     if [[ "${DIR_WIN}${FILE}" -nt "${DIR_LIN}${FILE}" ]]; then
@@ -16,7 +17,10 @@ if [[ $CI != "true" ]]; then
         echo Copied Robinhood oauth token from Linux to Windows.
     fi
 
-    # copy Robinhood token to project dir
+    # Perform tests (thus updating token if necessary)
+    python -m pytest -vv
+
+    # Copy Robinhood token to project dir
     cp "${DIR_WIN}${FILE}" ./
 
     # Load env vars
@@ -28,24 +32,27 @@ if [[ $CI != "true" ]]; then
     gpg --quiet --batch --yes --symmetric --cipher-algo AES256 --passphrase="${PASSWORD}" "${FILE}"
 
     # Remove token
-    rm robinhood.pickle
+    rm "${FILE}"
 
 # If we are in CI enviroment:
 else
     # Decrypt token
     gpg --quiet --batch --yes --decrypt --passphrase="${PASSWORD}" --output "${HOME}/.tokens/${FILE}" "${FILE}.gpg"
 
-# decrypt robinhood.gpg
-# mv to home/.tokens
-# perform tests
-# mv back to scarlett/ -this file
-# encrypt -this file
-# remove robinhood.pickle
+    # Perform tests (thus updating token if necessary)
+    python -m pytest -vv
+
+    # Copy Robinhood token back to project dir
+    cp "${HOME}/.tokens/${FILE}" ./
+
+    # Encrypt token
+    gpg --quiet --batch --yes --symmetric --cipher-algo AES256 --passphrase="${PASSWORD}" "${FILE}"
+
+    # Remove leftover tokens
+    rm -rf "${HOME}/.tokens"
+    rm "${FILE}"
+
 # if git diff,
 # commit and push
     echo hi
 fi
-
-
-
-# encrypt Robinhood token
