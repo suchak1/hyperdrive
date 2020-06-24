@@ -35,4 +35,4 @@ jobs:
           EMAIL: ${{ secrets.EMAIL }}
           PASSWORD: ${{ secrets.PASSWORD }}
         run: |
-          pytest -vv
+          scripts/update_token.sh
