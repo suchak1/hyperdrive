@@ -34,7 +34,7 @@ jobs:
         env:
           PASSWORD: ${{ secrets.PASSWORD }}
         run: |
-          decrypt.sh
+          scripts/decrypt.sh
       - name: Test with pytest
         env:
           EMAIL: ${{ secrets.EMAIL }}
@@ -45,4 +45,4 @@ jobs:
         env:
           PASSWORD: ${{ secrets.PASSWORD }}
         run: |
-          encrypt.sh
+          scripts/encrypt.sh
