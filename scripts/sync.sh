@@ -1,6 +1,6 @@
 #!/bin/bash
-
-DIR_WIN="/mnt/c/Users/Krish Suchak/.tokens/"
+USERNAME=$(powershell.exe '$env:UserName')
+DIR_WIN="/mnt/c/Users/${USERNAME}/.tokens/"
 DIR_LIN="${HOME}/.tokens/"
 FILE="robinhood.pickle"
 
