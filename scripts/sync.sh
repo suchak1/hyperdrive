@@ -1,5 +1,5 @@
 #!/bin/bash
-USERNAME=$(powershell.exe '$env:UserName')
+USERNAME=$(cmd.exe /C "echo %USERNAME%" | tr -d '\r')
 DIR_WIN="/mnt/c/Users/${USERNAME}/.tokens/"
 DIR_LIN="${HOME}/.tokens/"
 FILE="robinhood.pickle"
@@ -7,10 +7,10 @@ FILE="robinhood.pickle"
 # Find most recent token on PC and update the older version
 # (either on Windows or Linux)
 if [[ "${DIR_WIN}${FILE}" -nt "${DIR_LIN}${FILE}" ]]; then
-    cp "${DIR_WIN}${FILE}" "${DIR_LIN}"
+    cp "${DIR_WIN}${FILE}" ${DIR_LIN}
     echo Copied Robinhood oauth token from Windows to Linux.
 else
-    cp "${DIR_LIN}${FILE}" "${DIR_WIN}"
+    cp "${DIR_LIN}${FILE}" ${DIR_WIN}
     echo Copied Robinhood oauth token from Linux to Windows.
 fi
 
@@ -26,7 +26,7 @@ set -a
 set +a
 
 # Encrypt token
-gpg --quiet --batch --yes --symmetric --cipher-algo AES256 --passphrase="${PASSWORD}" "${FILE}"
+gpg --quiet --batch --yes --symmetric --cipher-algo AES256 --passphrase=${PASSWORD} ${FILE}
 
 # Remove token
-rm "${FILE}"
+rm ${FILE}
