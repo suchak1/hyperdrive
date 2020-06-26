@@ -8,10 +8,10 @@ FILE="robinhood.pickle"
 # (either on Windows or Linux)
 if [[ "${DIR_WIN}${FILE}" -nt "${DIR_LIN}${FILE}" ]]; then
     cp "${DIR_WIN}${FILE}" ${DIR_LIN}
-    echo Copied Robinhood oauth token from Windows to Linux.
+    echo Copied Robinhood OAuth token from Windows to Linux.
 else
     cp "${DIR_LIN}${FILE}" ${DIR_WIN}
-    echo Copied Robinhood oauth token from Linux to Windows.
+    echo Copied Robinhood OAuth token from Linux to Windows.
 fi
 
 # Perform tests (thus updating token if necessary)
