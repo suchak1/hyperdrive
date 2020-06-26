@@ -6,8 +6,8 @@ name: Daily Update
 on:
   pull_request:
     branches: [master]
-  # schedule:
-  #         - cron:  '*/5 * * * *'
+  schedule:
+    - cron: "*/5 * * * *"
 
 jobs:
   build:
