@@ -14,13 +14,3 @@ fi
 # Remove leftover tokens
 rm -rf ${TOKEN_DIR}
 rm ${TOKEN}
-
-
-    
-
-# 1. finish pytest tests
-# 2. consider making changelog
-
-# make ticket for defining buy and hold strat
-# make ticket for generating ascii table report with colors
-#  - sharpe, drowndown, other metrics
