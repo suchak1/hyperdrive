@@ -61,25 +61,28 @@ def test_init():
     assert hasattr(sl, 'rh') is True
 
 
-# def test_load_portfolio():
-#     sl.load_portfolio()
-#     assert hasattr(sl, 'positions') is True
-#     assert hasattr(sl, 'holdings') is True
-#     assert hasattr(sl, 'instruments') is True
-#     assert hasattr(sl, 'symbols') is True
-#     assert hasattr(sl, 'hist') is True
+def test_load_portfolio():
+    sl.load_portfolio()
+    assert hasattr(sl, 'positions') is True
+    assert hasattr(sl, 'holdings') is True
+    assert hasattr(sl, 'instruments') is True
+    assert hasattr(sl, 'symbols') is True
+    assert hasattr(sl, 'hist') is True
+
 
 exp_symbols = ['AAPL', 'FB', 'DIS']
-# def test_get_symbols():
-#     instruments = list(sl.instruments)
-#     symbols = set(sl.get_symbols(instruments))
-#     for symbol in exp_symbols:
-#         assert symbol in symbols
+
+
+def test_get_symbols():
+    instruments = list(sl.instruments)
+    symbols = set(sl.get_symbols(instruments))
+    for symbol in exp_symbols:
+        assert symbol in symbols
 
 
 def test_get_hists():
     df = sl.get_hists(exp_symbols)
-    curr_year = datetime.today().year
+    curr_year = datetime.today().year - 3
     ts = pd.Timestamp(curr_year, 1, 1, 12)
 
     for symbol in exp_symbols:

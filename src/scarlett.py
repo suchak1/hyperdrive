@@ -50,8 +50,11 @@ class Scarlett:
             symbol, span) for symbol in symbols]
         clean = [hist for hist in hists if hist != [None]]
         df = pd.DataFrame.from_records(flatten(clean))
-        df['begins_at'] = pd.to_datetime(df['begins_at'])
-        df = df.sort_values('begins_at')
+        # look into diff between tz_localize and tz_convert w param 'US/Eastern'
+        # ideally store utc time
+        df['begins_at'] = pd.to_datetime(df['begins_at']).apply(
+            lambda x: x.tz_localize(None))
+        # df = df.sort_values('begins_at')
         return df
 
     def load_portfolio(self):
