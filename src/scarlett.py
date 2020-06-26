@@ -46,7 +46,7 @@ class Scarlett:
     def get_hists(self, symbols, span='5year'):
         # given a list of symbols,
         # return a DataFrame with historical data
-        hists = [self.rh.get_historicals(
+        hists = [self.rh.get_stock_historicals(
             symbol, span) for symbol in symbols]
         clean = [hist for hist in hists if hist != [None]]
         df = pd.DataFrame.from_records(flatten(clean))
