@@ -41,8 +41,3 @@ jobs:
           PASSWORD: ${{ secrets.PASSWORD }}
         run: |
           pytest -vv
-      - name: Encrypt token
-        env:
-          PASSWORD: ${{ secrets.PASSWORD }}
-        run: |
-          scripts/encrypt.sh
