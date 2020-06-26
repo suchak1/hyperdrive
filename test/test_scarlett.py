@@ -1,5 +1,7 @@
 import os
 import sys
+import pandas as pd
+from datetime import datetime
 sys.path.append('src')
 from scarlett import \
     flatten, save_file, load_file, Scarlett  # noqa autopep8
@@ -59,22 +61,27 @@ def test_init():
     assert hasattr(sl, 'rh') is True
 
 
-def test_load_portfolio():
-    sl.load_portfolio()
-    assert hasattr(sl, 'positions') is True
-    assert hasattr(sl, 'holdings') is True
-    assert hasattr(sl, 'instruments') is True
-    assert hasattr(sl, 'symbols') is True
-    assert hasattr(sl, 'hist') is True
+# def test_load_portfolio():
+#     sl.load_portfolio()
+#     assert hasattr(sl, 'positions') is True
+#     assert hasattr(sl, 'holdings') is True
+#     assert hasattr(sl, 'instruments') is True
+#     assert hasattr(sl, 'symbols') is True
+#     assert hasattr(sl, 'hist') is True
 
-
-def test_get_symbols():
-    instruments = list(sl.instruments)
-    symbols = set(sl.get_symbols(instruments))
-    assert 'AAPL' in symbols
-    assert 'FB' in symbols
-    assert 'DIS' in symbols
+exp_symbols = ['AAPL', 'FB', 'DIS']
+# def test_get_symbols():
+#     instruments = list(sl.instruments)
+#     symbols = set(sl.get_symbols(instruments))
+#     for symbol in exp_symbols:
+#         assert symbol in symbols
 
 
 def test_get_hists():
-    print('a')
+    df = sl.get_hists(exp_symbols)
+    curr_year = datetime.today().year
+    ts = pd.Timestamp(curr_year, 1, 1, 12)
+
+    for symbol in exp_symbols:
+        assert len(df[df['symbol'] == symbol]) > 100
+        assert len(df[df['begins_at'] < ts]) > 0
