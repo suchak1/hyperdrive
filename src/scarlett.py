@@ -46,8 +46,9 @@ class Scarlett:
     def get_hists(self, symbols, span='5year'):
         # given a list of symbols,
         # return a DataFrame with historical data
+        interval = 'week'
         hists = [self.rh.get_stock_historicals(
-            symbol, span) for symbol in symbols]
+            symbol, interval, span) for symbol in symbols]
         clean = [hist for hist in hists if hist != [None]]
         df = pd.DataFrame.from_records(flatten(clean))
         # look into diff between tz_localize and tz_convert w param 'US/Eastern'
@@ -55,6 +56,8 @@ class Scarlett:
         df['begins_at'] = pd.to_datetime(df['begins_at']).apply(
             lambda x: x.tz_localize(None))
         # df = df.sort_values('begins_at')
+        with open('data/data.csv', 'w') as f:
+            df.to_csv(f, index=False)
         return df
 
     def load_portfolio(self):
