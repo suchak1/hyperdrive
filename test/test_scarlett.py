@@ -57,3 +57,18 @@ sl = Scarlett()
 
 def test_init():
     assert hasattr(sl, 'rh') == True
+
+
+def test_get_symbols():
+
+
+def test_get_hists():
+
+
+def test_load_portfolio():
+    sl.load_portfolio()
+    assert hasattr(sl, 'positions') == True
+    assert hasattr(sl, 'holdings') == True
+    assert hasattr(sl, 'instruments') == True
+    assert hasattr(sl, 'symbols') == True
+    assert hasattr(sl, 'hist') == True
