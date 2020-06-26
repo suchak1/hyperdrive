@@ -2,7 +2,7 @@
 # https://github.com/damnever/pigar
 
 # src/scarlett.py: 6
-dotenv == 0.0.5
+python-dotenv == 0.13.0
 
 # src/scarlett.py: 7
 # test/test_scarlett.py: 3
