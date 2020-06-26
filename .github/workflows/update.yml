@@ -1,5 +1,5 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+# This workflow will update an old Robinhood OAuth token with a new one if necessary
+# For more information see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#scheduled-events-schedule
 
 name: Daily Update
 
@@ -45,7 +45,7 @@ jobs:
         with:
           author_name: Krish Suchak
           author_email: suchak.krish@gmail.com
-          message: "[AUTO] OAuth token refresh"
+          message: "[AUTO] OAuth token refresh #patch"
           add: "robinhood.pickle.gpg"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

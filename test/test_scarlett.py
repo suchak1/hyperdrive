@@ -56,19 +56,25 @@ sl = Scarlett()
 
 
 def test_init():
-    assert hasattr(sl, 'rh') == True
-
-
-def test_get_symbols():
-
-
-def test_get_hists():
+    assert hasattr(sl, 'rh') is True
 
 
 def test_load_portfolio():
     sl.load_portfolio()
-    assert hasattr(sl, 'positions') == True
-    assert hasattr(sl, 'holdings') == True
-    assert hasattr(sl, 'instruments') == True
-    assert hasattr(sl, 'symbols') == True
-    assert hasattr(sl, 'hist') == True
+    assert hasattr(sl, 'positions') is True
+    assert hasattr(sl, 'holdings') is True
+    assert hasattr(sl, 'instruments') is True
+    assert hasattr(sl, 'symbols') is True
+    assert hasattr(sl, 'hist') is True
+
+
+def test_get_symbols():
+    instruments = list(sl.instruments)
+    symbols = set(sl.get_symbols(instruments))
+    assert 'AAPL' in symbols
+    assert 'FB' in symbols
+    assert 'DIS' in symbols
+
+
+def test_get_hists():
+    print('a')
