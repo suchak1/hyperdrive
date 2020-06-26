@@ -19,9 +19,7 @@ rm ${TOKEN}
     
 
 # 1. finish pytest tests
-# 2. update version
-# 3. consider making changelog
-# 4. make ticket for code coverage
+# 2. consider making changelog
 
 # make ticket for defining buy and hold strat
 # make ticket for generating ascii table report with colors
