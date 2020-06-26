@@ -40,13 +40,13 @@ class Scarlett:
     def get_symbols(self, instruments):
         # given a list of instruments,
         # return a list of corresponding symbols
-        return [rh.stocks.get_symbol_by_url(instrument)
+        return [self.rh.get_symbol_by_url(instrument)
                 for instrument in instruments]
 
     def get_hists(self, symbols, span='5year'):
         # given a list of symbols,
         # return a DataFrame with historical data
-        hists = [self.rh.stocks.get_historicals(
+        hists = [self.rh.get_historicals(
             symbol, span) for symbol in symbols]
         clean = [hist for hist in hists if hist != [None]]
         df = pd.DataFrame.from_records(flatten(clean))
@@ -60,8 +60,8 @@ class Scarlett:
     def load_portfolio(self):
         start = time.time()
         # Data acquisition
-        self.positions = rh.account.get_all_positions()
-        self.holdings = rh.build_holdings()
+        self.positions = self.rh.get_all_positions()
+        self.holdings = self.rh.build_holdings()
 
         # Create lookup table instrument -> symbol and vice versa
         instruments = [position['instrument'] for position in self.positions]
