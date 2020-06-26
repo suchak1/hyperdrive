@@ -32,3 +32,13 @@ rm "${TOKEN}"
 # 5. finish pytest tests
 # 6. update version
 # 7. consider making changelog
+
+
+# https://help.github.com/en/actions/reference/events-that-trigger-workflows#scheduled-events-schedule
+
+# - * * * * *
+# - 0 0 * * 0
+# make ticket for code coverage
+# make ticket for defining buy and hold strat
+# make ticket for generating ascii table report with colors
+#  - sharpe, drowndown, other metrics
