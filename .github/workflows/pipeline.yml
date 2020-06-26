@@ -45,5 +45,5 @@ jobs:
           PASSWORD: ${{ secrets.PASSWORD }}
         run: coverage run -m pytest -vv
 
-      - name: View test coverage report
-        run: coverage report -m --fail-under=100
+      - name: Generate test coverage report
+        run: coverage report -m --fail-under=70
