@@ -56,8 +56,8 @@ class Scarlett:
         df['begins_at'] = pd.to_datetime(df['begins_at']).apply(
             lambda x: x.tz_localize(None))
         # df = df.sort_values('begins_at')
-        with open('data/data.csv', 'w') as f:
-            df.to_csv(f, index=False)
+        # with open('data/data.csv', 'w') as f:
+        #     df.to_csv(f, index=False)
         return df
 
     def load_portfolio(self):
