@@ -1,24 +1,32 @@
 import os
 import json
 import time
-from pprint import pprint
+# from pprint import pprint
 import robin_stocks as rh
 from dotenv import load_dotenv
 import pandas as pd
 
 
 # utils
-def flatten(l):
-    return [item for sublist in l for item in sublist]
+def flatten(xxs):
+    # flattens 2d list into 1d list
+    return [x for xs in xxs for x in xs]
 
 
 def save_file(filename, data):
+    # saves data as json file with provided filename
     with open(filename, 'w') as file:
         json.dump(data, file, indent=4)
 
 
+def load_file(filename):
+    # loads json file as dictionary data
+    with open(filename, 'r') as file:
+        return json.load(file)
+
+
 class Scarlett:
-    def __init__(self, usr, pwd):
+    def __init__(self, usr=None, pwd=None):
         # Authentication
         if usr and pwd:
             rh.login(usr, pwd)
@@ -32,24 +40,31 @@ class Scarlett:
     def get_symbols(self, instruments):
         # given a list of instruments,
         # return a list of corresponding symbols
-        return [rh.stocks.get_symbol_by_url(instrument) for instrument in instruments]
+        return [self.rh.get_symbol_by_url(instrument)
+                for instrument in instruments]
 
     def get_hists(self, symbols, span='5year'):
         # given a list of symbols,
         # return a DataFrame with historical data
-        hists = [self.rh.stocks.get_historicals(
-            symbol, span) for symbol in symbols]
+        interval = 'week'
+        hists = [self.rh.get_stock_historicals(
+            symbol, interval, span) for symbol in symbols]
         clean = [hist for hist in hists if hist != [None]]
         df = pd.DataFrame.from_records(flatten(clean))
-        df['begins_at'] = pd.to_datetime(df['begins_at'])
-        df = df.sort_values('begins_at')
+        # look into diff between tz_localize and tz_convert w param 'US/Eastern'
+        # ideally store utc time
+        df['begins_at'] = pd.to_datetime(df['begins_at']).apply(
+            lambda x: x.tz_localize(None))
+        # df = df.sort_values('begins_at')
+        # with open('data/data.csv', 'w') as f:
+        #     df.to_csv(f, index=False)
         return df
 
     def load_portfolio(self):
         start = time.time()
         # Data acquisition
-        self.positions = rh.account.get_all_positions()
-        self.holdings = rh.build_holdings()
+        self.positions = self.rh.get_all_positions()
+        self.holdings = self.rh.build_holdings()
 
         # Create lookup table instrument -> symbol and vice versa
         instruments = [position['instrument'] for position in self.positions]

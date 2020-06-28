@@ -4,3 +4,4 @@
 *.ipynb
 __pycache__
 img
+robinhood.pickle
