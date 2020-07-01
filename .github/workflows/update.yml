@@ -28,19 +28,23 @@ jobs:
 
       - name: Decrypt token
         env:
-          PASSWORD: ${{ secrets.PASSWORD }}
-        run: scripts/decrypt.sh
-
-      - name: Login to Robinhood
-        env:
           EMAIL: ${{ secrets.EMAIL }}
           PASSWORD: ${{ secrets.PASSWORD }}
-        run: python scripts/login.py
+        run: |
+          scripts/decrypt.sh
+          python scripts/login.py
+          scripts/encrypt.sh
 
-      - name: Encrypt token
-        env:
-          PASSWORD: ${{ secrets.PASSWORD }}
-        run: scripts/encrypt.sh
+      # - name: Login to Robinhood
+      #   env:
+      #     EMAIL: ${{ secrets.EMAIL }}
+      #     PASSWORD: ${{ secrets.PASSWORD }}
+      #   run: python scripts/login.py
+
+      # - name: Encrypt token
+      #   env:
+      #     PASSWORD: ${{ secrets.PASSWORD }}
+      #   run: scripts/encrypt.sh
 
       - name: Commit changes
         uses: EndBug/add-and-commit@v4

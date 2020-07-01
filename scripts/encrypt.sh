@@ -10,6 +10,8 @@ if [[ ${NEW_TOKEN} == true ]]; then
     echo new token
     # Encrypt token
     gpg --quiet --batch --yes --symmetric --cipher-algo AES256 --passphrase=${PASSWORD} ${TOKEN}
+else
+    echo no new token
 fi
 
 # Remove leftover tokens
