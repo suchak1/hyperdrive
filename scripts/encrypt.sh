@@ -1,9 +1,9 @@
 #!/bin/bash
-
+set -x
 TOKEN="robinhood.pickle"
 TOKEN_DIR="${HOME}/.tokens"
 NEW_TOKEN=$(cmp "${TOKEN_DIR}/${TOKEN}" ${TOKEN} && echo "false" || echo "true")
-
+cmp "${TOKEN_DIR}/${TOKEN}" ${TOKEN} && echo "false" || echo "true"
 # If Robinhood API grants us a new token:
 if [[ ${NEW_TOKEN} == "true" ]]; then 
     echo new token
