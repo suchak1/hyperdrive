@@ -8,8 +8,9 @@ NEW_TOKEN=$?
 # If Robinhood API grants us a new token:
 if [[ ${NEW_TOKEN} == 1 ]]; then 
     echo new token
+    # rm 
     # Encrypt token
-    gpg --quiet --batch --yes --symmetric --cipher-algo AES256 --passphrase=${PASSWORD} "${TOKEN_DIR}/${TOKEN}"
+    gpg --batch --yes --symmetric --cipher-algo AES256 --passphrase=${PASSWORD} "${TOKEN_DIR}/${TOKEN}"
 else
     echo no change
 fi
