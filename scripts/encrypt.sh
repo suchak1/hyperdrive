@@ -2,7 +2,7 @@
 
 TOKEN="robinhood.pickle"
 TOKEN_DIR="${HOME}/.tokens"
-$(diff "${TOKEN_DIR}/${TOKEN}" ${TOKEN})
+diff "${TOKEN_DIR}/${TOKEN}" ${TOKEN}
 NEW_TOKEN=$?
 
 # If Robinhood API grants us a new token:
