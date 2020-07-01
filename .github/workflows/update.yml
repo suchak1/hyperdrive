@@ -4,8 +4,6 @@
 name: Daily Update
 
 on:
-  pull_request:
-    branches: [master]
   schedule:
     - cron: "0 0 * * *"
 
@@ -51,5 +49,4 @@ jobs:
           commit_user_name: suchak1
           commit_user_email: suchak.krish@gmail.com
           commit_author: Krish Suchak
-          # Optional options appended to `git-push`
-          # push_options: "--force"
+          push_options: "--force"
