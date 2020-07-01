@@ -45,7 +45,7 @@ jobs:
         run: scripts/encrypt.sh
 
       - name: Commit token
-      - uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "[AUTO] OAuth token refresh #patch"
           commit_user_name: suchak1
