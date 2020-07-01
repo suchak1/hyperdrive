@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+
 TOKEN="robinhood.pickle"
 TOKEN_DIR="${HOME}/.tokens"
 diff "${TOKEN_DIR}/${TOKEN}" ${TOKEN}

@@ -15,6 +15,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
 
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
@@ -42,7 +44,7 @@ jobs:
           PASSWORD: ${{ secrets.PASSWORD }}
         run: scripts/encrypt.sh
 
-      - name: Commit changes
+      - name: Update token
         uses: EndBug/add-and-commit@v4
         with:
           author_name: Krish Suchak
