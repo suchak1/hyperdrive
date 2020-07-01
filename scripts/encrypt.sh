@@ -2,13 +2,13 @@
 
 TOKEN="robinhood.pickle"
 TOKEN_DIR="${HOME}/.tokens"
-NEW_TOKEN=$(diff "${TOKEN_DIR}/${TOKEN}\
-" ${TOKEN} && echo false || echo true)
+diff "${TOKEN_DIR}/${TOKEN}" ${TOKEN}
+NEW_TOKEN=$?
 
 # If Robinhood API grants us a new token:
-if [[ ${NEW_TOKEN} == true ]]; then 
+if [[ ${NEW_TOKEN} == 1 ]]; then 
     # Encrypt token
-    gpg --quiet --batch --yes --symmetric --cipher-algo AES256 --passphrase=${PASSWORD} ${TOKEN}
+    gpg --batch --yes --symmetric --cipher-algo AES256 --passphrase=${PASSWORD} --output "${TOKEN}.gpg" "${TOKEN_DIR}/${TOKEN}"
 fi
 
 # Remove leftover tokens
