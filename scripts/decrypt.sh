@@ -11,3 +11,6 @@ gpg --quiet --batch --yes --decrypt --passphrase=${PASSWORD} --output "${TOKEN_D
 
 # Copy Robinhood token back to project dir
 cp "${TOKEN_DIR}/${TOKEN}" ./
+if [[ -f robinhood.pickle ]]; then 
+    echo exists
+fi
