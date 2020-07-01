@@ -13,6 +13,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
 
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
@@ -29,7 +31,7 @@ jobs:
           PASSWORD: ${{ secrets.PASSWORD }}
         run: scripts/decrypt.sh
 
-      - name: Login to Robinhood
+      - name: Update token
         env:
           EMAIL: ${{ secrets.EMAIL }}
           PASSWORD: ${{ secrets.PASSWORD }}
@@ -40,12 +42,11 @@ jobs:
           PASSWORD: ${{ secrets.PASSWORD }}
         run: scripts/encrypt.sh
 
-      - name: Commit changes
-        uses: EndBug/add-and-commit@v4
+      - name: Commit token
+        uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          author_name: Krish Suchak
-          author_email: suchak.krish@gmail.com
-          message: "[AUTO] OAuth token refresh #patch"
-          add: "robinhood.pickle.gpg"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          commit_message: "[AUTO] OAuth token refresh #patch"
+          commit_user_name: suchak1
+          commit_user_email: suchak.krish@gmail.com
+          commit_author: Krish Suchak
+          push_options: "--force"
