@@ -51,5 +51,6 @@ jobs:
           author_email: suchak.krish@gmail.com
           message: "[AUTO] OAuth token refresh #patch"
           add: "robinhood.pickle.gpg"
+          force: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
