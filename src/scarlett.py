@@ -13,16 +13,27 @@ def flatten(xxs):
     return [x for xs in xxs for x in xs]
 
 
-def save_file(filename, data):
+def save_json(filename, data):
     # saves data as json file with provided filename
     with open(filename, 'w') as file:
         json.dump(data, file, indent=4)
 
 
-def load_file(filename):
+def load_json(filename):
     # loads json file as dictionary data
     with open(filename, 'r') as file:
         return json.load(file)
+
+
+def save_csv(filename, data):
+    # saves df as csv file with provided filename
+    with open(filename, 'w') as f:
+        data.to_csv(f, index=False)
+
+
+def load_csv(filename):
+    # loads csv file as Dataframe
+    return pd.read_csv(filename)
 
 
 class Scarlett:
@@ -56,8 +67,7 @@ class Scarlett:
         df['begins_at'] = pd.to_datetime(df['begins_at']).apply(
             lambda x: x.tz_localize(None))
         # df = df.sort_values('begins_at')
-        # with open('data/data.csv', 'w') as f:
-        #     df.to_csv(f, index=False)
+        save_csv('data/data.csv', df)
         return df
 
     def load_portfolio(self):

@@ -43,7 +43,7 @@ jobs:
         env:
           EMAIL: ${{ secrets.EMAIL }}
           PASSWORD: ${{ secrets.PASSWORD }}
-        run: coverage run -m pytest -vv
+        run: coverage run --branch -m pytest -vv
 
       - name: Generate test coverage report
-        run: coverage report -m --fail-under=90
+        run: coverage report -m --fail-under=95

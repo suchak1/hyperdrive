@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime
 sys.path.append('src')
 from scarlett import \
-    flatten, save_file, load_file, Scarlett  # noqa autopep8
+    flatten, save_json, load_json, Scarlett  # noqa autopep8
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -37,21 +37,27 @@ data = [
 ]
 
 
-def test_save_file():
+def test_save_json():
     # save empty json object
-    save_file(file_path1, {})
+    save_json(file_path1, {})
     assert os.path.exists(file_path1)
 
     # save list of 2 json objects
-    save_file(file_path2, data)
+    save_json(file_path2, data)
     assert os.path.exists(file_path2)
 
 
-def test_load_file():
+def test_load_json():
     # empty case from above
-    assert load_file(file_path1) == empty
+    assert load_json(file_path1) == empty
     # mock data case from above
-    assert load_file(file_path2) == data
+    assert load_json(file_path2) == data
+
+
+# def test_save_csv():
+
+
+# def test_load_csv():
 
 
 sl = Scarlett()
