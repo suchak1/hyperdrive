@@ -33,7 +33,11 @@ def save_csv(filename, data):
 
 def load_csv(filename):
     # loads csv file as Dataframe
-    return pd.read_csv(filename)
+    try:
+        df = pd.read_csv(filename)
+    except pd.errors.EmptyDataError:
+        df = pd.DataFrame()
+    return df
 
 
 class Scarlett:
