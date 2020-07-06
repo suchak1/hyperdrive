@@ -36,6 +36,8 @@ def load_csv(filename):
     try:
         df = pd.read_csv(filename)
     except pd.errors.EmptyDataError:
+        # empty csv
+        print(f'{filename} is an empty csv file.')
         df = pd.DataFrame()
     return df
 
