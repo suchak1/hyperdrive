@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime
 sys.path.append('src')
 from scarlett import \
-    flatten, save_json, load_json, Scarlett  # noqa autopep8
+    flatten, save_json, load_json, save_csv, load_csv, Scarlett  # noqa autopep8
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -18,8 +18,8 @@ def test_flatten():
     assert flatten([[1, 2], [3, 4]]) == [1, 2, 3, 4]
 
 
-file_path1 = os.path.join(dir_path, 'test1.json')
-file_path2 = os.path.join(dir_path, 'test2.json')
+json_path1 = os.path.join(dir_path, 'test1.json')
+json_path2 = os.path.join(dir_path, 'test2.json')
 
 empty = {}
 data = [
@@ -39,25 +39,42 @@ data = [
 
 def test_save_json():
     # save empty json object
-    save_json(file_path1, {})
-    assert os.path.exists(file_path1)
+    save_json(json_path1, {})
+    assert os.path.exists(json_path1)
 
     # save list of 2 json objects
-    save_json(file_path2, data)
-    assert os.path.exists(file_path2)
+    save_json(json_path2, data)
+    assert os.path.exists(json_path2)
 
 
 def test_load_json():
     # empty case from above
-    assert load_json(file_path1) == empty
+    assert load_json(json_path1) == empty
     # mock data case from above
-    assert load_json(file_path2) == data
+    assert load_json(json_path2) == data
 
 
-# def test_save_csv():
+csv_path1 = os.path.join(dir_path, 'test1.csv')
+csv_path2 = os.path.join(dir_path, 'test2.csv')
+test_df = pd.DataFrame(data)
+empty_df = pd.DataFrame()
 
 
-# def test_load_csv():
+def test_save_csv():
+    # save empty table
+    save_csv(csv_path1, empty_df)
+    assert os.path.exists(csv_path1)
+
+    # save table with 2 rows
+    save_json(csv_path2, test_df)
+    assert os.path.exists(csv_path2)
+
+
+def test_load_csv():
+    # empty case from above
+    assert load_csv(csv_path1).equals(empty_df)
+    # mock data case from above
+    assert load_csv(csv_path2).equals(test_df)
 
 
 sl = Scarlett()
