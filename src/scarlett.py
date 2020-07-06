@@ -5,9 +5,12 @@ import time
 import robin_stocks as rh
 from dotenv import load_dotenv
 import pandas as pd
+import yfinance as yf
 
 
-# utils
+# utils - move these to src/helpers.py and import *
+# scarlett should have attrs broker, datareader, engine, etc
+# broker has subclasses robinhood, td ameritrade, ibkr
 def flatten(xxs):
     # flattens 2d list into 1d list
     return [x for xs in xxs for x in xs]
@@ -75,6 +78,9 @@ class Scarlett:
         # df = df.sort_values('begins_at')
         save_csv('data/data.csv', df)
         return df
+
+    def get_dividends(self):
+        # given a symbol
 
     def load_portfolio(self):
         start = time.time()
