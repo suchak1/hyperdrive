@@ -66,7 +66,7 @@ def test_save_csv():
     assert os.path.exists(csv_path1)
 
     # save table with 2 rows
-    save_json(csv_path2, test_df)
+    save_csv(csv_path2, test_df)
     assert os.path.exists(csv_path2)
 
 
