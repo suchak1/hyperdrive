@@ -34,6 +34,19 @@ def save_csv(filename, data):
         data.to_csv(f, index=False)
 
 
+def check_update(filename, df):
+    # given a csv filename and dataframe
+    # return whether the csv needs to be updated
+    return (not os.path.exists(filename)
+            or len(load_csv(filename)) < len(df))
+
+
+def update_csv(filename, df):
+    # update csv if needed
+    if check_update(filename, df):
+        save_csv(filename, df)
+
+
 def load_csv(filename):
     # loads csv file as Dataframe
     try:
@@ -46,7 +59,7 @@ def load_csv(filename):
 
 
 class Scarlett:
-    def __init__(self, usr=None, pwd=None):
+    def __init__(self, usr=None, pwd=None, load=False):
         # Authentication
         if usr and pwd:
             rh.login(usr, pwd)
@@ -57,16 +70,19 @@ class Scarlett:
                 os.environ['PASSWORD'])
         self.rh = rh
 
+        if load == True:
+            self.load_portfolio()
+
     def get_symbols(self, instruments):
         # given a list of instruments,
         # return a list of corresponding symbols
         return [self.rh.get_symbol_by_url(instrument)
                 for instrument in instruments]
 
-    def get_hists(self, symbols, span='5year'):
+    def get_hists(self, symbols, span='year'):
         # given a list of symbols,
         # return a DataFrame with historical data
-        interval = 'week'
+        interval = 'day'
         hists = [self.rh.get_stock_historicals(
             symbol, interval, span) for symbol in symbols]
         clean = [hist for hist in hists if hist != [None]]
@@ -85,6 +101,24 @@ class Scarlett:
         ticker = yf.Ticker(symbol)
         return ticker.actions
 
+    def get_names(self, symbols):
+        # given a list of stock symbols
+        # return a list of company names
+        return [self.rh.get_name_by_symbol(symbol)
+                for symbol in symbols]
+
+    def save_symbols(self):
+        # save all the portfolio symbols in a table
+        if not hasattr(self, 'symbols'):
+            self.load_portfolio()
+        symbols = list(self.symbols)
+        names = self.get_names(symbols)
+        df = pd.DataFrame({
+            'symbol': symbols,
+            'names': names
+        })
+        update_csv('data/symbols.csv', df)
+
     def load_portfolio(self):
         start = time.time()
         # Data acquisition
@@ -97,7 +131,6 @@ class Scarlett:
 
         self.instruments = dict(zip(instruments, symbols))
         self.symbols = dict(map(reversed, self.instruments.items()))
-        print(self.symbols)
 
         # Get historical data for all instruments
         self.hist = self.get_hists(symbols)
@@ -105,4 +138,4 @@ class Scarlett:
         print(f'Successfully loaded portfolio in {round(end-start, 2)}s.')
 
 
-# Scarlett().load_portfolio()
+Scarlett(load=True).save_symbols()

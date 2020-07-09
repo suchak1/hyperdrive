@@ -7,6 +7,7 @@ from scarlett import \
     flatten, save_json, load_json, save_csv, load_csv, Scarlett  # noqa autopep8
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
+sl = Scarlett(load=True)
 
 
 def test_flatten():
@@ -77,15 +78,11 @@ def test_load_csv():
     assert load_csv(csv_path2).equals(test_df)
 
 
-sl = Scarlett()
-
-
 def test_init():
     assert hasattr(sl, 'rh') is True
 
 
 def test_load_portfolio():
-    sl.load_portfolio()
     assert hasattr(sl, 'positions') is True
     assert hasattr(sl, 'holdings') is True
     assert hasattr(sl, 'instruments') is True

@@ -1,5 +1,5 @@
-# Get latest encrypted token from 
-git pull upstream master
+# Get latest encrypted token from remote repo
+git checkout upstream/master -- robinhood.pickle.gpg
 
 # Decrypt remote token
 scripts/decrypt.sh
