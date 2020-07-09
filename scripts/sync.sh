@@ -15,19 +15,19 @@ else
     echo Copied Robinhood OAuth token from Linux to Windows.
 fi
 
-# Update the token if necessary
-python scripts/login.py
+# # Update the token if necessary
+# python scripts/login.py
 
-# Copy Robinhood token to project dir
-cp "${DIR_WIN}${FILE}" ./
+# # Copy Robinhood token to project dir
+# cp "${DIR_WIN}${FILE}" ./
 
-# Load env vars
-set -a
-. ./.env
-set +a
+# # Load env vars
+# set -a
+# . ./.env
+# set +a
 
-# Encrypt token
-gpg --quiet --batch --yes --symmetric --cipher-algo AES256 --passphrase=${PASSWORD} ${FILE}
+# # Encrypt token
+# gpg --quiet --batch --yes --symmetric --cipher-algo AES256 --passphrase=${PASSWORD} ${FILE}
 
-# Remove token
-rm "${FILE}"
+# # Remove token
+# rm "${FILE}"

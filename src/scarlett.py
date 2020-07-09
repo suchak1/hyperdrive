@@ -79,8 +79,11 @@ class Scarlett:
         save_csv('data/data.csv', df)
         return df
 
-    def get_dividends(self):
-        # given a symbol
+    def get_dividends(self, symbol):
+        # given a symbol,
+        # return the dividend history
+        ticker = yf.Ticker(symbol)
+        return ticker.actions
 
     def load_portfolio(self):
         start = time.time()
@@ -94,10 +97,12 @@ class Scarlett:
 
         self.instruments = dict(zip(instruments, symbols))
         self.symbols = dict(map(reversed, self.instruments.items()))
+        print(self.symbols)
 
         # Get historical data for all instruments
         self.hist = self.get_hists(symbols)
         end = time.time()
         print(f'Successfully loaded portfolio in {round(end-start, 2)}s.')
 
-# Scarlett()
+
+# Scarlett().load_portfolio()
