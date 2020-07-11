@@ -79,10 +79,9 @@ class Scarlett:
         return [self.rh.get_symbol_by_url(instrument)
                 for instrument in instruments]
 
-    def get_hists(self, symbols, span='year'):
+    def get_hists(self, symbols, span='year', interval='day'):
         # given a list of symbols,
         # return a DataFrame with historical data
-        interval = 'day'
         hists = [self.rh.get_stock_historicals(
             symbol, interval, span) for symbol in symbols]
         clean = [hist for hist in hists if hist != [None]]

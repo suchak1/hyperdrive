@@ -101,7 +101,7 @@ def test_get_symbols():
 
 
 def test_get_hists():
-    df = sl.get_hists(exp_symbols)
+    df = sl.get_hists(exp_symbols, span='5year', interval='week')
     curr_year = datetime.today().year - 3
     ts = pd.Timestamp(curr_year, 1, 1, 12)
 
