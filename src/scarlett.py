@@ -124,6 +124,7 @@ class Scarlett:
         # Data acquisition
         self.positions = self.rh.get_all_positions()
         self.holdings = self.rh.build_holdings()
+        print(self.holdings)
 
         # Create lookup table instrument -> symbol and vice versa
         instruments = [position['instrument'] for position in self.positions]
