@@ -70,7 +70,7 @@ class Scarlett:
                 os.environ['PASSWORD'])
         self.rh = rh
 
-        if load == True:
+        if load is True:
             self.load_portfolio()
 
     def get_symbols(self, instruments):
@@ -87,7 +87,7 @@ class Scarlett:
             symbol, interval, span) for symbol in symbols]
         clean = [hist for hist in hists if hist != [None]]
         df = pd.DataFrame.from_records(flatten(clean))
-        # look into diff between tz_localize and tz_convert w param 'US/Eastern'
+        # look into diff b/w tz_localize and tz_convert w param 'US/Eastern'
         # ideally store utc time
         df['begins_at'] = pd.to_datetime(df['begins_at']).apply(
             lambda x: x.tz_localize(None))
