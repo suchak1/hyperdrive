@@ -47,8 +47,9 @@ jobs:
         run: scripts/encrypt.sh
 
       - name: Commit token
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v4.4.0
         with:
+          file_pattern: robinhood.pickle.gpg
           commit_message: "[AUTO] OAuth token refresh #patch"
           commit_user_name: suchak1
           commit_user_email: suchak.krish@gmail.com
