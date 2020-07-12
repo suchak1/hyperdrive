@@ -79,7 +79,7 @@ class Scarlett:
         return [self.rh.get_symbol_by_url(instrument)
                 for instrument in instruments]
 
-    def get_hists(self, symbols, span='year', interval='day'):
+    def get_hists(self, symbols, span='year', interval='day', save=False):
         # given a list of symbols,
         # return a DataFrame with historical data
         hists = [self.rh.get_stock_historicals(
@@ -91,7 +91,8 @@ class Scarlett:
         df['begins_at'] = pd.to_datetime(df['begins_at']).apply(
             lambda x: x.tz_localize(None))
         # df = df.sort_values('begins_at')
-        save_csv('data/data.csv', df)
+        if save is True:
+            save_csv('data/data.csv', df)
         return df
 
     def get_dividends(self, symbol):
@@ -138,4 +139,4 @@ class Scarlett:
         print(f'Successfully loaded portfolio in {round(end-start, 2)}s.')
 
 
-Scarlett(load=True).save_symbols()
+# Scarlett(load=True).save_symbols()
