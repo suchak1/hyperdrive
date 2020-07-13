@@ -6,10 +6,9 @@ name: Daily Update
 on:
   schedule:
     - cron: "0 0,12 * * *"
-
-  pull_request:
-    branches:
-      - master
+  # pull_request:
+  #   branches:
+  #     - master
 
 jobs:
   build:
