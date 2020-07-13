@@ -2,9 +2,7 @@
 | ------------------------------------- | ------------------------------------------------------- |
 
 
-| ![Build Pipeline](https://github.com/suchak1/scarlett/workflows/Build%20Pipeline/badge.svg) | ![Daily Update](https://github.com/suchak1/scarlett/workflows/Daily%20Update/badge.svg) |
-| ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-
+![Build Pipeline](https://github.com/suchak1/scarlett/workflows/Build%20Pipeline/badge.svg) ![Daily Update](https://github.com/suchak1/scarlett/workflows/Daily%20Update/badge.svg)
 
 #### Features:
 
