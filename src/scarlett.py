@@ -8,54 +8,86 @@ import pandas as pd
 import yfinance as yf
 
 
+# Classes:
+# DataReader, DataWriter, DataSourcer, Utilities/Helper, Broker, Backtester, Strategy
 # utils - move these to src/helpers.py and import *
 # scarlett should have attrs broker, datareader, engine, etc
 # broker has subclasses robinhood, td ameritrade, ibkr
-def flatten(xxs):
-    # flattens 2d list into 1d list
-    return [x for xs in xxs for x in xs]
 
 
-def save_json(filename, data):
-    # saves data as json file with provided filename
-    with open(filename, 'w') as file:
-        json.dump(data, file, indent=4)
+class DataReader:
+    def __init___(self, broker=None):
+        if broker:
+            self.broker = broker
+
+    def flatten(self, xxs):
+        # flattens 2d list into 1d list
+        return [x for xs in xxs for x in xs]
+
+    def load_json(self, filename):
+        # loads json file as dictionary data
+        with open(filename, 'r') as file:
+            return json.load(file)
+
+    def load_csv(self, filename):
+        # loads csv file as Dataframe
+        try:
+            df = pd.read_csv(filename)
+        except pd.errors.EmptyDataError:
+            # empty csv
+            print(f'{filename} is an empty csv file.')
+            df = pd.DataFrame()
+        return df
+
+    def check_update(self, filename, df):
+        # given a csv filename and dataframe
+        # return whether the csv needs to be updated
+        return (not os.path.exists(filename)
+                or len(self.load_csv(filename)) < len(df))
 
 
-def load_json(filename):
-    # loads json file as dictionary data
-    with open(filename, 'r') as file:
-        return json.load(file)
+class DataWriter:
+    def __init__(self):
+        pass
+
+    def save_json(self, filename, data):
+        # saves data as json file with provided filename
+        with open(filename, 'w') as file:
+            json.dump(data, file, indent=4)
+
+    def save_csv(self, filename, data):
+        # saves df as csv file with provided filename
+        with open(filename, 'w') as f:
+            data.to_csv(f, index=False)
+
+    def update_csv(self, filename, df):
+        # update csv if needed
+        if DataReader().check_update(filename, df):
+            self.save_csv(filename, df)
 
 
-def save_csv(filename, data):
-    # saves df as csv file with provided filename
-    with open(filename, 'w') as f:
-        data.to_csv(f, index=False)
+class Broker:
+    def __init__(self, broker):
+        self.broker = broker
 
+    def load_portfolio(self):
+        start = time.time()
+        # Data acquisition
+        self.positions = self.rh.get_all_positions()
+        self.holdings = self.rh.build_holdings()
+        # print(self.holdings)
 
-def check_update(filename, df):
-    # given a csv filename and dataframe
-    # return whether the csv needs to be updated
-    return (not os.path.exists(filename)
-            or len(load_csv(filename)) < len(df))
+        # Create lookup table instrument -> symbol and vice versa
+        instruments = [position['instrument'] for position in self.positions]
+        symbols = self.get_symbols(instruments)
 
+        self.instruments = dict(zip(instruments, symbols))
+        self.symbols = dict(map(reversed, self.instruments.items()))
 
-def update_csv(filename, df):
-    # update csv if needed
-    if check_update(filename, df):
-        save_csv(filename, df)
-
-
-def load_csv(filename):
-    # loads csv file as Dataframe
-    try:
-        df = pd.read_csv(filename)
-    except pd.errors.EmptyDataError:
-        # empty csv
-        print(f'{filename} is an empty csv file.')
-        df = pd.DataFrame()
-    return df
+        # Get historical data for all instruments
+        self.hist = self.get_hists(symbols)
+        end = time.time()
+        print(f'Successfully loaded portfolio in {round(end-start, 2)}s.')
 
 
 class Scarlett:
@@ -68,10 +100,12 @@ class Scarlett:
             rh.login(
                 os.environ['EMAIL'],
                 os.environ['PASSWORD'])
-        self.rh = rh
+        self.broker = Broker(rh)
+        self.reader = DataReader(rh)
+        self.writer = DataWriter()
 
         if load is True:
-            self.load_portfolio()
+            self.broker.load_portfolio()
 
     def get_symbols(self, instruments):
         # given a list of instruments,
@@ -115,28 +149,9 @@ class Scarlett:
         names = self.get_names(symbols)
         df = pd.DataFrame({
             'symbol': symbols,
-            'names': names
+            'name': names
         })
         update_csv('data/symbols.csv', df)
-
-    def load_portfolio(self):
-        start = time.time()
-        # Data acquisition
-        self.positions = self.rh.get_all_positions()
-        self.holdings = self.rh.build_holdings()
-        # print(self.holdings)
-
-        # Create lookup table instrument -> symbol and vice versa
-        instruments = [position['instrument'] for position in self.positions]
-        symbols = self.get_symbols(instruments)
-
-        self.instruments = dict(zip(instruments, symbols))
-        self.symbols = dict(map(reversed, self.instruments.items()))
-
-        # Get historical data for all instruments
-        self.hist = self.get_hists(symbols)
-        end = time.time()
-        print(f'Successfully loaded portfolio in {round(end-start, 2)}s.')
 
 
 # Scarlett(load=True).save_symbols()

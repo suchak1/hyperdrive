@@ -6,17 +6,20 @@
 
 #### Features:
 
-- [x] Automated token refresh
+- [x] Automated broker authentication (Robinhood OAuth token refresh)
 - [ ] Automated data storage
   - [ ] dividend
   - [ ] end of day
   - [ ] intraday
   - [ ] fundamentals (earnings)
+  - [ ] general volatility
+  - [ ] sector performance
   - [ ] news sentiment
 - [ ] Backtesting engine
+- [ ] Monte Carlo simulations
 - [ ] Plotting and technical analysis
 - [ ] Model training
-- [ ] Strategy definition
+- [ ] Strategy definition (start with buy and hold)
 - [ ] Buy and sell functionality
 - [ ] Live trading
 - [ ] Documentation
