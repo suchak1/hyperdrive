@@ -47,8 +47,9 @@ class DataReader:
 
 
 class DataWriter:
-    def __init__(self):
-        pass
+    def __init__(self, broker):
+        if broker:
+            self.broker = broker
 
     def save_json(self, filename, data):
         # saves data as json file with provided filename
@@ -67,14 +68,22 @@ class DataWriter:
 
 
 class Broker:
-    def __init__(self, broker):
-        self.broker = broker
+    def __init__(self, usr=None, pwd=None, load=False):
+        # Authentication
+        if usr and pwd:
+            rh.login(usr, pwd)
+        else:
+            load_dotenv()
+            rh.login(
+                os.environ['EMAIL'],
+                os.environ['PASSWORD'])
+        self.api = rh
 
     def load_portfolio(self):
         start = time.time()
         # Data acquisition
-        self.positions = self.rh.get_all_positions()
-        self.holdings = self.rh.build_holdings()
+        self.positions = self.api.get_all_positions()
+        self.holdings = self.api.build_holdings()
         # print(self.holdings)
 
         # Create lookup table instrument -> symbol and vice versa
@@ -91,18 +100,11 @@ class Broker:
 
 
 class Scarlett:
-    def __init__(self, usr=None, pwd=None, load=False):
-        # Authentication
-        if usr and pwd:
-            rh.login(usr, pwd)
-        else:
-            load_dotenv()
-            rh.login(
-                os.environ['EMAIL'],
-                os.environ['PASSWORD'])
-        self.broker = Broker(rh)
-        self.reader = DataReader(rh)
-        self.writer = DataWriter()
+    def __init__(self):
+
+        self.broker = Broker()
+        self.reader = DataReader(self.broker)
+        self.writer = DataWriter(self.broker)
 
         if load is True:
             self.broker.load_portfolio()
