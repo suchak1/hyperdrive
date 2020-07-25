@@ -26,8 +26,8 @@ fi
 # . ./.env
 # set +a
 
-# # Encrypt token
-# gpg --quiet --batch --yes --symmetric --cipher-algo AES256 --passphrase=${PASSWORD} ${FILE}
+# Encrypt token
+gpg --quiet --batch --yes --symmetric --cipher-algo AES256 --passphrase=${RH_PASSWORD} ${FILE}
 
 # # Remove token
 # rm "${FILE}"

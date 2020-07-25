@@ -5,7 +5,7 @@ name: Daily Update
 
 on:
   schedule:
-    - cron: "0 0,12 * * *"
+    - cron: "0 0 * * *"
   # pull_request:
   #   branches:
   #     - master
@@ -15,7 +15,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repo
+        uses: actions/checkout@v2
         with:
           ref: ${{ github.head_ref }}
 
@@ -29,28 +30,17 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Decrypt token
+      - name: Login / Auth
         env:
-          PASSWORD: ${{ secrets.PASSWORD }}
-        run: scripts/decrypt.sh
-
-      - name: Update token
-        env:
-          EMAIL: ${{ secrets.EMAIL }}
-          PASSWORD: ${{ secrets.PASSWORD }}
+          RH_USERNAME: ${{ secrets.RH_USERNAME }}
+          RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
+          RH_2FA: ${{ secrets.RH_2FA }}
         run: python scripts/login.py
-
-      - name: Encrypt token
-        env:
-          PASSWORD: ${{ secrets.PASSWORD }}
-        run: scripts/encrypt.sh
-
-      - name: Commit token
-        uses: stefanzweifel/git-auto-commit-action@v4.4.0
-        with:
-          file_pattern: robinhood.pickle.gpg
-          commit_message: "[AUTO] OAuth token refresh #patch"
-          commit_user_name: suchak1
-          commit_user_email: suchak.krish@gmail.com
-          commit_author: Krish Suchak
-          push_options: "--force"
+      # - name: Commit token
+      #   uses: stefanzweifel/git-auto-commit-action@v4
+      #   with:
+      #     commit_message: "[AUTO] OAuth token refresh #patch"
+      #     commit_user_name: suchak1
+      #     commit_user_RH_USERNAME: suchak.krish@gmail.com
+      #     commit_author: Krish Suchak
+      #     push_options: "--force"
