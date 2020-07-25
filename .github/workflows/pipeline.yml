@@ -14,7 +14,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repo
+        uses: actions/checkout@v2
 
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
@@ -34,15 +35,11 @@ jobs:
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
 
-      - name: Decrypt token
-        env:
-          PASSWORD: ${{ secrets.PASSWORD }}
-        run: scripts/decrypt.sh
-
       - name: Run all unit tests
         env:
-          EMAIL: ${{ secrets.EMAIL }}
-          PASSWORD: ${{ secrets.PASSWORD }}
+          RH_USERNAME: ${{ secrets.RH_USERNAME }}
+          RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
+          RH_2FA: ${{ secrets.RH_2FA }}
         run: coverage run -m pytest -vv
 
       - name: Generate test coverage report
