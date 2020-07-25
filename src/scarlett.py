@@ -26,15 +26,15 @@ def load_file(filename):
 
 
 class Scarlett:
-    def __init__(self, usr=None, pwd=None):
+    def __init__(self, usr=None, pwd=None, mfa=None):
         # Authentication
-        if usr and pwd:
-            rh.login(usr, pwd)
-        else:
-            load_dotenv()
-            rh.login(
-                os.environ['EMAIL'],
-                os.environ['PASSWORD'])
+        load_dotenv()
+
+        username = usr or os.environ['RH_USERNAME']
+        password = pwd or os.environ['RH_PASSWORD']
+        mfa_code = mfa or os.environ['RH_2FA']
+
+        rh.login(username, password, mfa_code=mfa_code)
         self.rh = rh
 
     def get_symbols(self, instruments):

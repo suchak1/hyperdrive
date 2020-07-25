@@ -28,18 +28,18 @@ jobs:
 
       - name: Decrypt token
         env:
-          PASSWORD: ${{ secrets.PASSWORD }}
+          RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
         run: scripts/decrypt.sh
 
       - name: Update token
         env:
-          EMAIL: ${{ secrets.EMAIL }}
-          PASSWORD: ${{ secrets.PASSWORD }}
+          RH_USERNAME: ${{ secrets.RH_USERNAME }}
+          RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
         run: python scripts/login.py
 
       - name: Encrypt token
         env:
-          PASSWORD: ${{ secrets.PASSWORD }}
+          RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
         run: scripts/encrypt.sh
 
       - name: Commit token
@@ -47,6 +47,6 @@ jobs:
         with:
           commit_message: "[AUTO] OAuth token refresh #patch"
           commit_user_name: suchak1
-          commit_user_email: suchak.krish@gmail.com
+          commit_user_RH_USERNAME: suchak.krish@gmail.com
           commit_author: Krish Suchak
           push_options: "--force"
