@@ -9,17 +9,17 @@ import yfinance as yf
 
 
 # Classes:
-# DataReader, DataWriter, DataSourcer, Utilities/Helper, Broker, Backtester, Strategy
+# consider combining fileoperations into one class
+# difference between broker and market data class?
+# MAKE market data class (broker=None): if broker, then use broker.get_hist else use default get_hist (tiingo?)
+# FileReader, FileWriter, DataSourcer, Utilities/Helper, Broker, Backtester, Strategy
 # utils - move these to src/helpers.py and import *
-# scarlett should have attrs broker, datareader, engine, etc
+# scarlett should have attrs broker, FileReader, engine, etc
 # broker has subclasses robinhood, td ameritrade, ibkr
 
 
-class DataReader:
-    def __init___(self, broker=None):
-        if broker:
-            self.broker = broker
-
+class FileReader:
+    # file read operations
     def flatten(self, xxs):
         # flattens 2d list into 1d list
         return [x for xs in xxs for x in xs]
@@ -46,11 +46,8 @@ class DataReader:
                 or len(self.load_csv(filename)) < len(df))
 
 
-class DataWriter:
-    def __init__(self, broker):
-        if broker:
-            self.broker = broker
-
+class FileWriter:
+    # file write operations
     def save_json(self, filename, data):
         # saves data as json file with provided filename
         with open(filename, 'w') as file:
@@ -63,11 +60,17 @@ class DataWriter:
 
     def update_csv(self, filename, df):
         # update csv if needed
-        if DataReader().check_update(filename, df):
+        if FileReader().check_update(filename, df):
             self.save_csv(filename, df)
 
 
 class Broker:
+    # Broker (ie Robinhood, TD Ameritrade, or IBKR
+    def __init__(self):
+
+
+class Robinhood:
+    # broker operation
     def __init__(self, usr=None, pwd=None, mfa=None):
         # Authentication
         load_dotenv()
@@ -103,8 +106,8 @@ class Scarlett:
     def __init__(self):
 
         self.broker = Broker()
-        self.reader = DataReader(self.broker)
-        self.writer = DataWriter(self.broker)
+        self.reader = FileReader()
+        self.writer = FileWriter()
 
         if load is True:
             self.broker.load_portfolio()
