@@ -21,6 +21,7 @@ class Robinhood:
 
         rh.login(username, password, mfa_code=mfa_code)
         self.api = rh
+        self.writer = FileWriter()
 
     def get_symbols_from_instruments(self, instruments):
         # given a list of instruments,
@@ -45,7 +46,7 @@ class Robinhood:
             lambda x: x.tz_localize(None))
         # df = df.sort_values('begins_at')
         if save is True:
-            FileWriter().save_csv('data/data.csv', df)
+            self.writer.save_csv('data/data.csv', df)
         return df
 
     def get_names(self, symbols):
@@ -64,7 +65,7 @@ class Robinhood:
             'symbol': symbols,
             'name': names
         })
-        FileWriter().update_csv('data/symbols.csv', df)
+        self.writer.update_csv('data/symbols.csv', df)
 
     def load_portfolio(self):
         start = time.time()

@@ -1,5 +1,4 @@
-symbol,names
-GRPN,Groupon
+symbol,name
 DIS,Disney
 TSLA,Tesla
 AMZN,Amazon
@@ -81,8 +80,8 @@ RCL,Royal Caribbean
 RTX,Raytheon Technologies
 XOM,Exxon Mobil
 ARNC,Arconic
-MNR,Monmouth Real Estate Investment
 O,Realty Income
+MNR,Monmouth Real Estate Investment
 ENB,Enbridge
 VSLR,Vivint Solar
 SEAS,SeaWorld
@@ -122,7 +121,6 @@ LYV,Live Nation
 GLD,SPDR Gold Trust
 DE,Deere
 FANG,Diamondback Energy
-MTCH,Match
 CHGG,Chegg
 ETSY,Etsy
 ENPH,Enphase Energy
@@ -162,16 +160,7 @@ CVX,Chevron
 TXN,Texas Instruments
 DUK,Duke Energy
 PENN,Penn National Gaming
-FOXA,Fox (Class A)
-GOOG,Alphabet Class C
-HWM,Howmet Aerospace
-OTIS,Otis Worldwide
-CARR,Carrier Global
-DWDP,
-CTVA,Corteva
 DD,Dupont De Nemours
-TFCF,
-SPAR,
 MYOK,MyoKardia
 SHECY,Shin-Etsu Chemical
 CLX,Clorox
@@ -192,15 +181,52 @@ FIT,Fitbit
 COF,Capital One
 DDOG,Datadog
 NET,Cloudflare
-TMUSR,"T-Mobile US, Inc. Subscription Rights Expiring 7/27/2020"
+MTCH,Match
 STX,Seagate Technology
 MCHP,Microchip Technology
 GILD,Gilead Sciences
 CMCSA,Comcast
-D,Dominion Energy
 NDAQ,Nasdaq
+D,Dominion Energy
 AKAM,Akamai
 BRK.B,Berkshire Hathaway
 MDB,MongoDB
 ESS,Essex Property Trust
 NIO,NIO
+ADBE,Adobe
+REGN,Regeneron
+AMGN,Amgen
+VRSN,VeriSign
+KLAC,KLA
+WWE,WWE
+TMO,Thermo Fisher Scientific
+COST,Costco
+QQQ,PowerShares QQQ
+VRTX,Vertex Pharmaceuticals
+SPY,SPDR S&P 500 ETF
+LIN,Linde
+UNP,Union Pacific
+UNH,UnitedHealth
+CP,Canadian Pacific Railway
+MMM,3M
+UL,Unilever
+AMD,AMD
+TSM,Taiwan Semiconductor Manufacturing
+V,Visa
+MA,Mastercard
+MRK,Merck
+FCAU,Fiat Chrysler Automobiles
+INTC,Intel
+FMC,FMC
+LTHM,Livent
+DELL,Dell
+GRPN,Groupon
+FOXA,Fox (Class A)
+GOOG,Alphabet Class C
+HWM,Howmet Aerospace
+OTIS,Otis Worldwide
+CARR,Carrier Global
+DWDP,
+CTVA,Corteva
+TFCF,
+SPAR,
