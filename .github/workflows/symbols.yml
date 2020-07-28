@@ -6,9 +6,6 @@ name: Symbol Update
 on:
   schedule:
     - cron: "0 0 * * *"
-  pull_request:
-    branches:
-      - master
 
 jobs:
   build:
@@ -40,8 +37,9 @@ jobs:
       - name: Commit new file(s)
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
+          file_pattern: data/symbols.csv
           commit_message: "[AUTO] Symbol update #patch"
           commit_user_name: suchak1
-          commit_user_RH_USERNAME: suchak.krish@gmail.com
+          commit_user_email: suchak.krish@gmail.com
           commit_author: Krish Suchak
           push_options: "--force"
