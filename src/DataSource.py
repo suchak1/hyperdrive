@@ -20,7 +20,9 @@ class MarketData:
         df = self.get_splits(symbol)
         self.writer.update_csv(f'data/splits/{symbol.upper()}.csv', df)
 
-# make tiingo OR IEX CLOUD!! version of get dividends which fetches existing dividend csv and adds a row if dividend today or fetches last 5 years, joins with existing and updates if new
+# make tiingo OR IEX CLOUD!! version of get dividends which
+# fetches existing dividend csv and adds a row if dividend
+# today or fetches last 5 years, joins with existing and updates if new
 
 
 class BrokerData(MarketData):

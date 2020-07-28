@@ -1,0 +1,46 @@
+# This workflow will automatically update data files
+# For more information see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#scheduled-events-schedule
+
+name: Dividend Update
+
+on:
+  schedule:
+    - cron: "30 22 * * *"
+    # 6:30pm EST
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Update dividends
+        env:
+          RH_USERNAME: ${{ secrets.RH_USERNAME }}
+          RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
+          RH_2FA: ${{ secrets.RH_2FA }}
+        run: python scripts/dividends/primary.py
+
+      - name: Commit new file(s)
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          file_pattern: data/dividends/*.csv
+          commit_message: "[AUTO] Dividend update #patch"
+          commit_user_name: suchak1
+          commit_user_email: suchak.krish@gmail.com
+          commit_author: Krish Suchak
+          push_options: "--force"

@@ -1,11 +1,12 @@
-# This workflow will automatically update an old Robinhood OAuth token with a new one if necessary
+# This workflow will automatically update data files
 # For more information see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#scheduled-events-schedule
 
 name: Symbol Update
 
 on:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "0 22 * * *"
+    # 6pm EST
 
 jobs:
   build:
