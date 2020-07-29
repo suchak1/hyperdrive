@@ -38,7 +38,7 @@ To make a script, create a new .py file in the `scripts/` dir with the following
 ```
 import sys
 sys.path.append('src')
-from scarlett import Scarlett  # noqa autopep8
+from Algotrader import Scarlett  # noqa autopep8
 
 sl = Scarlett()
 ```

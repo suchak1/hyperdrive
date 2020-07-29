@@ -1,5 +1,5 @@
 import yfinance as yf
-from FileOps import FileWriter
+from FileOps import FileReader, FileWriter
 
 # MAKE market data class (broker=None):
 # if broker, then use broker.get_hist else use default get_hist (tiingo?)
@@ -9,6 +9,10 @@ class MarketData:
     # all tiingo OR IEX CLOUD functions in here
     def __init__(self):
         self.writer = FileWriter()
+        self.reader = FileReader()
+
+    def get_symbols(self):
+        return list(self.reader.load_csv('data/symbols.csv')['symbol'])
 
     def save_dividends(self, symbol):
         # given a symbol, save its dividend history
@@ -26,7 +30,7 @@ class MarketData:
 
 
 class BrokerData(MarketData):
-    def __init__(self, broker):
+    def __init__(self, broker=None):
         super().__init__()
         self.broker = broker
 
@@ -37,6 +41,7 @@ class BrokerData(MarketData):
             'Stock Splits',
             axis=1
         )
+        df = df[df['Dividends'] != 0]
         return df
 
     def get_splits(self, symbol):
@@ -46,4 +51,5 @@ class BrokerData(MarketData):
             'Dividends',
             axis=1
         )
+        df = df[df['Stock Splits'] != 0]
         return df

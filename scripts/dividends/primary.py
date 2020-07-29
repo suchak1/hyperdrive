@@ -1,13 +1,14 @@
 import sys
 from multiprocessing import Pool
 sys.path.append('src')
-from DataSource import BrokerData  # noqa autopep8
+from DataSource import MarketData, BrokerData  # noqa autopep8
 from FileOps import FileReader  # noqa autopep8
 
+md = MarketData()
 bd = BrokerData(None)
 reader = FileReader()
 
-symbols = list(reader.load_csv('data/symbols.csv')['symbol'])
+symbols = md.get_symbols()
 
 
 def save_dividend(symbol):

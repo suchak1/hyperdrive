@@ -3,7 +3,7 @@ import sys
 import pandas as pd
 from datetime import datetime
 sys.path.append('src')
-from scarlett import \
+from Algotrader import \
     flatten, save_json, load_json, save_csv, load_csv, Scarlett  # noqa autopep8
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
