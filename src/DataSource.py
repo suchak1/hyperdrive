@@ -32,7 +32,7 @@ class BrokerData(MarketData):
 
     def get_dividends(self, symbol):
         # given a symbol, return the dividend history
-        ticker = yf.Ticker(symbol)
+        ticker = yf.Ticker(symbol.replace('.', '-'))
         df = ticker.actions.reset_index().drop(
             'Stock Splits',
             axis=1
@@ -41,7 +41,7 @@ class BrokerData(MarketData):
 
     def get_splits(self, symbol):
         # given a symbol, return the stock splits
-        ticker = yf.Ticker(symbol)
+        ticker = yf.Ticker(symbol.replace('.', '-'))
         df = ticker.actions.reset_index().drop(
             'Dividends',
             axis=1
