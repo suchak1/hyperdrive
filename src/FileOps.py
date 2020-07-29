@@ -26,7 +26,7 @@ class FileReader:
     def check_update(self, filename, df):
         # given a csv filename and dataframe
         # return whether the csv needs to be updated
-        return (len(self.load_csv(filename)) > len(df)
+        return (len(df) >= len(self.load_csv(filename))
                 if os.path.exists(filename) else len(df) > 0)
 
 

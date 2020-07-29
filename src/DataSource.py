@@ -1,3 +1,5 @@
+import os
+import pandas as pd
 import yfinance as yf
 from FileOps import FileReader, FileWriter
 
@@ -37,11 +39,19 @@ class BrokerData(MarketData):
     def get_dividends(self, symbol):
         # given a symbol, return the dividend history
         ticker = yf.Ticker(symbol.replace('.', '-'))
-        df = ticker.actions.reset_index().drop(
+        new = ticker.actions.reset_index().drop(
             'Stock Splits',
             axis=1
         )
-        df = df[df['Dividends'] != 0]
+
+        filename = f'data/dividends/{symbol.upper()}.csv'
+        if os.path.exists(filename):
+            old = self.reader.load_csv(filename)
+            old['Date'] = pd.to_datetime(old['Date'])
+            old = old[~old['Date'].isin(new['Date'])]
+            new = old.append(new, ignore_index=True)
+
+        df = new[new['Dividends'] != 0].sort_values(by=['Date'])
         return df
 
     def get_splits(self, symbol):
