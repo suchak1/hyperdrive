@@ -14,7 +14,11 @@ class MarketData:
         self.reader = FileReader()
 
     def get_symbols(self):
+        # get cached list of symbols
         return list(self.reader.load_csv('data/symbols.csv')['symbol'])
+
+    def get_dividends(self, symbol):
+        pass
 
     def save_dividends(self, symbol):
         # given a symbol, save its dividend history
