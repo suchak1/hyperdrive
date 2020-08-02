@@ -67,17 +67,26 @@ class IEXCloud(MarketData):
             timeframe
         ]
         endpoint = self.get_endpoint(parts)
-        response = requests.get(endpoint)
+        # response = requests.get(endpoint)
         empty = pd.DataFrame()
 
-        if response.ok:
-            data = [datum for datum in response.json() if datum['flag']
-                    == 'Cash' and datum['currency'] == 'USD']
-            self.writer.save_json(f'data/{symbol}.json', data)
-        else:
-            print(f'Invalid response from IEX for {symbol} dividends.')
+        # if response.ok:
+        #     data = [datum for datum in response.json() if datum['flag']
+        #             == 'Cash' and datum['currency'] == 'USD']
+        #     self.writer.save_json(f'data/{symbol}.json', data)
+        # else:
+        #     print(f'Invalid response from IEX for {symbol} dividends.')
 
-        if not response or data == []:
+        try:
+            data = self.reader.load_json(f'data/{symbol}.json')
+        except:
+            return empty
+
+        # if not response or data == []:
+        #     return empty
+
+# delete this
+        if data == []:
             return empty
 
         columns = ['exDate', 'paymentDate', 'declaredDate', 'amount']
@@ -85,9 +94,14 @@ class IEXCloud(MarketData):
         df = pd.DataFrame(data)[columns].rename(columns=mapping)
 
         filename = get_dividends_path(symbol)
-        df = self.reader.update_df(
-            filename, df, C.EX, {C.EX: pd.to_datetime}).sort_values(by=[C.EX])
-        df[C.DIV] = pd.to_numeric(df[C.DIV], errors='ignore')
+        df = self.reader.update_df(filename, df, C.EX)
+        df = df.sort_values(by=[C.EX])
+        try:
+            df[C.DIV] = df[C.DIV].apply(lambda amt: float(amt) if amt else 0)
+        except:
+            print(symbol)
+            print(df)
+            raise Exception()
         return df
 
     # def get_splits(self, symbol):

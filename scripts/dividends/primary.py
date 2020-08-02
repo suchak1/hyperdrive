@@ -6,6 +6,7 @@ from DataSource import IEXCloud  # noqa autopep8
 
 iex = IEXCloud()
 symbols = iex.get_symbols()
+# symbols = ['NTDOY']
 
 
 def multi_div(symbol):
