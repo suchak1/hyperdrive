@@ -1,3 +1,4 @@
+import os
 import sys
 import pandas as pd
 from datetime import datetime
@@ -42,3 +43,17 @@ class TestScarlett:
         for symbol in exp_symbols:
             assert len(df[df['symbol'] == symbol]) > 100
             assert len(df[df['begins_at'] < ts]) > 0
+
+    def test_get_names(self):
+        assert sl.get_names([]) == []
+        assert sl.get_names(exp_symbols) == ['Apple', 'Facebook', 'Disney']
+
+    def test_save_symbols(self):
+        symbols_path = sl.finder.get_symbols_path()
+        test_path = f'{symbols_path}_TEST'
+        os.rename(symbols_path, test_path)
+        assert os.path.exists(symbols_path) is False
+        sl.save_symbols()
+        assert os.path.exists(symbols_path) is True
+        os.remove(symbols_path)
+        os.rename(test_path, symbols_path)

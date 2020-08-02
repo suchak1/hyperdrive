@@ -4,6 +4,7 @@ import pyotp
 import robin_stocks as rh
 from dotenv import load_dotenv
 import pandas as pd
+from Constants import PathFinder
 import Constants as C
 from FileOps import FileWriter
 
@@ -23,6 +24,7 @@ class Robinhood:
         rh.login(username, password, mfa_code=mfa_code)
         self.api = rh
         self.writer = FileWriter()
+        self.finder = PathFinder()
 
     def get_symbols_from_instruments(self, instruments):
         # given a list of instruments,
@@ -66,7 +68,7 @@ class Robinhood:
             C.SYMBOL: symbols,
             C.NAME: names
         })
-        self.writer.update_csv('data/symbols.csv', df)
+        self.writer.update_csv(self.finder.get_symbols_path(), df)
 
     def load_portfolio(self):
         start = time.time()

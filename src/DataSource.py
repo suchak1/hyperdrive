@@ -28,7 +28,7 @@ class MarketData:
     def save_dividends(self, symbol):
         # given a symbol, save its dividend history
         df = self.get_dividends(symbol)
-        self.writer.update_csv(f'data/dividends/{symbol.upper()}.csv', df)
+        self.writer.update_csv(self.finder.get_dividends_path(symbol), df)
 
     # def save_splits(self, symbol):
     #     # given a symbol, save its stock split history
@@ -74,7 +74,7 @@ class IEXCloud(MarketData):
         if response.ok:
             data = [datum for datum in response.json() if datum['flag']
                     == 'Cash' and datum['currency'] == 'USD']
-            self.writer.save_json(f'data/{symbol}.json', data)
+            # self.writer.save_json(f'data/{symbol}.json', data)
         else:
             print(f'Invalid response from IEX for {symbol} dividends.')
 
