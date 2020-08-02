@@ -1,18 +1,16 @@
 import sys
 from multiprocessing import Pool
 sys.path.append('src')
-from DataSource import BrokerData  # noqa autopep8
+from DataSource import IEXCloud  # noqa autopep8
 
 
-bd = BrokerData(None)
-symbols = bd.get_symbols()
+iex = IEXCloud()
+symbols = iex.get_symbols()
+symbols = ['RDS.B']
 
 
 def multi_div(symbol):
-    try:
-        bd.save_dividends(symbol)
-    except:
-        pass
+    iex.save_dividends(symbol)
 
 
 with Pool() as p:
