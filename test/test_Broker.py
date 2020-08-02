@@ -5,38 +5,38 @@ from datetime import datetime
 sys.path.append('src')
 from Algotrader import Scarlett  # noqa autopep8
 
-sl = Scarlett()
+rh = Robinhood()
 exp_symbols = ['AAPL', 'FB', 'DIS']
 
 
-class TestScarlett:
+class TestRobinhood:
     def test_init(self):
-        assert hasattr(sl, 'api') is True
+        assert hasattr(rh, 'api') is True
 
     def test_flatten(self):
         # empty case
-        assert sl.flatten([[]]) == []
+        assert rh.flatten([[]]) == []
         # outer list length 1
-        assert sl.flatten([[1, 2]]) == [1, 2]
+        assert rh.flatten([[1, 2]]) == [1, 2]
         # outer list length 2
-        assert sl.flatten([[1, 2], [3, 4]]) == [1, 2, 3, 4]
+        assert rh.flatten([[1, 2], [3, 4]]) == [1, 2, 3, 4]
 
     def test_load_portfolio(self):
-        sl.load_portfolio()
-        assert hasattr(sl, 'positions') is True
-        assert hasattr(sl, 'holdings') is True
-        assert hasattr(sl, 'instruments') is True
-        assert hasattr(sl, 'symbols') is True
-        assert hasattr(sl, 'hist') is True
+        rh.load_portfolio()
+        assert hasattr(rh, 'positions') is True
+        assert hasattr(rh, 'holdings') is True
+        assert hasattr(rh, 'instruments') is True
+        assert hasattr(rh, 'symbols') is True
+        assert hasattr(rh, 'hist') is True
 
     def test_get_symbols_from_instruments(self):
-        instruments = list(sl.instruments)
-        symbols = set(sl.get_symbols_from_instruments(instruments))
+        instruments = list(rh.instruments)
+        symbols = set(rh.get_symbols_from_instruments(instruments))
         for symbol in exp_symbols:
             assert symbol in symbols
 
     def test_get_hists(self):
-        df = sl.get_hists(exp_symbols, span='5year', interval='week')
+        df = rh.get_hists(exp_symbols, span='5year', interval='week')
         curr_year = datetime.today().year - 3
         ts = pd.Timestamp(curr_year, 1, 1, 12)
 
@@ -45,15 +45,15 @@ class TestScarlett:
             assert len(df[df['begins_at'] < ts]) > 0
 
     def test_get_names(self):
-        assert sl.get_names([]) == []
-        assert sl.get_names(exp_symbols) == ['Apple', 'Facebook', 'Disney']
+        assert rh.get_names([]) == []
+        assert rh.get_names(exp_symbols) == ['Apple', 'Facebook', 'Disney']
 
     def test_save_symbols(self):
-        symbols_path = sl.finder.get_symbols_path()
+        symbols_path = rh.finder.get_symbols_path()
         test_path = f'{symbols_path}_TEST'
         os.rename(symbols_path, test_path)
         assert os.path.exists(symbols_path) is False
-        sl.save_symbols()
+        rh.save_symbols()
         assert os.path.exists(symbols_path) is True
         os.remove(symbols_path)
         os.rename(test_path, symbols_path)
