@@ -3,7 +3,7 @@ import sys
 import pandas as pd
 from datetime import datetime
 sys.path.append('src')
-from Algotrader import Scarlett  # noqa autopep8
+from Broker import Robinhood  # noqa autopep8
 
 rh = Robinhood()
 exp_symbols = ['AAPL', 'FB', 'DIS']
