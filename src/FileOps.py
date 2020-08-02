@@ -29,6 +29,18 @@ class FileReader:
         return (len(df) >= len(self.load_csv(filename))
                 if os.path.exists(filename) else len(df) > 0)
 
+    def update_df(self, filename, new, column, mapper=None):
+        if os.path.exists(filename):
+            old = self.load_csv(filename)
+            if mapper:
+                for col, fx in mapper.items():
+                    old[col] = fx(old[col])
+                    new[col] = fx(old[col])
+            old = old[~old[column].isin(new[column])]
+            new = old.append(new, ignore_index=True)
+
+        return new
+
 
 class FileWriter:
     # file write operations

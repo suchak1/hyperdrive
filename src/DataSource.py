@@ -82,17 +82,12 @@ class IEXCloud(MarketData):
 
         columns = ['exDate', 'paymentDate', 'declaredDate', 'amount']
         mapping = dict(zip(columns, [C.EX, C.PAY, C.DEC, C.DIV]))
-        new = pd.DataFrame(data)[columns].rename(columns=mapping)
+        df = pd.DataFrame(data)[columns].rename(columns=mapping)
 
         filename = get_dividends_path(symbol)
-        if os.path.exists(filename):
-            old = self.reader.load_csv(filename)
-            old[C.EX] = pd.to_datetime(old[C.EX])
-            old = old[~old[C.EX].isin(new[C.EX])]
-            new = old.append(new, ignore_index=True)
-
-        new[C.EX] = pd.to_datetime(new[C.EX])
-        df = new.sort_values(by=[C.EX])
+        df = self.reader.update_df(
+            filename, df, C.EX, {C.EX: pd.to_datetime}).sort_values(by=[C.EX])
+        df[C.DIV] = pd.to_numeric(df[C.DIV], errors='ignore')
         return df
 
     # def get_splits(self, symbol):
