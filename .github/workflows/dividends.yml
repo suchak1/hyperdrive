@@ -5,8 +5,8 @@ name: Dividend Update
 
 on:
   schedule:
-    - cron: "30 22 * * *"
-    # 6:30pm EST
+    - cron: "0 12 1 * *"
+    # 8am EST
 
 jobs:
   build:
@@ -30,9 +30,10 @@ jobs:
 
       - name: Update dividends
         env:
-          RH_USERNAME: ${{ secrets.RH_USERNAME }}
-          RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
-          RH_2FA: ${{ secrets.RH_2FA }}
+          # RH_USERNAME: ${{ secrets.RH_USERNAME }}
+          # RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
+          # RH_2FA: ${{ secrets.RH_2FA }}
+          IEXCLOUD: ${{ secrets.IEXCLOUD }}
         run: python scripts/dividends/primary.py
 
       - name: Commit new file(s)

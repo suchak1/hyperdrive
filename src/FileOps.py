@@ -7,7 +7,6 @@ import pandas as pd
 
 class FileReader:
     # file read operations
-
     def load_json(self, filename):
         # loads json file as dictionary data
         with open(filename, 'r') as file:
@@ -57,3 +56,6 @@ class FileWriter:
         # update csv if needed
         if FileReader().check_update(filename, df):
             self.save_csv(filename, df)
+
+# add function that takes in a Constants directory, old to new column mapping
+# and renames the cols using df.rename(columns=mapping) for all csvs in the dir
