@@ -34,7 +34,7 @@ jobs:
           # RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
           # RH_2FA: ${{ secrets.RH_2FA }}
           IEXCLOUD: ${{ secrets.IEXCLOUD }}
-        run: python scripts/dividends/primary.py
+        run: python scripts/dividends.py
 
       - name: Commit new file(s)
         uses: stefanzweifel/git-auto-commit-action@v4

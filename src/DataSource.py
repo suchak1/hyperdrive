@@ -19,7 +19,7 @@ class MarketData:
     def get_symbols(self):
         # get cached list of symbols
         symbols_path = self.finder.get_symbols_path()
-        return list(self.reader.load_csv(symbols_path)['symbol'])
+        return list(self.reader.load_csv(symbols_path)[C.SYMBOL])
 
     def get_dividends(self, symbol):
         # given a symbol, return a cached dataframe

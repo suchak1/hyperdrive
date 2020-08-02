@@ -4,6 +4,7 @@ import pyotp
 import robin_stocks as rh
 from dotenv import load_dotenv
 import pandas as pd
+import Constants as C
 from FileOps import FileWriter
 
 # broker has subclasses robinhood, td ameritrade, ibkr
@@ -62,8 +63,8 @@ class Robinhood:
         symbols = list(self.symbols)
         names = self.get_names(symbols)
         df = pd.DataFrame({
-            'symbol': symbols,
-            'name': names
+            C.SYMBOL: symbols,
+            C.NAME: names
         })
         self.writer.update_csv('data/symbols.csv', df)
 
