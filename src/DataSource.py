@@ -78,7 +78,7 @@ class IEXCloud(MarketData):
         else:
             print(f'Invalid response from IEX for {symbol} dividends.')
 
-        if not response or data == []:
+        if not response.ok or data == []:
             return empty
 
         columns = ['exDate', 'paymentDate', 'declaredDate', 'amount']
