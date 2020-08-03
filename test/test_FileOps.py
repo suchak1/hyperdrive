@@ -13,23 +13,30 @@ data = [
     {
         'symbol': 'AMZN',
         'open': 2400.85,
-        'volume': 402265
+        'volume': 402265,
+        'date': '2020-12-25'
     },
     {
         'symbol': 'AAPL',
         'open': 300.90,
-        'volume': 502265
-
+        'volume': 502265,
+        'date': '2015-01-15'
     }
 ]
+snippet = {
+    'symbol': 'NVDA',
+    'open': 445.00,
+    'volume': 102265,
+    'date': '2015-01-15'
+}
 data_ = data[:]
-data_.append(data[0])
+data_.append(snippet)
 
 csv_path1 = os.path.join(dir_path, 'test1.csv')
 csv_path2 = os.path.join(dir_path, 'test2.csv')
 test_df = pd.DataFrame(data)
 big_df = pd.DataFrame(data_)
-small_df = pd.DataFrame([data[0]])
+small_df = pd.DataFrame([snippet])
 empty_df = pd.DataFrame()
 
 reader = FileReader()
@@ -98,4 +105,5 @@ class TestFileReader:
         assert reader.check_update(csv_path2, big_df) is True
 
     def test_update_df(self):
-        pass
+        assert reader.update_df(csv_path2, test_df, 'date').equals(test_df)
+        assert reader.update_df(csv_path2, big_df, 'date').equals(big_df)
