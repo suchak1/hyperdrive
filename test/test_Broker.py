@@ -11,6 +11,7 @@ exp_symbols = ['AAPL', 'FB', 'DIS']
 
 class TestRobinhood:
     def test_init(self):
+        assert type(rh).__name__ == 'Robinhood'
         assert hasattr(rh, 'api') is True
 
     def test_flatten(self):

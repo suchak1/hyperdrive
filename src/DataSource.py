@@ -21,13 +21,16 @@ class MarketData:
         symbols_path = self.finder.get_symbols_path()
         return list(self.reader.load_csv(symbols_path)[C.SYMBOL])
 
-    def get_dividends(self, symbol):
+    def get_dividends(self, symbol, timeframe=None):
         # given a symbol, return a cached dataframe
         return self.reader.load_csv(self.finder.get_dividends_path(symbol))
 
-    def save_dividends(self, symbol):
+    def save_dividends(self, symbol, timeframe=None):
         # given a symbol, save its dividend history
-        df = self.get_dividends(symbol)
+        if timeframe:
+            df = self.get_dividends(symbol, timeframe)
+        else:
+            df = self.get_dividends(symbol)
         self.writer.update_csv(self.finder.get_dividends_path(symbol), df)
 
     # def save_splits(self, symbol):
