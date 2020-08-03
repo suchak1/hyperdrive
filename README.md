@@ -19,6 +19,7 @@ Follow this structure:
 RH_USERNAME=...
 RH_PASSWORD=...
 RH_2FA=...
+IEXCLOUD=...
 ```
 
 ### Installation
@@ -38,7 +39,7 @@ To make a script, create a new .py file in the `scripts/` dir with the following
 ```
 import sys
 sys.path.append('src')
-from scarlett import Scarlett  # noqa autopep8
+from Algotrader import Scarlett  # noqa autopep8
 
 sl = Scarlett()
 ```
@@ -47,13 +48,6 @@ sl = Scarlett()
 
 - [x] Broker authentication
 - [ ] Automated data storage
-  - [ ] dividend
-  - [ ] end of day
-  - [ ] intraday
-  - [ ] fundamentals (earnings)
-  - [ ] general volatility
-  - [ ] sector performance
-  - [ ] news sentiment
 - [ ] Backtesting engine
 - [ ] Monte Carlo simulations
 - [ ] Plotting and technical analysis
@@ -66,8 +60,35 @@ sl = Scarlett()
 Check out the [Roadmap](https://github.com/suchak1/scarlett/projects/2) for progress
 ...
 
+### Auth
+
+Using Robinhood 2FA, we can simply provide our MFA one-time password in the `.env` file to login to Robinhood (via `pyotp`).
+
+### Data
+
+- [ ] Price and Volume
+  - [ ] EOD OHLCV
+  - [ ] Intraday OHLCV 5 min ticks
+- [ ] Actions
+  - [x] Dividends
+  - [ ] Splits
+- [ ] Sentiment
+  - [ ] News Sentiment
+  - [ ] Social Sentiment
+  - [ ] Analyst Recommendations
+- [ ] Company / Micro
+  - [ ] Profile (Sector, # of Employees)
+  - [ ] Earnings
+  - [ ] Cash Flow
+  - [ ] CEO Compensation
+- [ ] Government / Macro
+
+  - [ ] Unemployment Rate
+  - [ ] Real GDP
+  - [ ] US Recession Probabilities
+
+- [ ] Market
+  - [ ] General Volatility (VIX)
+  - [ ] Sector Performance
+
 ---
-
-```
-
-```
