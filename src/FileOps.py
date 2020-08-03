@@ -47,10 +47,10 @@ class FileWriter:
         with open(filename, 'w') as file:
             json.dump(data, file, indent=4)
 
-    def save_csv(self, filename, data, float_format=None):
+    def save_csv(self, filename, data):
         # saves df as csv file with provided filename
         with open(filename, 'w') as f:
-            data.to_csv(f, index=False, float_format=float_format)
+            data.to_csv(f, index=False)
 
     def update_csv(self, filename, df):
         # update csv if needed

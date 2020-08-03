@@ -22,10 +22,14 @@ data = [
 
     }
 ]
+data_ = data[:]
+data_.append(data[0])
 
 csv_path1 = os.path.join(dir_path, 'test1.csv')
 csv_path2 = os.path.join(dir_path, 'test2.csv')
 test_df = pd.DataFrame(data)
+big_df = pd.DataFrame(data_)
+small_df = pd.DataFrame([data[0]])
 empty_df = pd.DataFrame()
 
 reader = FileReader()
@@ -54,6 +58,20 @@ class TestFileWriter:
         writer.save_csv(csv_path2, test_df)
         assert os.path.exists(csv_path2)
 
+    def test_update_csv(self):
+        writer.update_csv(csv_path2, test_df)
+        assert reader.load_csv(csv_path2).equals(test_df)
+
+        writer.update_csv(csv_path2, small_df)
+        assert reader.load_csv(csv_path2).equals(test_df)
+        assert not reader.load_csv(csv_path2).equals(small_df)
+
+        writer.update_csv(csv_path2, big_df)
+        assert reader.load_csv(csv_path2).equals(big_df)
+        assert not reader.load_csv(csv_path2).equals(test_df)
+
+        writer.save_csv(csv_path2, test_df)
+
 
 class TestFileReader:
     def test_init(self):
@@ -65,8 +83,19 @@ class TestFileReader:
         # mock data case from above
         assert reader.load_json(json_path2) == data
 
+        os.remove(json_path1)
+        os.remove(json_path2)
+
     def test_load_csv(self):
         # empty case from above
         assert reader.load_csv(csv_path1).equals(empty_df)
         # mock data case from above
         assert reader.load_csv(csv_path2).equals(test_df)
+
+    def test_check_update(self):
+        assert reader.check_update(csv_path2, test_df) is True
+        assert reader.check_update(csv_path2, small_df) is False
+        assert reader.check_update(csv_path2, big_df) is True
+
+    def test_update_df(self):
+        pass
