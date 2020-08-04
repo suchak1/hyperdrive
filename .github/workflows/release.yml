@@ -5,8 +5,8 @@ name: New Release
 
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - master
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,9 +15,17 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
+      - name: Bump version and push tag
+        id: bumpVersion
+        uses: anothrNick/github-tag-action@1.22.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          INITIAL_VERSION: true
+
       - name: Create release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
+          tag_name: ${{ steps.bumpVersion.outputs.new_tag }}
