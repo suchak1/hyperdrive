@@ -45,7 +45,8 @@ class FileReader:
         for root, _, files in os.walk(path):
             for file in files:
                 curr_path = os.path.join(root, file)[len(path) + 1:]
-                to_skip = ['__pycache__/', '.pytest', '.git/']
+                to_skip = ['__pycache__/', '.pytest',
+                           '.git/', '.ipynb', '.env']
                 keep = [skip not in curr_path for skip in to_skip]
                 # remove caches but keep workflows
                 if all(keep) or '.github' in curr_path:
@@ -75,4 +76,4 @@ class FileWriter:
 # and renames the cols using df.rename(columns=mapping) for all csvs in the dir
 
 
-FileReader().get_all_paths('.')
+# FileReader().get_all_paths('.')
