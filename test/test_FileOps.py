@@ -107,3 +107,6 @@ class TestFileReader:
     def test_update_df(self):
         assert reader.update_df(csv_path2, test_df, 'date').equals(test_df)
         assert reader.update_df(csv_path2, big_df, 'date').equals(big_df)
+
+        os.remove(csv_path1)
+        os.remove(csv_path2)

@@ -39,6 +39,20 @@ class FileReader:
             new = old.append(new, ignore_index=True)
         return new
 
+    def get_all_paths(self, path):
+        # given a path, get all sub paths
+        paths = []
+        for root, _, files in os.walk(path):
+            for file in files:
+                curr_path = os.path.join(root, file)[len(path) + 1:]
+                to_skip = ['__pycache__/', '.pytest', '.git/']
+                keep = [skip not in curr_path for skip in to_skip]
+                # remove caches but keep workflows
+                if all(keep) or '.github' in curr_path:
+                    print(curr_path)
+                    paths.append(curr_path)
+        return paths
+
 
 class FileWriter:
     # file write operations
@@ -59,3 +73,6 @@ class FileWriter:
 
 # add function that takes in a Constants directory, old to new column mapping
 # and renames the cols using df.rename(columns=mapping) for all csvs in the dir
+
+
+FileReader().get_all_paths('.')
