@@ -39,12 +39,13 @@ class FileReader:
             new = old.append(new, ignore_index=True)
         return new
 
-    def get_all_paths(self, path):
+    def get_all_paths(self, path, truncate=False):
         # given a path, get all sub paths
         paths = []
         for root, _, files in os.walk(path):
             for file in files:
-                curr_path = os.path.join(root, file)[len(path) + 1:]
+                curr_path = os.path.join(root, file)[
+                    len(path) + 1 if truncate else 0:]
                 to_skip = ['__pycache__/', '.pytest',
                            '.git/', '.ipynb', '.env']
                 keep = [skip not in curr_path for skip in to_skip]

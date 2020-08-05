@@ -4,6 +4,7 @@ import os
 DATA_DIR = 'data'
 DIV_DIR = 'dividends'
 SPLT_DIR = 'splits'
+FULL_DIV_DIR = os.path.join(DATA_DIR, DIV_DIR)
 
 # Column Names
 # Symbols / Generic

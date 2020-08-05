@@ -2,4 +2,4 @@ import sys
 sys.path.append('src')
 from Storage import Uploader  # noqa autopep8
 
-Uploader().upload_dir('.')
+# Uploader().upload_dir('.')
