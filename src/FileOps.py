@@ -15,7 +15,7 @@ class FileReader:
     def load_csv(self, filename):
         # loads csv file as Dataframe
         try:
-            df = pd.read_csv(filename)
+            df = pd.read_csv(filename).round(10)
         except pd.errors.EmptyDataError:
             # empty csv
             print(f'{filename} is an empty csv file.')
