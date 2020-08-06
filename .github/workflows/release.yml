@@ -45,4 +45,4 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ AWS_DEFAULT_REGION }}
-        run: python3 scripts/s3_upload.py
+        run: python3 scripts/s3_put_repo.py
