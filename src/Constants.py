@@ -1,4 +1,9 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+# Environment
+DEV = bool(os.environ.get('DEV'))
 
 # File Paths
 DATA_DIR = 'data'
