@@ -2,7 +2,7 @@ import os
 import sys
 import pandas as pd
 sys.path.append('src')
-from FileOps import FileReader, FileWriter  # noqa autopep8
+from FileOps import FileReader, FileWriter, PathFinder  # noqa autopep8
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 json_path1 = os.path.join(dir_path, 'test1.json')
@@ -41,6 +41,7 @@ empty_df = pd.DataFrame()
 
 reader = FileReader()
 writer = FileWriter()
+finder = PathFinder()
 
 
 class TestFileWriter:
@@ -110,3 +111,19 @@ class TestFileReader:
 
         os.remove(csv_path1)
         os.remove(csv_path2)
+
+
+class TestPathFinder():
+    def test_init(self):
+        assert type(PathFinder()).__name__ == 'PathFinder'
+
+    def test_get_symbols_path(self):
+        assert finder.get_symbols_path() == 'data/symbols.csv'
+
+    def test_get_dividends_path(self):
+        assert finder.get_dividends_path('aapl') == 'data/dividends/AAPL.csv'
+        assert finder.get_dividends_path('AMD') == 'data/dividends/AMD.csv'
+
+    def test_get_splits_path(self):
+        assert finder.get_splits_path('aapl') == 'data/splits/AAPL.csv'
+        assert finder.get_splits_path('AMD') == 'data/splits/AMD.csv'

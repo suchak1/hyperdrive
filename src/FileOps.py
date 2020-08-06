@@ -1,6 +1,7 @@
 import os
 import json
 import pandas as pd
+import Constants as C
 
 # consider combining fileoperations into one class
 
@@ -39,22 +40,6 @@ class FileReader:
             new = old.append(new, ignore_index=True)
         return new
 
-    def get_all_paths(self, path, truncate=False):
-        # given a path, get all sub paths
-        paths = []
-        for root, _, files in os.walk(path):
-            for file in files:
-                curr_path = os.path.join(root, file)[
-                    len(path) + 1 if truncate else 0:]
-                to_skip = ['__pycache__/', '.pytest',
-                           '.git/', '.ipynb', '.env']
-                keep = [skip not in curr_path for skip in to_skip]
-                # remove caches but keep workflows
-                if all(keep) or '.github' in curr_path:
-                    # print(curr_path)
-                    paths.append(curr_path)
-        return paths
-
 
 class FileWriter:
     # file write operations
@@ -75,6 +60,49 @@ class FileWriter:
 
 # add function that takes in a Constants directory, old to new column mapping
 # and renames the cols using df.rename(columns=mapping) for all csvs in the dir
+
+
+class PathFinder:
+    def get_symbols_path(self):
+        # return the path for the symbols reference csv
+        return os.path.join(
+            C.DATA_DIR,
+            'symbols.csv'
+        )
+
+    def get_dividends_path(self, symbol):
+        # given a symbol
+        # return the path to its csv
+        return os.path.join(
+            C.DATA_DIR,
+            C.DIV_DIR,
+            f'{symbol.upper()}.csv'
+        )
+
+    def get_splits_path(self, symbol):
+        # given a symbol
+        # return the path to its stock splits
+        return os.path.join(
+            C.DATA_DIR,
+            C.SPLT_DIR,
+            f'{symbol.upper()}.csv'
+        )
+
+    def get_all_paths(self, path, truncate=False):
+        # given a path, get all sub paths
+        paths = []
+        for root, _, files in os.walk(path):
+            for file in files:
+                curr_path = os.path.join(root, file)[
+                    len(path) + 1 if truncate else 0:]
+                to_skip = ['__pycache__/', '.pytest',
+                           '.git/', '.ipynb', '.env']
+                keep = [skip not in curr_path for skip in to_skip]
+                # remove caches but keep workflows
+                if all(keep) or '.github' in curr_path:
+                    # print(curr_path)
+                    paths.append(curr_path)
+        return paths
 
 
 # FileReader().get_all_paths('.')
