@@ -2,7 +2,7 @@ import sys
 from multiprocessing import Pool
 sys.path.append('src')
 from DataSource import IEXCloud  # noqa autopep8
-from Storage import Uploader  # noqa autopep8
+from Storage import Store  # noqa autopep8
 import Constants as C  # noqa autopep8
 
 
@@ -20,4 +20,4 @@ with Pool() as p:
     p.map(multi_div, symbols)
 
 # upload dividend data to S3
-Uploader().upload_dir(C.FULL_DIV_DIR)
+Store().upload_dir(C.FULL_DIV_DIR)

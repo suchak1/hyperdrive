@@ -30,14 +30,12 @@ jobs:
 
       - name: Update dividends
         env:
-          # RH_USERNAME: ${{ secrets.RH_USERNAME }}
-          # RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
-          # RH_2FA: ${{ secrets.RH_2FA }}
           IEXCLOUD: ${{ secrets.IEXCLOUD }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ AWS_DEFAULT_REGION }}
-        run: python scripts/s3_put_dividends.py
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+        run: python scripts/upload_dividends.py
 
       - name: Commit new file(s)
         uses: stefanzweifel/git-auto-commit-action@v4
