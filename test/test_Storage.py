@@ -1,6 +1,8 @@
 import os
 import shutil
 import sys
+import pytest
+from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 sys.path.append('src')
 from Storage import Store  # noqa autopep8
@@ -8,9 +10,11 @@ import Constants as C  # noqa autopep8
 
 load_dotenv()
 store = Store()
+
 if not os.environ.get('CI'):
     store.bucket_name = os.environ['S3_DEV_BUCKET']
 
+symbols_path = store.finder.get_symbols_path()
 test_file1 = f'{C.DEV_DIR}/x'
 test_file2 = f'{C.DEV_DIR}/y'
 
@@ -42,8 +46,22 @@ class TestStore:
     def test_get_all_keys(self):
         keys = set(store.get_all_keys())
 
-        assert store.finder.get_symbols_path() in keys
+        assert symbols_path in keys
         assert 'README.md' in keys
 
+    def test_key_exists(self):
+        assert store.key_exists(symbols_path)
+        assert not store.key_exists(test_file1)
+
+    def test_download_file(self):
+        assert not os.path.exists(test_file1)
+        with pytest.raises(ClientError):
+            store.download_file(test_file1)
+        assert not os.path.exists(test_file1)
+
+        assert not os.path.exists(symbols_path)
+        store.download_file(symbols_path)
+        assert os.path.exists(symbols_path)
+
         # fix all workflows (upload to s3 at end (symbols, divs, and repo upload) - even in test build)
-        # write tests (key_exists, download_file, DataSource, FileOps)
+        # write tests (DataSource, FileOps)

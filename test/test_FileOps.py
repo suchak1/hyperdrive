@@ -103,9 +103,9 @@ class TestFileReader:
         assert reader.load_csv(csv_path2).equals(test_df)
 
     def test_check_update(self):
-        assert reader.check_update(csv_path2, test_df) is True
-        assert reader.check_update(csv_path2, small_df) is False
-        assert reader.check_update(csv_path2, big_df) is True
+        assert reader.check_update(csv_path2, test_df)
+        assert not reader.check_update(csv_path2, small_df)
+        assert reader.check_update(csv_path2, big_df)
 
     def test_update_df(self):
         assert reader.update_df(csv_path2, test_df, 'date').equals(test_df)
