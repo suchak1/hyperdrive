@@ -47,6 +47,7 @@ finder = PathFinder()
 class TestFileWriter:
     def test_init(self):
         assert type(writer).__name__ == 'FileWriter'
+        assert hasattr(reader, 'store')
 
     def test_save_json(self):
         # save empty json object
@@ -84,6 +85,7 @@ class TestFileWriter:
 class TestFileReader:
     def test_init(self):
         assert type(reader).__name__ == 'FileReader'
+        assert hasattr(reader, 'store')
 
     def test_load_json(self):
         # empty case from above

@@ -41,8 +41,7 @@ jobs:
           RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
           RH_2FA: ${{ secrets.RH_2FA }}
           IEXCLOUD: ${{ secrets.IEXCLOUD_SANDBOX }}
-          S3_DEV_BUCKET: ${{ secrets.S3_DEV_BUCKET }}
-          DEV: true
+          S3_BUCKET: ${{ secrets.S3_DEV_BUCKET }}
         run: coverage run -m pytest -vv
 
       - name: Generate test coverage report

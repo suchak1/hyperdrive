@@ -7,6 +7,7 @@ DEV = bool(os.environ.get('DEV'))
 
 # File Paths
 DATA_DIR = 'data'
+DEV_DIR = 'dev'
 DIV_DIR = 'dividends'
 SPLT_DIR = 'splits'
 FULL_DIV_DIR = os.path.join(DATA_DIR, DIV_DIR)

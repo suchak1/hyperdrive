@@ -31,18 +31,13 @@ class FileReader:
             last_modified = delta.total_seconds()
         try:
             if not file_exists or last_modified > one_day:
-                with open(filename, 'wb') as file:
-                    self.store.bucket.download_fileobj(filename, file)
+                self.store.download_file(filename)
             df = pd.read_csv(filename).round(10)
         except pd.errors.EmptyDataError:
             print(f'{filename} is an empty csv file.')
             raise
         except FileNotFoundError:
             print(f'{filename} does not exist locally.')
-            raise
-        except ClientError:
-            print(f'{filename} does not exist in S3.')
-            os.remove(filename)
             raise
         except Exception:
             df = pd.DataFrame()

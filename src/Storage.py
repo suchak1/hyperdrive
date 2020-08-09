@@ -1,5 +1,6 @@
 import os
 import boto3
+from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 from multiprocessing import Pool
 from FileOps import PathFinder
@@ -33,6 +34,19 @@ class Store:
         keys = [obj.key for obj in self.bucket.objects.filter()]
         return keys
 
+    def key_exists(self, key, download=False):
+        try:
+            self.bucket.Object(key).load()
+        except ClientError:
+            return False
+        else:
+            return True
 
-# class Downloader:
-#     pass
+    def download_file(self, key):
+        try:
+            with open(key, 'wb') as file:
+                self.bucket.download_fileobj(key, file)
+        except ClientError as e:
+            print(f'{key} does not exist in S3.')
+            os.remove(key)
+            raise e
