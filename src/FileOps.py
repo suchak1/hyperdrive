@@ -3,8 +3,6 @@ import json
 import time
 from datetime import datetime
 import pandas as pd
-from botocore.exceptions import ClientError
-import Constants as C
 from Storage import Store
 # consider combining fileoperations into one class
 

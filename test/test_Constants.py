@@ -1,6 +1,4 @@
-import os
 import sys
-import pandas as pd
 sys.path.append('src')
 from Constants import PathFinder  # noqa autopep8
 
