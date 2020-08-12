@@ -96,6 +96,8 @@ class TestFileWriter:
 
     def test_rename_file(self):
         assert not reader.check_file_exists(test_path)
+        if not os.path.exists(symbols_path):
+            writer.store.download_file(symbols_path)
         writer.rename_file(symbols_path, test_path)
         assert reader.check_file_exists(test_path)
         writer.rename_file(test_path, symbols_path)
@@ -134,4 +136,4 @@ class TestFileReader:
 
     def test_check_file_exists(self):
         assert not reader.check_file_exists('a')
-        assert not reader.check_file_exists(symbols_path)
+        assert reader.check_file_exists(symbols_path)
