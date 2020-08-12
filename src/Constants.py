@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -26,6 +27,9 @@ PAY = 'Pay'  # Payment Date
 
 
 class PathFinder:
+    def make_path(self, path):
+        Path(path).mkdir(parents=True, exist_ok=True)
+
     def get_symbols_path(self):
         # return the path for the symbols reference csv
         return os.path.join(
