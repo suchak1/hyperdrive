@@ -3,7 +3,7 @@ import requests
 import pandas as pd
 from dotenv import load_dotenv
 from FileOps import FileReader, FileWriter
-from FileOps import PathFinder
+from Constants import PathFinder
 import Constants as C
 
 # MAKE market data class (broker=None):

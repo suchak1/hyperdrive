@@ -2,7 +2,7 @@ import os
 import sys
 import pandas as pd
 sys.path.append('src')
-from FileOps import FileReader, FileWriter, PathFinder  # noqa autopep8
+from FileOps import FileReader, FileWriter  # noqa autopep8
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 json_path1 = os.path.join(dir_path, 'test1.json')
@@ -41,7 +41,8 @@ empty_df = pd.DataFrame()
 
 reader = FileReader()
 writer = FileWriter()
-finder = PathFinder()
+symbols_path = reader.store.finder.get_symbols_path()
+test_path = f'{symbols_path}_TEST'
 
 
 class TestFileWriter:
@@ -60,12 +61,12 @@ class TestFileWriter:
 
     def test_save_csv(self):
         # save empty table
-        writer.save_csv(csv_path1, empty_df)
-        assert os.path.exists(csv_path1)
+        assert not writer.save_csv(csv_path1, empty_df)
+        assert not reader.check_file_exists(csv_path1)
 
         # save table with 2 rows
-        writer.save_csv(csv_path2, test_df)
-        assert os.path.exists(csv_path2)
+        assert writer.save_csv(csv_path2, test_df)
+        assert reader.check_file_exists(csv_path2)
 
     def test_update_csv(self):
         writer.update_csv(csv_path2, test_df)
@@ -80,6 +81,22 @@ class TestFileWriter:
         assert not reader.load_csv(csv_path2).equals(test_df)
 
         writer.save_csv(csv_path2, test_df)
+
+    def test_remove_files(self):
+        filename = 'x'
+        assert not reader.check_file_exists(filename)
+        with open(filename, 'w') as file:
+            file.write('a')
+        writer.store.upload_file(filename)
+        assert reader.check_file_exists(filename)
+        writer.remove_files([filename])
+        assert not reader.check_file_exists(filename)
+
+    def test_rename_file(self):
+        assert not reader.check_file_exists(test_path)
+        writer.rename_file(symbols_path, test_path)
+        assert reader.check_file_exists(test_path)
+        writer.rename_file(test_path, symbols_path)
 
 
 class TestFileReader:
@@ -111,21 +128,8 @@ class TestFileReader:
         assert reader.update_df(csv_path2, test_df, 'date').equals(test_df)
         assert reader.update_df(csv_path2, big_df, 'date').equals(big_df)
 
-        os.remove(csv_path1)
-        os.remove(csv_path2)
+        writer.remove_files([csv_path2])
 
-
-class TestPathFinder():
-    def test_init(self):
-        assert type(PathFinder()).__name__ == 'PathFinder'
-
-    def test_get_symbols_path(self):
-        assert finder.get_symbols_path() == 'data/symbols.csv'
-
-    def test_get_dividends_path(self):
-        assert finder.get_dividends_path('aapl') == 'data/dividends/AAPL.csv'
-        assert finder.get_dividends_path('AMD') == 'data/dividends/AMD.csv'
-
-    def test_get_splits_path(self):
-        assert finder.get_splits_path('aapl') == 'data/splits/AAPL.csv'
-        assert finder.get_splits_path('AMD') == 'data/splits/AMD.csv'
+    def test_check_file_exists(self):
+        assert not reader.check_file_exists('a')
+        assert not reader.check_file_exists(symbols_path)

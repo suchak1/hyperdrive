@@ -21,6 +21,7 @@ test_file2 = f'{C.DEV_DIR}/y'
 
 class TestStore:
     def test_init(self):
+        assert type(store).__name__ == 'Store'
         assert hasattr(store, 's3')
         assert hasattr(store, 'bucket_name')
         assert hasattr(store, 'bucket')
@@ -41,6 +42,7 @@ class TestStore:
 
     def test_delete_objects(self):
         shutil.rmtree(C.DEV_DIR)
+        store.delete_objects([test_file1, test_file2])
         assert not store.key_exists(test_file2)
 
     def test_get_all_keys(self):
@@ -64,4 +66,4 @@ class TestStore:
         assert os.path.exists(symbols_path)
 
         # fix all workflows (upload to s3 at end (symbols, divs, and repo upload) - even in test build)
-        # write tests (DataSource, FileOps)
+        # write tests FileOps check_file_exists, remove_files, rename_file)

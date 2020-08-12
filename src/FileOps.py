@@ -26,7 +26,7 @@ class FileReader:
         file_exists = os.path.exists(filename)
 
         if file_exists:
-            then = os.path.getmtime(filename)
+            then = datetime.fromtimestamp(os.path.getmtime(filename))
             delta = now - then
             last_modified = delta.total_seconds()
         try:
@@ -55,6 +55,9 @@ class FileReader:
             new = old.append(new, ignore_index=True)
         return new
 
+    def check_file_exists(self, filename):
+        return os.path.exists(filename) and self.store.key_exists(filename)
+
 
 class FileWriter:
     # file write operations
@@ -68,60 +71,29 @@ class FileWriter:
 
     def save_csv(self, filename, data):
         # saves df as csv file with provided filename
-        with open(filename, 'w') as f:
-            data.to_csv(f, index=False)
-        self.store.upload_file(filename)
+        if data.empty:
+            return False
+        else:
+            with open(filename, 'w') as f:
+                data.to_csv(f, index=False)
+            self.store.upload_file(filename)
+            return True
 
     def update_csv(self, filename, df):
         # update csv if needed
         if FileReader().check_update(filename, df):
             self.save_csv(filename, df)
 
+    def remove_files(self, filenames):
+        [os.remove(file) for file in filenames]
+        self.store.delete_objects(filenames)
+
+    def rename_file(self, old_name, new_name):
+        os.rename(old_name, new_name)
+        self.store.rename_key(old_name, new_name)
+
 # add function that takes in a Constants directory, old to new column mapping
 # and renames the cols using df.rename(columns=mapping) for all csvs in the dir
-
-
-class PathFinder:
-    def get_symbols_path(self):
-        # return the path for the symbols reference csv
-        return os.path.join(
-            C.DATA_DIR,
-            'symbols.csv'
-        )
-
-    def get_dividends_path(self, symbol):
-        # given a symbol
-        # return the path to its csv
-        return os.path.join(
-            C.DATA_DIR,
-            C.DIV_DIR,
-            f'{symbol.upper()}.csv'
-        )
-
-    def get_splits_path(self, symbol):
-        # given a symbol
-        # return the path to its stock splits
-        return os.path.join(
-            C.DATA_DIR,
-            C.SPLT_DIR,
-            f'{symbol.upper()}.csv'
-        )
-
-    def get_all_paths(self, path, truncate=False):
-        # given a path, get all sub paths
-        paths = []
-        for root, _, files in os.walk(path):
-            for file in files:
-                curr_path = os.path.join(root, file)[
-                    len(path) + 1 if truncate else 0:]
-                to_skip = ['__pycache__/', '.pytest',
-                           '.git/', '.ipynb', '.env']
-                keep = [skip not in curr_path for skip in to_skip]
-                # remove caches but keep workflows
-                if all(keep) or '.github' in curr_path:
-                    # print(curr_path)
-                    paths.append(curr_path)
-        return paths
 
 
 # FileReader().get_all_paths('.')

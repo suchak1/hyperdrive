@@ -3,7 +3,7 @@ import boto3
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 from multiprocessing import Pool
-from FileOps import PathFinder
+from Constants import PathFinder
 import Constants as C
 
 
@@ -50,3 +50,8 @@ class Store:
             print(f'{key} does not exist in S3.')
             os.remove(key)
             raise e
+
+    def rename_key(self, old_key, new_key):
+        self.s3.Object(self.bucket_name, new_key).copy_from(
+            CopySource=f'{self.bucket_name}/{old_key}')
+        self.s3.Object(self.bucket_name, old_key).delete()
