@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import json
 import time
 from datetime import datetime
@@ -62,8 +63,12 @@ class FileWriter:
     def __init__(self):
         self.store = Store()
 
+    def make_path(self, path):
+        Path(path).mkdir(parents=True, exist_ok=True)
+
     def save_json(self, filename, data):
         # saves data as json file with provided filename
+        self.make_path(filename)
         with open(filename, 'w') as file:
             json.dump(data, file, indent=4)
 
@@ -72,6 +77,7 @@ class FileWriter:
         if data.empty:
             return False
         else:
+            self.make_path(filename)
             with open(filename, 'w') as f:
                 data.to_csv(f, index=False)
             self.store.upload_file(filename)

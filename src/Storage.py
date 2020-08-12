@@ -3,6 +3,7 @@ import boto3
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 from multiprocessing import Pool
+from FileOps import FileWriter
 from Constants import PathFinder
 import Constants as C
 
@@ -15,6 +16,7 @@ class Store:
             'S3_BUCKET') if not C.DEV else os.environ.get('S3_DEV_BUCKET')
         self.bucket = self.s3.Bucket(self.bucket_name)
         self.finder = PathFinder()
+        self.writer = FileWriter()
 
     def upload_file(self, path):
         s3 = boto3.resource('s3')
@@ -44,6 +46,7 @@ class Store:
 
     def download_file(self, key):
         try:
+            self.writer.make_path(key)
             with open(key, 'wb') as file:
                 self.bucket.download_fileobj(key, file)
         except ClientError as e:
