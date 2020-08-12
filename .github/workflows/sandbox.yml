@@ -1,10 +1,10 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Build Pipeline
+name: Sandbox / Dev Pipeline
 
 on:
-  push:
+  pull_request:
     branches: [master]
 
 jobs:
@@ -44,3 +44,31 @@ jobs:
 
       - name: Generate test coverage report
         run: coverage report -m --fail-under=95
+
+      - name: Update symbols
+        env:
+          RH_USERNAME: ${{ secrets.RH_USERNAME }}
+          RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
+          RH_2FA: ${{ secrets.RH_2FA }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          S3_BUCKET: ${{ secrets.S3_DEV_BUCKET }}
+        run: python scripts/update_symbols.py
+
+      - name: Update dividends
+        env:
+          IEXCLOUD: ${{ secrets.IEXCLOUD_SANDBOX }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          S3_BUCKET: ${{ secrets.S3_DEV_BUCKET }}
+        run: python scripts/update_dividends.py
+
+      - name: Upload repo to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          S3_BUCKET: ${{ secrets.S3_DEV_BUCKET }}
+        run: python3 scripts/update_repo.py

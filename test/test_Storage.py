@@ -64,6 +64,3 @@ class TestStore:
         assert not os.path.exists(symbols_path)
         store.download_file(symbols_path)
         assert os.path.exists(symbols_path)
-
-        # fix all workflows (upload to s3 at end (symbols, divs, and repo upload) - even in test build)
-        # write tests FileOps check_file_exists, remove_files, rename_file)

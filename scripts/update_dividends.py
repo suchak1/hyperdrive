@@ -2,8 +2,6 @@ import sys
 from multiprocessing import Pool
 sys.path.append('src')
 from DataSource import IEXCloud  # noqa autopep8
-from Storage import Store  # noqa autopep8
-import Constants as C  # noqa autopep8
 
 
 iex = IEXCloud()
@@ -15,9 +13,6 @@ def multi_div(symbol):
     iex.save_dividends(symbol)
 
 
-# save files as CSVs
+# save files as CSVs and uploads to S3
 with Pool() as p:
     p.map(multi_div, symbols)
-
-# upload dividend data to S3
-Store().upload_dir(C.FULL_DIV_DIR)
