@@ -32,7 +32,7 @@ class TestStore:
         with open(test_file1, 'w') as file:
             file.write('a')
         store.upload_file(test_file1)
-        assert store.key_exists(test_file2)
+        assert store.key_exists(test_file1)
 
     def test_upload_dir(self):
         with open(test_file2, 'w') as file:
@@ -61,6 +61,8 @@ class TestStore:
             store.download_file(test_file1)
         assert not os.path.exists(test_file1)
 
+        if os.path.exists(symbols_path):
+            os.remove(symbols_path)
         assert not os.path.exists(symbols_path)
         store.download_file(symbols_path)
         assert os.path.exists(symbols_path)

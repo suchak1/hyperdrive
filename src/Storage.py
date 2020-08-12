@@ -10,9 +10,9 @@ import Constants as C
 class Store:
     def __init__(self):
         load_dotenv()
-        self.s3 = boto3.resource('s3')
+        # self.s3 = boto3.resource('s3')
         self.bucket_name = self.get_bucket_name()
-        self.bucket = self.s3.Bucket(self.bucket_name)
+        # self.bucket = self.s3.Bucket(self.bucket_name)
         self.finder = PathFinder()
 
     def get_bucket_name(self):
@@ -21,7 +21,7 @@ class Store:
 
     def upload_file(self, path):
         s3 = boto3.resource('s3')
-        bucket = s3.Bucket(self.get_bucket_name())
+        bucket = s3.Bucket(self.bucket_name)
         bucket.upload_file(path, path)
 
     def upload_dir(self, path, truncate=False):
@@ -31,15 +31,21 @@ class Store:
 
     def delete_objects(self, keys):
         objects = [{'Key': key} for key in keys]
-        self.bucket.delete_objects(Delete={'Objects': objects})
+        s3 = boto3.resource('s3')
+        bucket = s3.Bucket(self.bucket_name)
+        bucket.delete_objects(Delete={'Objects': objects})
 
     def get_all_keys(self):
-        keys = [obj.key for obj in self.bucket.objects.filter()]
+        s3 = boto3.resource('s3')
+        bucket = s3.Bucket(self.bucket_name)
+        keys = [obj.key for obj in bucket.objects.filter()]
         return keys
 
     def key_exists(self, key, download=False):
         try:
-            self.bucket.Object(key).load()
+            s3 = boto3.resource('s3')
+            bucket = s3.Bucket(self.bucket_name)
+            bucket.Object(key).load()
         except ClientError:
             return False
         else:
@@ -48,14 +54,17 @@ class Store:
     def download_file(self, key):
         try:
             self.finder.make_path(key)
+            s3 = boto3.resource('s3')
             with open(key, 'wb') as file:
-                self.bucket.download_fileobj(key, file)
+                bucket = s3.Bucket(self.bucket_name)
+                bucket.download_fileobj(key, file)
         except ClientError as e:
             print(f'{key} does not exist in S3.')
             os.remove(key)
             raise e
 
     def rename_key(self, old_key, new_key):
-        self.s3.Object(self.bucket_name, new_key).copy_from(
+        s3 = boto3.resource('s3')
+        s3.Object(self.bucket_name, new_key).copy_from(
             CopySource=f'{self.bucket_name}/{old_key}')
-        self.s3.Object(self.bucket_name, old_key).delete()
+        s3.Object(self.bucket_name, old_key).delete()
