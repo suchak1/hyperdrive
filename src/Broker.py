@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 import pandas as pd
 from Constants import PathFinder
 import Constants as C
-from FileOps import FileWriter
+from FileOps import FileReader, FileWriter
 
 # broker has subclasses robinhood, td ameritrade, ibkr
 
@@ -24,6 +24,7 @@ class Robinhood:
         rh.login(username, password, mfa_code=mfa_code)
         self.api = rh
         self.writer = FileWriter()
+        self.reader = FileReader()
         self.finder = PathFinder()
 
     def get_symbols_from_instruments(self, instruments):

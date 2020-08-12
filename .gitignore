@@ -1,7 +1,8 @@
-.env
+*.env
 *.json
 .ipynb*
 *.ipynb
 __pycache__
-img
+img/
 robinhood.pickle
+data/

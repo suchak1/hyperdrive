@@ -9,4 +9,4 @@ sl = Scarlett()
 class TestScarlett:
     def test_init(self):
         assert type(sl).__name__ == 'Scarlett'
-        assert hasattr(sl, 'broker') is True
+        assert hasattr(sl, 'broker')

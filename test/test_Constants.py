@@ -2,6 +2,7 @@ import sys
 sys.path.append('src')
 from Constants import PathFinder  # noqa autopep8
 
+
 finder = PathFinder()
 
 
