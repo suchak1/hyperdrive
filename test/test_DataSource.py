@@ -37,21 +37,23 @@ class TestMarketData:
         symbol = 'O'
         div_path = md.finder.get_dividends_path(symbol)
         test_path = f'{div_path}_TEST'
-        os.rename(div_path, test_path)
-        assert os.path.exists(div_path) is False
+        if not os.path.exists(div_path):
+            md.writer.store.download_file(div_path)
+        md.writer.rename_file(div_path, test_path)
+        assert not md.reader.check_file_exists(div_path)
 
         retries = 10
         delay = choice(range(5, 10))
         for _ in range(retries):
             iex.save_dividends(symbol, '5y')
-            if os.path.exists(div_path) is False:
+            if not md.reader.check_file_exists(div_path):
                 sleep(delay)
             else:
                 break
 
-        assert os.path.exists(div_path) is True
-        os.remove(div_path)
-        os.rename(test_path, div_path)
+        assert md.reader.check_file_exists(div_path)
+        md.writer.remove_files([div_path])
+        md.writer.rename_file(test_path, div_path)
 
 
 class TestIEXCloud:
