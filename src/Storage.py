@@ -11,14 +11,17 @@ class Store:
     def __init__(self):
         load_dotenv()
         self.s3 = boto3.resource('s3')
-        self.bucket_name = os.environ.get(
-            'S3_BUCKET') if not C.DEV else os.environ.get('S3_DEV_BUCKET')
+        self.bucket_name = self.get_bucket_name()
         self.bucket = self.s3.Bucket(self.bucket_name)
         self.finder = PathFinder()
 
+    def get_bucket_name(self):
+        return os.environ.get(
+            'S3_BUCKET') if not C.DEV else os.environ.get('S3_DEV_BUCKET')
+
     def upload_file(self, path):
         s3 = boto3.resource('s3')
-        bucket = s3.Bucket(self.bucket_name)
+        bucket = s3.Bucket(self.get_bucket_name())
         bucket.upload_file(path, path)
 
     def upload_dir(self, path, truncate=False):

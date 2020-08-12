@@ -1,3 +1,4 @@
+import os
 import sys
 import pandas as pd
 from datetime import datetime
@@ -54,6 +55,8 @@ class TestRobinhood:
     def test_save_symbols(self):
         symbols_path = rh.finder.get_symbols_path()
         test_path = f'{symbols_path}_TEST'
+        if not os.path.exists(symbols_path):
+            rh.writer.store.download_file(symbols_path)
         rh.writer.rename_file(symbols_path, test_path)
         assert not rh.reader.check_file_exists(symbols_path)
         rh.save_symbols()

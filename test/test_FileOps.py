@@ -3,6 +3,7 @@ import sys
 import pandas as pd
 sys.path.append('src')
 from FileOps import FileReader, FileWriter  # noqa autopep8
+import Constants as C  # noqa autopep8
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 json_path1 = os.path.join(dir_path, 'test1.json')
@@ -83,8 +84,9 @@ class TestFileWriter:
         writer.save_csv(csv_path2, test_df)
 
     def test_remove_files(self):
-        filename = 'x'
+        filename = f'{C.DEV_DIR}/x'
         assert not reader.check_file_exists(filename)
+        reader.store.finder.make_path(filename)
         with open(filename, 'w') as file:
             file.write('a')
         writer.store.upload_file(filename)

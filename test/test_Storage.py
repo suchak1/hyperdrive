@@ -28,7 +28,7 @@ class TestStore:
         assert hasattr(store, 'finder')
 
     def test_upload_file(self):
-        os.mkdir(C.DEV_DIR)
+        store.finder.make_path(test_file1)
         with open(test_file1, 'w') as file:
             file.write('a')
         store.upload_file(test_file1)
