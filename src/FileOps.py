@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 import json
 import time
 from datetime import datetime
@@ -22,7 +21,7 @@ class FileReader:
         # loads csv file as Dataframe
         one_day = 60 * 60 * 24
         now = datetime.fromtimestamp(time.time())
-        file_exists = Path.exists(filename)
+        file_exists = os.path.exists(filename)
 
         if file_exists:
             then = datetime.fromtimestamp(os.path.getmtime(filename))
@@ -55,7 +54,7 @@ class FileReader:
         return new
 
     def check_file_exists(self, filename):
-        return Path.exists(filename) and self.store.key_exists(filename)
+        return os.path.exists(filename) and self.store.key_exists(filename)
 
 
 class FileWriter:
@@ -86,11 +85,11 @@ class FileWriter:
             self.save_csv(filename, df)
 
     def remove_files(self, filenames):
-        [Path.unlink(file) for file in filenames]
+        [os.remove(file) for file in filenames]
         self.store.delete_objects(filenames)
 
     def rename_file(self, old_name, new_name):
-        Path.rename(old_name, new_name)
+        os.rename(old_name, new_name)
         self.store.rename_key(old_name, new_name)
 
 # add function that takes in a Constants directory, old to new column mapping

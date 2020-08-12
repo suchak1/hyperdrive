@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 import sys
 import pandas as pd
 sys.path.append('src')
@@ -54,11 +53,11 @@ class TestFileWriter:
     def test_save_json(self):
         # save empty json object
         writer.save_json(json_path1, {})
-        assert Path.exists(json_path1)
+        assert os.path.exists(json_path1)
 
         # save list of 2 json objects
         writer.save_json(json_path2, data)
-        assert Path.exists(json_path2)
+        assert os.path.exists(json_path2)
 
     def test_save_csv(self):
         # save empty table
@@ -111,8 +110,8 @@ class TestFileReader:
         # mock data case from above
         assert reader.load_json(json_path2) == data
 
-        Path.unlink(json_path1)
-        Path.unlink(json_path2)
+        os.remove(json_path1)
+        os.remove(json_path2)
 
     def test_load_csv(self):
         # empty case from above

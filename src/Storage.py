@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 import boto3
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
@@ -50,7 +49,7 @@ class Store:
                 self.bucket.download_fileobj(key, file)
         except ClientError as e:
             print(f'{key} does not exist in S3.')
-            Path.unlink(key)
+            os.remove(key)
             raise e
 
     def rename_key(self, old_key, new_key):

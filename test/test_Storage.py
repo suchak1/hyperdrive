@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 import shutil
 import sys
 import pytest
@@ -29,7 +28,7 @@ class TestStore:
         assert hasattr(store, 'finder')
 
     def test_upload_file(self):
-        Path.mkdir(C.DEV_DIR)
+        os.mkdir(C.DEV_DIR)
         with open(test_file1, 'w') as file:
             file.write('a')
         store.upload_file(test_file1)
@@ -57,11 +56,11 @@ class TestStore:
         assert not store.key_exists(test_file1)
 
     def test_download_file(self):
-        assert not Path.exists(test_file1)
+        assert not os.path.exists(test_file1)
         with pytest.raises(ClientError):
             store.download_file(test_file1)
-        assert not Path.exists(test_file1)
+        assert not os.path.exists(test_file1)
 
-        assert not Path.exists(symbols_path)
+        assert not os.path.exists(symbols_path)
         store.download_file(symbols_path)
-        assert Path.exists(symbols_path)
+        assert os.path.exists(symbols_path)
