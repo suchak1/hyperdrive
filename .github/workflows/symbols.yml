@@ -28,19 +28,13 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Fetch symbols
+      - name: Update symbols
         env:
           RH_USERNAME: ${{ secrets.RH_USERNAME }}
           RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
           RH_2FA: ${{ secrets.RH_2FA }}
-        run: python scripts/symbols.py
-
-      - name: Commit new file(s)
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          file_pattern: data/symbols.csv
-          commit_message: "[AUTO] Symbol update #patch"
-          commit_user_name: suchak1
-          commit_user_email: suchak.krish@gmail.com
-          commit_author: Krish Suchak
-          push_options: "--force"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+        run: python scripts/update_symbols.py
