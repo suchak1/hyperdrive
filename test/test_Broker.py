@@ -12,7 +12,10 @@ exp_symbols = ['AAPL', 'FB', 'DIS']
 class TestRobinhood:
     def test_init(self):
         assert type(rh).__name__ == 'Robinhood'
-        assert hasattr(rh, 'api') is True
+        assert hasattr(rh, 'api')
+        assert hasattr(rh, 'writer')
+        assert hasattr(rh, 'reader')
+        assert hasattr(rh, 'finder')
 
     def test_flatten(self):
         # empty case
@@ -24,11 +27,11 @@ class TestRobinhood:
 
     def test_load_portfolio(self):
         rh.load_portfolio()
-        assert hasattr(rh, 'positions') is True
-        assert hasattr(rh, 'holdings') is True
-        assert hasattr(rh, 'instruments') is True
-        assert hasattr(rh, 'symbols') is True
-        assert hasattr(rh, 'hist') is True
+        assert hasattr(rh, 'positions')
+        assert hasattr(rh, 'holdings')
+        assert hasattr(rh, 'instruments')
+        assert hasattr(rh, 'symbols')
+        assert hasattr(rh, 'hist')
 
     def test_get_symbols_from_instruments(self):
         instruments = list(rh.instruments)
@@ -52,9 +55,11 @@ class TestRobinhood:
     def test_save_symbols(self):
         symbols_path = rh.finder.get_symbols_path()
         test_path = f'{symbols_path}_TEST'
-        os.rename(symbols_path, test_path)
-        assert os.path.exists(symbols_path) is False
+        if not os.path.exists(symbols_path):
+            rh.writer.store.download_file(symbols_path)
+        rh.writer.rename_file(symbols_path, test_path)
+        assert not rh.reader.check_file_exists(symbols_path)
         rh.save_symbols()
-        assert os.path.exists(symbols_path) is True
-        os.remove(symbols_path)
-        os.rename(test_path, symbols_path)
+        assert rh.reader.check_file_exists(symbols_path)
+        rh.writer.remove_files([symbols_path])
+        rh.writer.rename_file(test_path, symbols_path)

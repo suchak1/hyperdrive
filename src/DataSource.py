@@ -36,7 +36,7 @@ class MarketData:
     # def save_splits(self, symbol):
     #     # given a symbol, save its stock split history
     #     df = self.get_splits(symbol)
-    #     self.writer.update_csv(f'data/splits/{symbol.upper()}.csv', df)
+    #     self.writer.update_csv(self.finder.get_splits_path(symbol), df)
 
 # make tiingo OR IEX CLOUD!! version of get dividends which
 # fetches existing dividend csv and adds a row if dividend
