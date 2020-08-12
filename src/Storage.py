@@ -10,9 +10,7 @@ import Constants as C
 class Store:
     def __init__(self):
         load_dotenv()
-        # self.s3 = boto3.resource('s3')
         self.bucket_name = self.get_bucket_name()
-        # self.bucket = self.s3.Bucket(self.bucket_name)
         self.finder = PathFinder()
 
     def get_bucket_name(self):

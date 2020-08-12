@@ -22,9 +22,7 @@ test_file2 = f'{C.DEV_DIR}/y'
 class TestStore:
     def test_init(self):
         assert type(store).__name__ == 'Store'
-        assert hasattr(store, 's3')
         assert hasattr(store, 'bucket_name')
-        assert hasattr(store, 'bucket')
         assert hasattr(store, 'finder')
 
     def test_upload_file(self):
