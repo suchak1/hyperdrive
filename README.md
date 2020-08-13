@@ -2,7 +2,7 @@
 | ------------------------------------- | ------------------------------------------------------- |
 
 
-![Build Pipeline](https://github.com/suchak1/scarlett/workflows/Build%20Pipeline/badge.svg) ![Daily Update](https://github.com/suchak1/scarlett/workflows/Daily%20Update/badge.svg)
+![Build Pipeline](https://github.com/suchak1/scarlett/workflows/Build%20Pipeline/badge.svg) ![Dev Pipeline](https://github.com/suchak1/scarlett/workflows/Dev%20Pipeline/badge.svg) ![New Release](https://github.com/suchak1/scarlett/workflows/New%20Release/badge.svg)
 
 _scarlett_ is a project to obtain stock data, create trading strategies, test against historical data (backtesting), and deploy strategies for algorithmic trading.
 
@@ -67,10 +67,11 @@ Using Robinhood 2FA, we can simply provide our MFA one-time password in the `.en
 ### Data
 
 - [ ] Price and Volume
+  - [x] ![Symbols](https://github.com/suchak1/scarlett/workflows/Symbols/badge.svg)
   - [ ] EOD OHLCV
   - [ ] Intraday OHLCV 5 min ticks
 - [ ] Actions
-  - [x] Dividends
+  - [x] ![Dividends](https://github.com/suchak1/scarlett/workflows/Dividends/badge.svg)
   - [ ] Splits
 - [ ] Sentiment
   - [ ] News Sentiment
