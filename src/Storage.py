@@ -28,10 +28,11 @@ class Store:
             p.map(self.upload_file, paths)
 
     def delete_objects(self, keys):
-        objects = [{'Key': key} for key in keys]
-        s3 = boto3.resource('s3')
-        bucket = s3.Bucket(self.bucket_name)
-        bucket.delete_objects(Delete={'Objects': objects})
+        if keys:
+            objects = [{'Key': key} for key in keys]
+            s3 = boto3.resource('s3')
+            bucket = s3.Bucket(self.bucket_name)
+            bucket.delete_objects(Delete={'Objects': objects})
 
     def get_all_keys(self):
         s3 = boto3.resource('s3')
