@@ -60,7 +60,7 @@ jobs:
       - name: Generate test coverage report
         run: coverage report -m --fail-under=95
 
-    - name: Upload repo to S3
+      - name: Upload repo to S3
         env:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
         run: python3 scripts/update_repo.py
