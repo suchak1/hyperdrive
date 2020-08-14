@@ -1,7 +1,7 @@
 import os
 import json
 import time
-from datetime import datetime
+from datetime import date, datetime, timedelta
 import pandas as pd
 from Storage import Store
 # consider combining fileoperations into one class
@@ -55,6 +55,36 @@ class FileReader:
 
     def check_file_exists(self, filename):
         return os.path.exists(filename) and self.store.key_exists(filename)
+
+    def convert_delta(self, timeframe):
+        if timeframe == 'max':
+            return timedelta.max
+        periods = {'y': 365, 'm': 30, 'w': 7, 'd': 1}
+        period = 'y'
+        idx = -1
+
+        for curr_period in periods:
+            idx = timeframe.find(curr_period)
+            if idx != -1:
+                period = curr_period
+                break
+
+        if idx == -1:
+            supported = ', '.join(list(periods))
+            error_msg = f'Only certain suffixes ({supported}) are supported.'
+            raise ValueError(error_msg)
+
+        num = int(timeframe[:idx])
+        days = periods[period] * num
+        delta = timedelta(days=days)
+
+        return delta
+
+    def data_in_timeframe(self, df, col, timeframe='max'):
+        delta = self.convert_delta(timeframe)
+        df[col] = pd.to_datetime(df[col])
+        filtered = df[df['date'] > pd.to_datetime(date.today() - delta)]
+        return filtered
 
 
 class FileWriter:
