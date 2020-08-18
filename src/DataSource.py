@@ -104,3 +104,7 @@ class IEXCloud(MarketData):
     #     )
     #     df = df[df['Stock Splits'] != 0]
     #     return df
+
+
+class Polygon(MarketData):
+    pass
