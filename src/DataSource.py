@@ -21,22 +21,29 @@ class MarketData:
         symbols_path = self.finder.get_symbols_path()
         return list(self.reader.load_csv(symbols_path)[C.SYMBOL])
 
-    def get_dividends(self, symbol, timeframe=None):
+    def get_dividends(self, symbol, timeframe='max'):
         # given a symbol, return a cached dataframe
-        return self.reader.load_csv(self.finder.get_dividends_path(symbol))
+        df = self.reader.load_csv(self.finder.get_dividends_path(symbol))
+        filtered = self.reader.data_in_timeframe(df, C.EX, timeframe)
+        return filtered
 
-    def save_dividends(self, symbol, timeframe=None):
+    def save_dividends(self, **kwargs):
         # given a symbol, save its dividend history
-        if timeframe:
-            df = self.get_dividends(symbol, timeframe)
-        else:
-            df = self.get_dividends(symbol)
+        symbol = kwargs['symbol']
+        df = self.get_dividends(**kwargs)
         self.writer.update_csv(self.finder.get_dividends_path(symbol), df)
 
-    # def save_splits(self, symbol):
-    #     # given a symbol, save its stock split history
-    #     df = self.get_splits(symbol)
-    #     self.writer.update_csv(self.finder.get_splits_path(symbol), df)
+    def get_splits(self, symbol, timeframe='max'):
+        # given a symbol, return a cached dataframe
+        df = self.reader.load_csv(self.finder.get_splits_path(symbol))
+        filtered = self.reader.data_in_timeframe(df, C.EX, timeframe)
+        return filtered
+
+    def save_splits(self, **kwargs):
+        # given a symbol, save its splits history
+        symbol = kwargs['symbol']
+        df = self.get_splits(**kwargs)
+        self.writer.update_csv(self.finder.get_splits_path(symbol), df)
 
 # make tiingo OR IEX CLOUD!! version of get dividends which
 # fetches existing dividend csv and adds a row if dividend
