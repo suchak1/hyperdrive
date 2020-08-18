@@ -107,4 +107,6 @@ class IEXCloud(MarketData):
 
 
 class Polygon(MarketData):
-    pass
+    def __init__(self, broker=None):
+        super().__init__(broker=broker)
+        load_dotenv()
