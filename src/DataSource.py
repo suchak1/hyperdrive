@@ -144,5 +144,3 @@ class Polygon(MarketData):
         raw = pd.DataFrame(response.results)
         df = self.standardize_dividends(symbol, raw)
         return self.reader.data_in_timeframe(df, C.EX, timeframe)
-
-        # use save_dividends kwargs to avoid setting self.provider?

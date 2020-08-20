@@ -1,5 +1,4 @@
 import sys
-from multiprocessing import Pool
 sys.path.append('src')
 from DataSource import IEXCloud, Polygon  # noqa autopep8
 

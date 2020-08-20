@@ -2,12 +2,14 @@ import os
 import sys
 from time import sleep
 from random import choice
+import pandas as pd
 sys.path.append('src')
-from DataSource import MarketData, IEXCloud  # noqa autopep8
+from DataSource import MarketData, IEXCloud, Polygon  # noqa autopep8
 import Constants as C  # noqa autopep8
 
 md = MarketData()
 iex = IEXCloud()
+poly = Polygon()
 if not os.environ.get('CI'):
     iex.token = os.environ['IEXCLOUD_SANDBOX']
 iex.base = 'https://sandbox.iexapis.com'
@@ -20,6 +22,7 @@ class TestMarketData:
         assert hasattr(md, 'writer')
         assert hasattr(md, 'reader')
         assert hasattr(md, 'finder')
+        assert hasattr(md, 'provider')
 
     def test_get_symbols(self):
         symbols = set(md.get_symbols())
@@ -32,6 +35,22 @@ class TestMarketData:
         assert len(df) > 15
         assert len(df[df[C.EX] < '2015-12-25']) > 0
         assert len(df[df[C.EX] > '2020-01-01']) > 0
+
+    def test_standardize_dividends(self):
+        columns = ['exDate', 'paymentDate', 'declaredDate', 'amount']
+        new_cols = [C.EX, C.PAY, C.DEC, C.DIV]
+        sel_idx = 2
+        selected = columns[sel_idx:]
+        df = pd.DataFrame({column: [0] for column in columns})
+        standardized = md.standardize_dividends('AAPL', df)
+        for column in new_cols:
+            assert column in standardized
+
+        df.drop(columns=selected, inplace=True)
+        standardized = md.standardize_dividends('AAPL', df)
+        for curr_idx, column in enumerate(new_cols):
+            col_in_df = column in standardized
+            assert col_in_df if curr_idx < sel_idx else not col_in_df
 
     def test_save_dividends(self):
         symbol = 'O'
@@ -62,6 +81,7 @@ class TestIEXCloud:
         assert hasattr(iex, 'base')
         assert hasattr(iex, 'version')
         assert hasattr(iex, 'token')
+        assert hasattr(iex, 'provider')
 
     def test_get_endpoint(self):
         parts = [
@@ -82,3 +102,16 @@ class TestIEXCloud:
 
         if len(df) > 0:
             assert {C.EX, C.PAY, C.DEC, C.DIV}.issubset(df.columns)
+
+
+class TestPolygon:
+    def test_init(self):
+        assert type(poly).__name__ == 'Polygon'
+        assert hasattr(poly, 'client')
+        assert hasattr(poly, 'provider')
+
+    def test_get_dividends(self):
+        df = poly.get_dividends('AAPL', '5y')
+        assert type(df).__name__ == 'DataFrame'
+        assert {C.EX, C.PAY, C.DEC, C.DIV}.issubset(df.columns)
+        assert len(df) > 0
