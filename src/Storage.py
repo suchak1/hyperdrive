@@ -42,9 +42,12 @@ class Store:
 
     def key_exists(self, key, download=False):
         try:
-            s3 = boto3.resource('s3')
-            bucket = s3.Bucket(self.bucket_name)
-            bucket.Object(key).load()
+            if download:
+                self.download_file(key)
+            else:
+                s3 = boto3.resource('s3')
+                bucket = s3.Bucket(self.bucket_name)
+                bucket.Object(key).load()
         except ClientError:
             return False
         else:
