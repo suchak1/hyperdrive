@@ -49,6 +49,8 @@ class FileReader:
     def update_df(self, filename, new, column):
         old = self.load_csv(filename)
         if not old.empty:
+            old[column] = pd.to_datetime(old[column])
+            new[column] = pd.to_datetime(new[column])
             old = old[~old[column].isin(new[column])]
             new = old.append(new, ignore_index=True)
         return new
@@ -58,7 +60,8 @@ class FileReader:
 
     def convert_delta(self, timeframe):
         if timeframe == 'max':
-            return timedelta.max
+            return timedelta(days=36500)
+
         periods = {'y': 365, 'm': 30, 'w': 7, 'd': 1}
         period = 'y'
         idx = -1
@@ -81,9 +84,11 @@ class FileReader:
         return delta
 
     def data_in_timeframe(self, df, col, timeframe='max'):
+        if col not in df:
+            return df
         delta = self.convert_delta(timeframe)
         df[col] = pd.to_datetime(df[col])
-        filtered = df[df['date'] > pd.to_datetime(date.today() - delta)]
+        filtered = df[df[col] > pd.to_datetime(date.today() - delta)]
         return filtered
 
 
