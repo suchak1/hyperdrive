@@ -64,7 +64,7 @@ class TestMarketData:
         retries = 10
         delay = choice(range(5, 10))
         for _ in range(retries):
-            iex.save_dividends(symbol, '5y')
+            iex.save_dividends(symbol=symbol, timeframe='5y')
             if not md.reader.check_file_exists(div_path):
                 sleep(delay)
             else:

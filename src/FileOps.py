@@ -49,6 +49,8 @@ class FileReader:
     def update_df(self, filename, new, column):
         old = self.load_csv(filename)
         if not old.empty:
+            old[column] = pd.to_datetime(old[column])
+            new[column] = pd.to_datetime(new[column])
             old = old[~old[column].isin(new[column])]
             new = old.append(new, ignore_index=True)
         return new
