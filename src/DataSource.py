@@ -30,6 +30,26 @@ class MarketData:
         filtered = self.reader.data_in_timeframe(df, C.EX, timeframe)
         return filtered
 
+    def standardize_dividends(self, symbol, df):
+        full_mapping = dict(
+            zip(
+                ['exDate', 'paymentDate', 'declaredDate', 'amount'],
+                [C.EX, C.PAY, C.DEC, C.DIV]
+            )
+        )
+        mapping = {k: v for k, v in full_mapping.items() if k in df}
+        columns = list(mapping)
+
+        df = df[columns].rename(columns=mapping)
+        filename = self.finder.get_dividends_path(symbol, self.provider)
+
+        if C.EX in df and C.DIV in df:
+            df = self.reader.update_df(
+                filename, df, C.EX).sort_values(by=[C.EX])
+            df[C.DIV] = df[C.DIV].apply(lambda amt: float(amt) if amt else 0)
+
+        return df
+
     def save_dividends(self, **kwargs):
         # given a symbol, save its dividend history
         symbol = kwargs['symbol']
@@ -37,17 +57,18 @@ class MarketData:
         self.writer.update_csv(
             self.finder.get_dividends_path(symbol, self.provider), df)
 
-    def get_splits(self, symbol, timeframe='max'):
-        # given a symbol, return a cached dataframe
-        df = self.reader.load_csv(self.finder.get_splits_path(symbol))
-        filtered = self.reader.data_in_timeframe(df, C.EX, timeframe)
-        return filtered
+    # def get_splits(self, symbol, timeframe='max'):
+    #     # given a symbol, return a cached dataframe
+    #     df = self.reader.load_csv(self.finder.get_splits_path(symbol))
+    #     filtered = self.reader.data_in_timeframe(df, C.EX, timeframe)
+    #     return filtered
 
-    def save_splits(self, **kwargs):
-        # given a symbol, save its splits history
-        symbol = kwargs['symbol']
-        df = self.get_splits(**kwargs)
-        self.writer.update_csv(self.finder.get_splits_path(symbol), df)
+    # def save_splits(self, **kwargs):
+    #     # given a symbol, save its splits history
+    #     symbol = kwargs['symbol']
+    #     df = self.get_splits(**kwargs)
+    #     self.writer.update_csv(self.finder.get_splits_path(symbol), df)
+
 
 # make tiingo OR IEX CLOUD!! version of get dividends which
 # fetches existing dividend csv and adds a row if dividend
@@ -96,16 +117,9 @@ class IEXCloud(MarketData):
         if not response.ok or data == []:
             return empty
 
-        columns = ['exDate', 'paymentDate', 'declaredDate', 'amount']
-        mapping = dict(zip(columns, [C.EX, C.PAY, C.DEC, C.DIV]))
-        df = pd.DataFrame(data)[columns].rename(columns=mapping)
+        df = pd.DataFrame(data)
 
-        filename = self.finder.get_dividends_path(symbol)
-
-        df = self.reader.update_df(filename, df, C.EX).sort_values(by=[C.EX])
-        df[C.DIV] = df[C.DIV].apply(lambda amt: float(amt) if amt else 0)
-
-        return df
+        return self.standardize_dividends(symbol, df)
 
     # def get_splits(self, symbol):
     #     # given a symbol, return the stock splits
@@ -122,10 +136,13 @@ class Polygon(MarketData):
     def __init__(self, broker=None):
         super().__init__(broker=broker)
         load_dotenv()
+        self.client = RESTClient(os.environ['APCA_API_KEY_ID'])
         self.provider = 'polygon'
-        self.client =
 
     def get_dividends(self, symbol, timeframe='max'):
-        pass
+        response = self.client.reference_stock_dividends(symbol)
+        raw = pd.DataFrame(response.results)
+        df = self.standardize_dividends(symbol, raw)
+        return self.reader.data_in_timeframe(df, C.EX, timeframe)
 
         # use save_dividends kwargs to avoid setting self.provider?
