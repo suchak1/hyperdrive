@@ -57,8 +57,10 @@ class TestMarketData:
         div_path = md.finder.get_dividends_path(symbol)
         test_path = f'{div_path}_TEST'
         if not os.path.exists(div_path):
-            md.writer.store.download_file(div_path)
-        md.writer.rename_file(div_path, test_path)
+            if md.writer.store.key_exists(div_path, download=True):
+                md.writer.rename_file(div_path, test_path)
+            else:
+                md.writer.store.download_file(test_path)
         assert not md.reader.check_file_exists(div_path)
 
         retries = 10
