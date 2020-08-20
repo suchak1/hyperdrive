@@ -1,5 +1,5 @@
 python-dotenv == 0.13.0
 pandas == 1.1.0
 robin-stocks == 1.3.0
-boto3 == 1.14.35
+boto3 == 1.14.46
 polygon-api-client == 0.1.6
