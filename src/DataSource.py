@@ -1,6 +1,7 @@
 import os
 import requests
 import pandas as pd
+from polygon import RESTClient
 from dotenv import load_dotenv
 from FileOps import FileReader, FileWriter
 from Constants import PathFinder
@@ -15,6 +16,7 @@ class MarketData:
         self.writer = FileWriter()
         self.reader = FileReader()
         self.finder = PathFinder()
+        self.provider = 'iexcloud'
 
     def get_symbols(self):
         # get cached list of symbols
@@ -23,7 +25,8 @@ class MarketData:
 
     def get_dividends(self, symbol, timeframe='max'):
         # given a symbol, return a cached dataframe
-        df = self.reader.load_csv(self.finder.get_dividends_path(symbol))
+        df = self.reader.load_csv(
+            self.finder.get_dividends_path(symbol, self.provider))
         filtered = self.reader.data_in_timeframe(df, C.EX, timeframe)
         return filtered
 
@@ -31,7 +34,8 @@ class MarketData:
         # given a symbol, save its dividend history
         symbol = kwargs['symbol']
         df = self.get_dividends(**kwargs)
-        self.writer.update_csv(self.finder.get_dividends_path(symbol), df)
+        self.writer.update_csv(
+            self.finder.get_dividends_path(symbol, self.provider), df)
 
     def get_splits(self, symbol, timeframe='max'):
         # given a symbol, return a cached dataframe
@@ -57,6 +61,7 @@ class IEXCloud(MarketData):
         self.base = 'https://cloud.iexapis.com'
         self.version = 'stable'
         self.token = os.environ['IEXCLOUD']
+        self.provider = 'iexcloud'
 
     def get_endpoint(self, parts):
         # given a url
@@ -117,3 +122,10 @@ class Polygon(MarketData):
     def __init__(self, broker=None):
         super().__init__(broker=broker)
         load_dotenv()
+        self.provider = 'polygon'
+        self.client =
+
+    def get_dividends(self, symbol, timeframe='max'):
+        pass
+
+        # use save_dividends kwargs to avoid setting self.provider?

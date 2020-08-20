@@ -2,3 +2,5 @@ python-dotenv == 0.13.0
 pandas == 1.0.5
 robin-stocks == 1.3.0
 boto3 == 1.14.35
+alpaca-trade-api == 0.49.1
+polygon-api-client == 0.1.6

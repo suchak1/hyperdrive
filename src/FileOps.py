@@ -46,10 +46,43 @@ class FileReader:
         # return whether the csv needs to be updated
         return len(df) >= len(self.load_csv(filename))
 
-    def update_df(self, filename, new, column):
+    def update_df(self, filename, new, column, adjusted=None, callback=None):
         old = self.load_csv(filename)
         if not old.empty:
             old = old[~old[column].isin(new[column])]
+            if adjusted:
+                # handle split adjustments here
+                old_adjust = old[old[column] == max(old[column])]
+                new_adjust = new[new[column] == min(new[column])]
+                # adjusted[0] could be 'close'
+                # adjusted[1] could be 'open'
+                # or adjusted could be ['amount'] - prob not bc dividends are not robust for this analysis
+                old_value = old_adjust[adjusted[0]][0]
+                new_value = new_adjust[adjusted[1 if len(
+                    adjusted) > 1 else 0]][0]
+                ratio = old_value / new_value
+                forward = round(ratio)
+                reverse = round(1 / ratio)
+                # forward stock split
+                # recent split exists according to api callback:
+                if forward > 1 and split:
+                    # adjust for split
+                    for col in adjusted:
+                        old[col] = old[col] / forward
+
+                elif reverse > 1 and split:
+                    for col in adjusted:
+                        old[col] = old[col] * reverse
+                        # BETTER WAY IS TO NEVER STORE HISTORICAL MULTIDAY AUTOMATICALLY BUT INSTEAD TO STORE SINGLE DAY,
+                        # PASS SINGLE DAY to update_df and then pass to update_csv
+                        # periodically check for splits and only save to splits/ if split has ratio and ex date
+                        # account for dividends disguised as splits as well (iexcloud esp)
+                        # run adjustment helper occasionally that looks at all splits in the last time period, consults
+                        # existing records in actions/ and applies split adjustments if not already applied
+                        # writes applications to actions/service with correct symbol, dataset,
+
+            # find ratio of oldest val of new df and newest val of old df re split-adjusted column
+            #
             new = old.append(new, ignore_index=True)
         return new
 
