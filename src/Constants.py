@@ -11,7 +11,14 @@ DATA_DIR = 'data'
 DEV_DIR = 'dev'
 DIV_DIR = 'dividends'
 SPLT_DIR = 'splits'
-FULL_DIV_DIR = os.path.join(DATA_DIR, DIV_DIR)
+IEX_DIR = 'iexcloud'
+POLY_DIR = 'polygon'
+
+folders = {
+    'iexcloud': IEX_DIR,
+    'polygon': POLY_DIR
+}
+# PLYGN
 
 # Column Names
 # Symbols / Generic
@@ -37,12 +44,13 @@ class PathFinder:
             'symbols.csv'
         )
 
-    def get_dividends_path(self, symbol):
+    def get_dividends_path(self, symbol, provider='iexcloud'):
         # given a symbol
         # return the path to its csv
         return os.path.join(
             DATA_DIR,
             DIV_DIR,
+            folders[provider],
             f'{symbol.upper()}.csv'
         )
 

@@ -14,8 +14,10 @@ class TestPathFinder():
         assert finder.get_symbols_path() == 'data/symbols.csv'
 
     def test_get_dividends_path(self):
-        assert finder.get_dividends_path('aapl') == 'data/dividends/AAPL.csv'
-        assert finder.get_dividends_path('AMD') == 'data/dividends/AMD.csv'
+        assert finder.get_dividends_path(
+            'aapl') == 'data/dividends/iexcloud/AAPL.csv'
+        assert finder.get_dividends_path(
+            'AMD') == 'data/dividends/iexcloud/AMD.csv'
 
     def test_get_splits_path(self):
         assert finder.get_splits_path('aapl') == 'data/splits/AAPL.csv'

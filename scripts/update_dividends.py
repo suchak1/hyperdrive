@@ -1,18 +1,24 @@
 import sys
-from multiprocessing import Pool
 sys.path.append('src')
-from DataSource import IEXCloud  # noqa autopep8
-
+from DataSource import IEXCloud, Polygon  # noqa autopep8
 
 iex = IEXCloud()
+poly = Polygon()
 symbols = iex.get_symbols()
 
+# Double redundancy
 
-def multi_div(symbol):
-    # define fx to be pickled in multiprocessing
-    iex.save_dividends(symbol)
+for symbol in symbols:
+    # 1st pass
+    try:
+        iex.save_dividends(symbol=symbol, timeframe='3m')
+    except Exception as e:
+        print(f'IEX Cloud dividend update failed for {symbol}.')
+        print(e)
 
-
-# save files as CSVs and uploads to S3
-with Pool() as p:
-    p.map(multi_div, symbols)
+    # 2nd pass
+    try:
+        poly.save_dividends(symbol=symbol, timeframe='max')
+    except Exception as e:
+        print(f'Polygon.io dividend update failed for {symbol}.')
+        print(e)
