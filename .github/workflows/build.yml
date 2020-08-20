@@ -55,6 +55,7 @@ jobs:
           RH_2FA: ${{ secrets.RH_2FA }}
           IEXCLOUD: ${{ secrets.IEXCLOUD_SANDBOX }}
           S3_BUCKET: ${{ secrets.S3_DEV_BUCKET }}
+          APCA_API_KEY_ID: ${{ APCA_API_KEY_ID }}
         run: coverage run -m pytest -vv
 
       - name: Generate test coverage report
