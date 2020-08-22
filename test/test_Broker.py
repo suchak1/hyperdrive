@@ -55,11 +55,17 @@ class TestRobinhood:
     def test_save_symbols(self):
         symbols_path = rh.finder.get_symbols_path()
         test_path = f'{symbols_path}_TEST'
-        if not os.path.exists(symbols_path):
-            rh.writer.store.download_file(symbols_path)
-        rh.writer.rename_file(symbols_path, test_path)
+
+        if os.path.exists(symbols_path):
+            os.remove(symbols_path)
+        elif os.path.exists(test_path):
+            os.remove(test_path)
+
+        if rh.writer.store.key_exists(symbols_path, download=True):
+            rh.writer.rename_file(symbols_path, test_path)
+        else:
+            rh.writer.store.download_file(test_path)
+
         assert not rh.reader.check_file_exists(symbols_path)
         rh.save_symbols()
         assert rh.reader.check_file_exists(symbols_path)
-        rh.writer.remove_files([symbols_path])
-        rh.writer.rename_file(test_path, symbols_path)
