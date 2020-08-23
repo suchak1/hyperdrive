@@ -4,8 +4,12 @@ import pandas as pd
 from datetime import datetime
 sys.path.append('src')
 from Broker import Robinhood  # noqa autopep8
+import Constants as C  # noqa autopep8
 
 rh = Robinhood()
+if not os.environ.get('CI'):
+    rh.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    rh.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
 exp_symbols = ['AAPL', 'FB', 'DIS']
 
 
@@ -54,18 +58,11 @@ class TestRobinhood:
 
     def test_save_symbols(self):
         symbols_path = rh.finder.get_symbols_path()
-        test_path = f'{symbols_path}_TEST'
 
         if os.path.exists(symbols_path):
             os.remove(symbols_path)
-        elif os.path.exists(test_path):
-            os.remove(test_path)
 
-        if rh.writer.store.key_exists(symbols_path, download=True):
-            rh.writer.rename_file(symbols_path, test_path)
-        else:
-            rh.writer.store.download_file(test_path)
-
-        assert not rh.reader.check_file_exists(symbols_path)
         rh.save_symbols()
-        assert rh.reader.check_file_exists(symbols_path)
+        assert os.path.exists(symbols_path)
+        df = rh.reader.load_csv(symbols_path)
+        assert 'AAPL' in df[C.SYMBOL]

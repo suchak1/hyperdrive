@@ -28,7 +28,7 @@ class TestStore:
     def test_upload_file(self):
         store.finder.make_path(test_file1)
         with open(test_file1, 'w') as file:
-            file.write('a')
+            file.write('123')
         store.upload_file(test_file1)
         assert store.key_exists(test_file1)
 
@@ -64,3 +64,5 @@ class TestStore:
         assert not os.path.exists(symbols_path)
         store.download_file(symbols_path)
         assert os.path.exists(symbols_path)
+
+    def test_rename_key(self):
