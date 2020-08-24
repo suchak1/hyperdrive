@@ -52,7 +52,7 @@ if not os.environ.get('CI'):
     reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
     writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
 else:
-    run_id = os.environ['run_id']
+    run_id = os.environ['RUN_ID']
 
 symbols_path = reader.store.finder.get_symbols_path()
 

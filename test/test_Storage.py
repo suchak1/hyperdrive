@@ -15,7 +15,7 @@ run_id = ''
 if not os.environ.get('CI'):
     store.bucket_name = os.environ['S3_DEV_BUCKET']
 else:
-    run_id = os.environ['run_id']
+    run_id = os.environ['RUN_ID']
 
 symbols_path = store.finder.get_symbols_path()
 
