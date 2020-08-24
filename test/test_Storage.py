@@ -15,8 +15,10 @@ if not os.environ.get('CI'):
     store.bucket_name = os.environ['S3_DEV_BUCKET']
 
 symbols_path = store.finder.get_symbols_path()
-test_file1 = f'{C.DEV_DIR}/x'
-test_file2 = f'{C.DEV_DIR}/y'
+timestamp = str(time.time()).replace('.', '_')
+
+test_file1 = f'{C.DEV_DIR}/{timestamp}_x'
+test_file2 = f'{C.DEV_DIR}/{timestamp}_y'
 
 
 class TestStore:
@@ -66,3 +68,15 @@ class TestStore:
         assert os.path.exists(symbols_path)
 
     def test_rename_key(self):
+        src_path = f'{symbols_path}_{timestamp}_SRC'
+        dst_path = f'{symbols_path}_{timestamp}_DST'
+
+        assert not store.key_exists(src_path)
+        store.copy_object(symbols_path, src_path)
+        assert store.key_exists(src_path)
+
+        assert not store.key_exists(dst_path)
+        store.rename_key(src_path, dst_path)
+        assert store.key_exists(dst_path)
+
+        store.delete_objects([dst_path])
