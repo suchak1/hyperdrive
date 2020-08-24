@@ -12,6 +12,13 @@ iex = IEXCloud()
 poly = Polygon()
 if not os.environ.get('CI'):
     iex.token = os.environ['IEXCLOUD_SANDBOX']
+    iex.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    iex.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    md.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    md.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    poly.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    poly.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
+iex.base = 'https://sandbox.iexapis.com'
 iex.base = 'https://sandbox.iexapis.com'
 exp_symbols = ['AAPL', 'FB', 'DIS']
 
@@ -55,19 +62,10 @@ class TestMarketData:
     def test_save_dividends(self):
         symbol = 'O'
         div_path = md.finder.get_dividends_path(symbol)
-        test_path = f'{div_path}_TEST'
+        temp_path = f'{div_path}_TEMP'
 
         if os.path.exists(div_path):
-            os.remove(div_path)
-        elif os.path.exists(test_path):
-            os.remove(test_path)
-
-        if md.writer.store.key_exists(div_path, download=True):
-            md.writer.rename_file(div_path, test_path)
-        else:
-            md.writer.store.download_file(test_path)
-
-        assert not md.reader.check_file_exists(div_path)
+            os.rename(div_path, temp_path)
 
         retries = 10
         delay = choice(range(5, 10))
@@ -79,8 +77,13 @@ class TestMarketData:
                 break
 
         assert md.reader.check_file_exists(div_path)
-        md.writer.remove_files([div_path])
-        md.writer.rename_file(test_path, div_path)
+        assert md.reader.store.modified_delta(div_path).total_seconds() < 60
+        df = md.reader.load_csv(div_path)
+        assert {C.EX, C.PAY, C.DEC, C.DIV}.issubset(df.columns)
+        assert len(df) > 0
+
+        if os.path.exists(temp_path):
+            os.rename(temp_path, div_path)
 
 
 class TestIEXCloud:

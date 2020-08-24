@@ -99,7 +99,7 @@ class IEXCloud(MarketData):
             self.base,
             self.version,
             category,
-            symbol,
+            symbol.lower(),
             dataset,
             timeframe
         ]

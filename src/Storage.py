@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 import boto3
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
@@ -17,26 +18,28 @@ class Store:
         return os.environ.get(
             'S3_BUCKET') if not C.DEV else os.environ.get('S3_DEV_BUCKET')
 
-    def upload_file(self, path):
+    def get_bucket(self):
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(self.bucket_name)
+        return bucket
+
+    def upload_file(self, path):
+        bucket = self.get_bucket()
         bucket.upload_file(path, path)
 
-    def upload_dir(self, path, truncate=False):
-        paths = self.finder.get_all_paths(path, truncate=truncate)
+    def upload_dir(self, **kwargs):
+        paths = self.finder.get_all_paths(**kwargs)
         with Pool() as p:
             p.map(self.upload_file, paths)
 
     def delete_objects(self, keys):
         if keys:
             objects = [{'Key': key} for key in keys]
-            s3 = boto3.resource('s3')
-            bucket = s3.Bucket(self.bucket_name)
+            bucket = self.get_bucket()
             bucket.delete_objects(Delete={'Objects': objects})
 
     def get_all_keys(self):
-        s3 = boto3.resource('s3')
-        bucket = s3.Bucket(self.bucket_name)
+        bucket = self.get_bucket()
         keys = [obj.key for obj in bucket.objects.filter()]
         return keys
 
@@ -45,8 +48,7 @@ class Store:
             if download:
                 self.download_file(key)
             else:
-                s3 = boto3.resource('s3')
-                bucket = s3.Bucket(self.bucket_name)
+                bucket = self.get_bucket()
                 bucket.Object(key).load()
         except ClientError:
             return False
@@ -56,17 +58,33 @@ class Store:
     def download_file(self, key):
         try:
             self.finder.make_path(key)
-            s3 = boto3.resource('s3')
             with open(key, 'wb') as file:
-                bucket = s3.Bucket(self.bucket_name)
+                bucket = self.get_bucket()
                 bucket.download_fileobj(key, file)
         except ClientError as e:
             print(f'{key} does not exist in S3.')
             os.remove(key)
             raise e
 
+    def copy_object(self, src, dst):
+        bucket = self.get_bucket()
+        copy_source = {
+            'Bucket': self.bucket_name,
+            'Key': src
+        }
+        bucket.copy(copy_source, dst)
+
     def rename_key(self, old_key, new_key):
-        s3 = boto3.resource('s3')
-        s3.Object(self.bucket_name, new_key).copy_from(
-            CopySource=f'{self.bucket_name}/{old_key}')
-        s3.Object(self.bucket_name, old_key).delete()
+        self.copy_object(old_key, new_key)
+        self.delete_objects([old_key])
+
+    def last_modified(self, key):
+        bucket = self.get_bucket()
+        obj = bucket.Object(key)
+        then = obj.last_modified.replace(tzinfo=None)
+        return then
+
+    def modified_delta(self, key):
+        then = self.last_modified(key)
+        now = datetime.utcnow()
+        return now - then
