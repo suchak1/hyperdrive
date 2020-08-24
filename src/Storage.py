@@ -27,8 +27,8 @@ class Store:
         bucket = self.get_bucket()
         bucket.upload_file(path, path)
 
-    def upload_dir(self, path, truncate=False):
-        paths = self.finder.get_all_paths(path, truncate=truncate)
+    def upload_dir(self, **kwargs):
+        paths = self.finder.get_all_paths(**kwargs)
         with Pool() as p:
             p.map(self.upload_file, paths)
 

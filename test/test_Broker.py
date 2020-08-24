@@ -65,4 +65,4 @@ class TestRobinhood:
         rh.save_symbols()
         assert os.path.exists(symbols_path)
         df = rh.reader.load_csv(symbols_path)
-        assert 'AAPL' in df[C.SYMBOL]
+        assert 'AAPL' in list(df[C.SYMBOL])
