@@ -1,9 +1,13 @@
+import os
 import sys
 sys.path.append('src')
 from Algotrader import Scarlett  # noqa autopep8
 
 
 sl = Scarlett()
+if not os.environ.get('CI'):
+    sl.broker.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    sl.broker.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
 
 
 class TestScarlett:
