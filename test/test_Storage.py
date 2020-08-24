@@ -39,7 +39,7 @@ class TestStore:
     def test_upload_dir(self):
         with open(test_file2, 'w') as file:
             file.write('b')
-        store.upload_dir(C.DEV_DIR)
+        store.upload_dir(path=C.DEV_DIR)
         assert store.key_exists(test_file2)
 
     def test_delete_objects(self):
