@@ -11,14 +11,16 @@ import Constants as C  # noqa autopep8
 load_dotenv()
 store = Store()
 
+run_nonce = ''
 if not os.environ.get('CI'):
     store.bucket_name = os.environ['S3_DEV_BUCKET']
+else:
+    run_nonce = os.environ['RUN_NONCE']
 
 symbols_path = store.finder.get_symbols_path()
-timestamp = str(time.time()).replace('.', '_')
 
-test_file1 = f'{C.DEV_DIR}/{timestamp}_x'
-test_file2 = f'{C.DEV_DIR}/{timestamp}_y'
+test_file1 = f'{C.DEV_DIR}/{run_nonce}_x'
+test_file2 = f'{C.DEV_DIR}/{run_nonce}_y'
 
 
 class TestStore:
@@ -68,8 +70,8 @@ class TestStore:
         assert os.path.exists(symbols_path)
 
     def test_rename_key(self):
-        src_path = f'{symbols_path}_{timestamp}_SRC'
-        dst_path = f'{symbols_path}_{timestamp}_DST'
+        src_path = f'{symbols_path}_{run_nonce}_SRC'
+        dst_path = f'{symbols_path}_{run_nonce}_DST'
 
         assert not store.key_exists(src_path)
         store.copy_object(symbols_path, src_path)

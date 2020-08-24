@@ -8,7 +8,7 @@ sys.path.append('src')
 from FileOps import FileReader, FileWriter  # noqa autopep8
 import Constants as C  # noqa autopep8
 
-timestamp = str(time.time()).replace('.', '_')
+run_nonce = str(time.time()).replace('.', '_')
 
 json_path1 = 'test/test1.json'
 json_path2 = 'test/test2.json'
@@ -37,8 +37,8 @@ snippet = {
 data_ = data[:]
 data_.append(snippet)
 
-csv_path1 = f'test/test1_{timestamp}.csv'
-csv_path2 = f'test/test2_{timestamp}.csv'
+csv_path1 = f'test/test1_{run_nonce}.csv'
+csv_path2 = f'test/test2_{run_nonce}.csv'
 test_df = pd.DataFrame(data)
 big_df = pd.DataFrame(data_)
 small_df = pd.DataFrame([snippet])
@@ -47,9 +47,12 @@ empty_df = pd.DataFrame()
 reader = FileReader()
 writer = FileWriter()
 
+run_nonce = ''
 if not os.environ.get('CI'):
     reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
     writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
+else:
+    run_nonce = os.environ['RUN_NONCE']
 
 symbols_path = reader.store.finder.get_symbols_path()
 
@@ -92,7 +95,7 @@ class TestFileWriter:
         writer.save_csv(csv_path2, test_df)
 
     def test_remove_files(self):
-        filename = f'{C.DEV_DIR}/{timestamp}_x'
+        filename = f'{C.DEV_DIR}/{run_nonce}_x'
         assert not reader.check_file_exists(filename)
         reader.store.finder.make_path(filename)
         with open(filename, 'w') as file:
@@ -103,8 +106,8 @@ class TestFileWriter:
         assert not reader.check_file_exists(filename)
 
     def test_rename_file(self):
-        src_path = f'{symbols_path}_{timestamp}_SRC'
-        dst_path = f'{symbols_path}_{timestamp}_DST'
+        src_path = f'{symbols_path}_{run_nonce}_SRC'
+        dst_path = f'{symbols_path}_{run_nonce}_DST'
 
         assert not reader.check_file_exists(src_path)
         writer.store.copy_object(symbols_path, src_path)
