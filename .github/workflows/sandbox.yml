@@ -65,5 +65,8 @@ jobs:
       - name: Update dividends
         run: python scripts/update_dividends.py
 
+      - name: Update splits
+        run: python scripts/update_splits.py
+
       - name: Upload repo to S3
         run: python3 scripts/update_repo.py
