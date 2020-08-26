@@ -64,6 +64,27 @@ class MarketData:
         filtered = self.reader.data_in_timeframe(df, C.EX, timeframe)
         return filtered
 
+    def standardize_splits(self, symbol, df):
+        full_mapping = dict(
+            zip(
+                ['exDate', 'paymentDate', 'declaredDate', 'ratio'],
+                [C.EX, C.PAY, C.DEC, C.RATIO]
+            )
+        )
+        mapping = {k: v for k, v in full_mapping.items() if k in df}
+        columns = list(mapping)
+
+        df = df[columns].rename(columns=mapping)
+        filename = self.finder.get_splits_path(symbol, self.provider)
+
+        if C.EX in df and C.RATIO in df:
+            df = self.reader.update_df(
+                filename, df, C.EX).sort_values(by=[C.EX])
+            df[C.RATIO] = df[C.RATIO].apply(
+                lambda ratio: float(ratio) if ratio else 1)
+
+        return df
+
     def save_splits(self, **kwargs):
         # given a symbol, save its splits history
         symbol = kwargs['symbol']
@@ -166,4 +187,9 @@ class Polygon(MarketData):
         return self.reader.data_in_timeframe(df, C.EX, timeframe)
 
     def get_splits(self, symbol, timeframe='max'):
-        pass
+        response = self.client.reference_stock_splits(symbol)
+        raw = pd.DataFrame(response.results)
+        df = self.standardize_splits(symbol, raw)
+        return self.reader.data_in_timeframe(df, C.EX, timeframe)
+
+# newShares = oldShares / ratio

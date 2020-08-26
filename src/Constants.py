@@ -32,6 +32,9 @@ EX = 'Ex'    # Ex Dividend Date
 DEC = 'Dec'  # Declaration Date
 PAY = 'Pay'  # Payment Date
 
+# Splits
+RATIO = 'Ratio'
+
 
 class PathFinder:
     def make_path(self, path):
