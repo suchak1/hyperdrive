@@ -57,18 +57,19 @@ class MarketData:
         self.writer.update_csv(
             self.finder.get_dividends_path(symbol, self.provider), df)
 
-    # def get_splits(self, symbol, timeframe='max'):
-    #     # given a symbol, return a cached dataframe
-    #     df = self.reader.load_csv(self.finder.get_splits_path(symbol))
-    #     filtered = self.reader.data_in_timeframe(df, C.EX, timeframe)
-    #     return filtered
+    def get_splits(self, symbol, timeframe='max'):
+        # given a symbol, return a cached dataframe
+        df = self.reader.load_csv(
+            self.finder.get_splits_path(symbol, self.provider))
+        filtered = self.reader.data_in_timeframe(df, C.EX, timeframe)
+        return filtered
 
-    # def save_splits(self, **kwargs):
-    #     # given a symbol, save its splits history
-    #     symbol = kwargs['symbol']
-    #     df = self.get_splits(**kwargs)
-    #     self.writer.update_csv(self.finder.get_splits_path(symbol), df)
-
+    def save_splits(self, **kwargs):
+        # given a symbol, save its splits history
+        symbol = kwargs['symbol']
+        df = self.get_splits(**kwargs)
+        self.writer.update_csv(
+            self.finder.get_splits_path(symbol, self.provider), df)
 
 # make tiingo OR IEX CLOUD!! version of get dividends which
 # fetches existing dividend csv and adds a row if dividend
@@ -121,15 +122,34 @@ class IEXCloud(MarketData):
 
         return self.standardize_dividends(symbol, df)
 
-    # def get_splits(self, symbol):
-    #     # given a symbol, return the stock splits
-    #     ticker = yf.Ticker(symbol.replace('.', '-'))
-    #     df = ticker.actions.reset_index().drop(
-    #         'Dividends',
-    #         axis=1
-    #     )
-    #     df = df[df['Stock Splits'] != 0]
-    #     return df
+    def get_splits(self, symbol, timeframe='3m'):
+        # given a symbol, return the stock splits
+        category = 'stock'
+        dataset = 'splits'
+        parts = [
+            self.base,
+            self.version,
+            category,
+            symbol.lower(),
+            dataset,
+            timeframe
+        ]
+        endpoint = self.get_endpoint(parts)
+        response = requests.get(endpoint)
+        empty = pd.DataFrame()
+
+        if response.ok:
+            data = response.json()
+            # self.writer.save_json(f'data/{symbol}.json', data)
+        else:
+            print(f'Invalid response from IEX for {symbol} splits.')
+
+        if not response.ok or data == []:
+            return empty
+
+        df = pd.DataFrame(data)
+
+        return self.standardize_splits(symbol, df)
 
 
 class Polygon(MarketData):
@@ -144,3 +164,6 @@ class Polygon(MarketData):
         raw = pd.DataFrame(response.results)
         df = self.standardize_dividends(symbol, raw)
         return self.reader.data_in_timeframe(df, C.EX, timeframe)
+
+    def get_splits(self, symbol, timeframe='max'):
+        pass

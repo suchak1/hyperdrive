@@ -54,12 +54,13 @@ class PathFinder:
             f'{symbol.upper()}.csv'
         )
 
-    def get_splits_path(self, symbol):
+    def get_splits_path(self, symbol, provider='iexcloud'):
         # given a symbol
         # return the path to its stock splits
         return os.path.join(
             DATA_DIR,
             SPLT_DIR,
+            folders[provider],
             f'{symbol.upper()}.csv'
         )
 
