@@ -107,7 +107,29 @@ class TestMarketData:
             assert col_in_df if curr_idx < sel_idx else not col_in_df
 
     def test_save_splits(self):
-        pass
+        symbol = 'NFLX'
+        splt_path = md.finder.get_splits_path(symbol)
+        temp_path = f'{splt_path}_TEMP'
+
+        if os.path.exists(splt_path):
+            os.rename(splt_path, temp_path)
+
+        for _ in range(retries):
+            iex.save_splits(symbol=symbol, timeframe='5y')
+            if not md.reader.check_file_exists(splt_path):
+                delay = choice(range(5, 10))
+                sleep(delay)
+            else:
+                break
+
+        assert md.reader.check_file_exists(splt_path)
+        assert md.reader.store.modified_delta(splt_path).total_seconds() < 60
+        df = md.reader.load_csv(splt_path)
+        assert {C.EX, C.DEC, C.RATIO}.issubset(df.columns)
+        assert len(df) > 0
+
+        if os.path.exists(temp_path):
+            os.rename(temp_path, splt_path)
 
 
 class TestIEXCloud:

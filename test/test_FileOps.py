@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 from datetime import timedelta
 import pytest
 import pandas as pd
@@ -8,10 +7,23 @@ sys.path.append('src')
 from FileOps import FileReader, FileWriter  # noqa autopep8
 import Constants as C  # noqa autopep8
 
-run_id = str(time.time()).replace('.', '_')
+reader = FileReader()
+writer = FileWriter()
+
+run_id = ''
+if not os.environ.get('CI'):
+    reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
+else:
+    run_id = os.environ['RUN_ID']
+
+symbols_path = reader.store.finder.get_symbols_path()
 
 json_path1 = 'test/test1.json'
 json_path2 = 'test/test2.json'
+
+csv_path1 = f'test/test1_{run_id}.csv'
+csv_path2 = f'test/test2_{run_id}.csv'
 
 empty = {}
 data = [
@@ -34,27 +46,14 @@ snippet = {
     'volume': 102265,
     'date': '2015-01-15'
 }
+
 data_ = data[:]
 data_.append(snippet)
 
-csv_path1 = f'test/test1_{run_id}.csv'
-csv_path2 = f'test/test2_{run_id}.csv'
 test_df = pd.DataFrame(data)
 big_df = pd.DataFrame(data_)
 small_df = pd.DataFrame([snippet])
 empty_df = pd.DataFrame()
-
-reader = FileReader()
-writer = FileWriter()
-
-run_id = ''
-if not os.environ.get('CI'):
-    reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
-else:
-    run_id = os.environ['RUN_ID']
-
-symbols_path = reader.store.finder.get_symbols_path()
 
 
 class TestFileWriter:
