@@ -70,8 +70,8 @@ class TestStore:
         assert os.path.exists(symbols_path)
 
     def test_rename_key(self):
-        src_path = f'{symbols_path}_{run_id}_SRC'
-        dst_path = f'{symbols_path}_{run_id}_DST'
+        src_path = f'{symbols_path}_{run_id}_SRC2'
+        dst_path = f'{symbols_path}_{run_id}_DST2'
 
         assert not store.key_exists(src_path)
         store.copy_object(symbols_path, src_path)
