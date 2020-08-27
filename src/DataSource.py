@@ -35,12 +35,13 @@ class MarketData:
 
         df = df[list(mapping)].rename(columns=mapping)
         filename = fx(symbol, self.provider)
-        col1, col2 = columns
+        time_col, val_col = columns
 
-        if col1 in df and col2 in df:
+        if time_col in df and val_col in df:
             df = self.reader.update_df(
-                filename, df, col1).sort_values(by=[col1])
-            df[col2] = df[col2].apply(lambda x: float(x) if x else default)
+                filename, df, time_col).sort_values(by=[time_col])
+            df[val_col] = df[val_col].apply(
+                lambda val: float(val) if val else default)
 
         return df
 
