@@ -21,6 +21,7 @@ if not os.environ.get('CI'):
 iex.base = 'https://sandbox.iexapis.com'
 iex.base = 'https://sandbox.iexapis.com'
 exp_symbols = ['AAPL', 'FB', 'DIS']
+retries = 10
 
 
 class TestMarketData:
@@ -67,11 +68,10 @@ class TestMarketData:
         if os.path.exists(div_path):
             os.rename(div_path, temp_path)
 
-        retries = 10
-        delay = choice(range(5, 10))
         for _ in range(retries):
             iex.save_dividends(symbol=symbol, timeframe='5y')
             if not md.reader.check_file_exists(div_path):
+                delay = choice(range(5, 10))
                 sleep(delay)
             else:
                 break
@@ -84,6 +84,17 @@ class TestMarketData:
 
         if os.path.exists(temp_path):
             os.rename(temp_path, div_path)
+
+    def test_get_splits(self):
+        df = md.get_splits('NFLX')
+        assert {C.EX, C.DEC, C.RATIO}.issubset(df.columns)
+        assert len(df) > 0
+
+    def test_standardize_splits(self):
+        pass
+
+    def test_save_splits(self):
+        pass
 
 
 class TestIEXCloud:
@@ -108,11 +119,35 @@ class TestIEXCloud:
         assert 'token' in endpoint
 
     def test_get_dividends(self):
-        df = iex.get_dividends('AAPL', '5y')
-        assert type(df).__name__ == 'DataFrame'
+        df = []
 
-        if len(df) > 0:
-            assert {C.EX, C.PAY, C.DEC, C.DIV}.issubset(df.columns)
+        for i in range(retries):
+            if not len(df):
+                df = iex.get_dividends('AAPL', '5y')
+                if not i:
+                    delay = choice(range(5, 10))
+                    sleep(delay)
+            else:
+                break
+
+        assert len(df) > 0
+        assert {C.EX, C.PAY, C.DEC, C.DIV}.issubset(df.columns)
+
+    def test_get_splits(self):
+        df1, df2 = [], []
+        for i in range(retries):
+            if not(len(df1) or len(df2)):
+                df1 = iex.get_splits('AAPL', '5y')
+                df2 = iex.get_splits('NFLX', '5y')
+                if not i:
+                    delay = choice(range(5, 10))
+                    sleep(delay)
+            else:
+                break
+
+        assert len(df1) or len(df2)
+        assert {C.EX, C.DEC, C.RATIO}.issubset(
+            df1.columns) or {C.EX, C.DEC, C.RATIO}.issubset(df2.columns)
 
 
 class TestPolygon:
@@ -126,3 +161,6 @@ class TestPolygon:
         assert type(df).__name__ == 'DataFrame'
         assert {C.EX, C.PAY, C.DEC, C.DIV}.issubset(df.columns)
         assert len(df) > 0
+
+    def test_get_splits(self):
+        pass
