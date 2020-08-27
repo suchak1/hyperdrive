@@ -32,9 +32,8 @@ class MarketData:
 
     def standardize(self, symbol, df, full_mapping, fx, columns, default):
         mapping = {k: v for k, v in full_mapping.items() if k in df}
-        columns = list(mapping)
 
-        df = df[columns].rename(columns=mapping)
+        df = df[list(mapping)].rename(columns=mapping)
         filename = fx(symbol, self.provider)
         col1, col2 = columns
 
