@@ -91,7 +91,20 @@ class TestMarketData:
         assert len(df) > 0
 
     def test_standardize_splits(self):
-        pass
+        columns = ['exDate', 'paymentDate', 'declaredDate', 'ratio']
+        new_cols = [C.EX, C.PAY, C.DEC, C.RATIO]
+        sel_idx = 2
+        selected = columns[sel_idx:]
+        df = pd.DataFrame({column: [0] for column in columns})
+        standardized = md.standardize_splits('NFLX', df)
+        for column in new_cols:
+            assert column in standardized
+
+        df.drop(columns=selected, inplace=True)
+        standardized = md.standardize_splits('NFLX', df)
+        for curr_idx, column in enumerate(new_cols):
+            col_in_df = column in standardized
+            assert col_in_df if curr_idx < sel_idx else not col_in_df
 
     def test_save_splits(self):
         pass
@@ -158,9 +171,10 @@ class TestPolygon:
 
     def test_get_dividends(self):
         df = poly.get_dividends('AAPL', '5y')
-        assert type(df).__name__ == 'DataFrame'
         assert {C.EX, C.PAY, C.DEC, C.DIV}.issubset(df.columns)
         assert len(df) > 0
 
     def test_get_splits(self):
-        pass
+        df = poly.get_splits('AAPL')
+        assert {C.EX, C.DEC, C.RATIO}.issubset(df.columns)
+        assert len(df) > 0

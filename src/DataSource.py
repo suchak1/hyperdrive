@@ -30,6 +30,21 @@ class MarketData:
         filtered = self.reader.data_in_timeframe(df, C.EX, timeframe)
         return filtered
 
+    def standardize(self, symbol, df, full_mapping, fx, columns, default):
+        mapping = {k: v for k, v in full_mapping.items() if k in df}
+        columns = list(mapping)
+
+        df = df[columns].rename(columns=mapping)
+        filename = fx(symbol, self.provider)
+        col1, col2 = columns
+
+        if col1 in df and col2 in df:
+            df = self.reader.update_df(
+                filename, df, col1).sort_values(by=[col1])
+            df[col2] = df[col2].apply(lambda x: float(x) if x else default)
+
+        return df
+
     def standardize_dividends(self, symbol, df):
         full_mapping = dict(
             zip(
@@ -37,18 +52,14 @@ class MarketData:
                 [C.EX, C.PAY, C.DEC, C.DIV]
             )
         )
-        mapping = {k: v for k, v in full_mapping.items() if k in df}
-        columns = list(mapping)
-
-        df = df[columns].rename(columns=mapping)
-        filename = self.finder.get_dividends_path(symbol, self.provider)
-
-        if C.EX in df and C.DIV in df:
-            df = self.reader.update_df(
-                filename, df, C.EX).sort_values(by=[C.EX])
-            df[C.DIV] = df[C.DIV].apply(lambda amt: float(amt) if amt else 0)
-
-        return df
+        return self.standardize(
+            symbol,
+            df,
+            full_mapping,
+            self.finder.get_dividends_path,
+            [C.EX, C.DIV],
+            0
+        )
 
     def save_dividends(self, **kwargs):
         # given a symbol, save its dividend history
@@ -71,19 +82,14 @@ class MarketData:
                 [C.EX, C.PAY, C.DEC, C.RATIO]
             )
         )
-        mapping = {k: v for k, v in full_mapping.items() if k in df}
-        columns = list(mapping)
-
-        df = df[columns].rename(columns=mapping)
-        filename = self.finder.get_splits_path(symbol, self.provider)
-
-        if C.EX in df and C.RATIO in df:
-            df = self.reader.update_df(
-                filename, df, C.EX).sort_values(by=[C.EX])
-            df[C.RATIO] = df[C.RATIO].apply(
-                lambda ratio: float(ratio) if ratio else 1)
-
-        return df
+        return self.standardize(
+            symbol,
+            df,
+            full_mapping,
+            self.finder.get_splits_path,
+            [C.EX, C.RATIO],
+            1
+        )
 
     def save_splits(self, **kwargs):
         # given a symbol, save its splits history
