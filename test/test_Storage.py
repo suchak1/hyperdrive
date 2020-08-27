@@ -11,12 +11,16 @@ import Constants as C  # noqa autopep8
 load_dotenv()
 store = Store()
 
+run_id = ''
 if not os.environ.get('CI'):
     store.bucket_name = os.environ['S3_DEV_BUCKET']
+else:
+    run_id = os.environ['RUN_ID']
 
 symbols_path = store.finder.get_symbols_path()
-test_file1 = f'{C.DEV_DIR}/x'
-test_file2 = f'{C.DEV_DIR}/y'
+
+test_file1 = f'{C.DEV_DIR}/{run_id}_x'
+test_file2 = f'{C.DEV_DIR}/{run_id}_y'
 
 
 class TestStore:
@@ -28,14 +32,14 @@ class TestStore:
     def test_upload_file(self):
         store.finder.make_path(test_file1)
         with open(test_file1, 'w') as file:
-            file.write('a')
+            file.write('123')
         store.upload_file(test_file1)
         assert store.key_exists(test_file1)
 
     def test_upload_dir(self):
         with open(test_file2, 'w') as file:
             file.write('b')
-        store.upload_dir(C.DEV_DIR)
+        store.upload_dir(path=C.DEV_DIR)
         assert store.key_exists(test_file2)
 
     def test_delete_objects(self):
@@ -64,3 +68,17 @@ class TestStore:
         assert not os.path.exists(symbols_path)
         store.download_file(symbols_path)
         assert os.path.exists(symbols_path)
+
+    def test_rename_key(self):
+        src_path = f'{symbols_path}_{run_id}_SRC2'
+        dst_path = f'{symbols_path}_{run_id}_DST2'
+
+        assert not store.key_exists(src_path)
+        store.copy_object(symbols_path, src_path)
+        assert store.key_exists(src_path)
+
+        assert not store.key_exists(dst_path)
+        store.rename_key(src_path, dst_path)
+        assert store.key_exists(dst_path)
+
+        store.delete_objects([dst_path])

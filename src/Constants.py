@@ -32,6 +32,9 @@ EX = 'Ex'    # Ex Dividend Date
 DEC = 'Dec'  # Declaration Date
 PAY = 'Pay'  # Payment Date
 
+# Splits
+RATIO = 'Ratio'
+
 
 class PathFinder:
     def make_path(self, path):
@@ -54,12 +57,13 @@ class PathFinder:
             f'{symbol.upper()}.csv'
         )
 
-    def get_splits_path(self, symbol):
+    def get_splits_path(self, symbol, provider='iexcloud'):
         # given a symbol
         # return the path to its stock splits
         return os.path.join(
             DATA_DIR,
             SPLT_DIR,
+            folders[provider],
             f'{symbol.upper()}.csv'
         )
 
