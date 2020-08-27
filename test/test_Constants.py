@@ -20,5 +20,7 @@ class TestPathFinder():
             'AMD') == 'data/dividends/iexcloud/AMD.csv'
 
     def test_get_splits_path(self):
-        assert finder.get_splits_path('aapl') == 'data/splits/AAPL.csv'
-        assert finder.get_splits_path('AMD') == 'data/splits/AMD.csv'
+        assert finder.get_splits_path(
+            'aapl') == 'data/splits/iexcloud/AAPL.csv'
+        assert finder.get_splits_path(
+            'AMD') == 'data/splits/iexcloud/AMD.csv'
