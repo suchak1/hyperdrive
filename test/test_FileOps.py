@@ -97,12 +97,19 @@ class TestFileWriter:
         assert not reader.check_file_exists(filename)
 
     def test_rename_file(self):
-        assert not reader.check_file_exists(test_path)
-        if not os.path.exists(symbols_path):
-            writer.store.download_file(symbols_path)
-        writer.rename_file(symbols_path, test_path)
-        assert reader.check_file_exists(test_path)
-        writer.rename_file(test_path, symbols_path)
+        src_path = f'{symbols_path}_{run_id}_SRC1'
+        dst_path = f'{symbols_path}_{run_id}_DST1'
+
+        assert not reader.check_file_exists(src_path)
+        writer.store.copy_object(symbols_path, src_path)
+        writer.store.download_file(src_path)
+        assert reader.check_file_exists(src_path)
+
+        assert not reader.check_file_exists(dst_path)
+        writer.rename_file(src_path, dst_path)
+        assert reader.check_file_exists(dst_path)
+
+        writer.remove_files([dst_path])
 
 
 class TestFileReader:
