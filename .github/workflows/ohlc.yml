@@ -5,8 +5,8 @@ name: OHLC
 
 on:
   schedule:
-    - cron: "0 4 * * *"
-    # 12pm EST
+    - cron: "0 4 * * 2-6"
+    # 12pm EST Tues-Sat
 
 jobs:
   build:

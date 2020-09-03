@@ -1,6 +1,8 @@
 import os
 import requests
 import pandas as pd
+from operator import attrgetter
+from datetime import datetime, timedelta
 from polygon import RESTClient
 from dotenv import load_dotenv
 from FileOps import FileReader, FileWriter
@@ -115,9 +117,9 @@ class MarketData:
             0
         )
 
-# make tiingo OR IEX CLOUD!! version of get dividends which
-# fetches existing dividend csv and adds a row if dividend
-# today or fetches last 5 years, joins with existing and updates if new
+    def save_ohlc(self):
+        # TODO
+        pass
 
 
 class IEXCloud(MarketData):
@@ -246,4 +248,17 @@ class Polygon(MarketData):
         df = self.standardize_splits(symbol, raw)
         return self.reader.data_in_timeframe(df, C.EX, timeframe)
 
+    def get_prev_ohlc(self, symbol):
+        today = datetime.today()
+        one_day = timedelta(days=1)
+        yesterday = today - one_day
+        formatted_date = yesterday.strftime('%Y-%m-%d')
+        response = self.client.stocks_equities_daily_open_close(
+            symbol, formatted_date)
+        raw = attrgetter('from_', 'open', 'high', 'low',
+                         'close', 'volume')(response)
+        labels = ['date', 'open', 'high', 'low', 'close', 'volume']
+        data = dict(zip(labels, [[datum] for datum in raw]))
+        df = pd.DataFrame(data)
+        return self.standardize_ohlc(df)
 # newShares = oldShares / ratio
