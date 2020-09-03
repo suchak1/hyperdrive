@@ -35,13 +35,14 @@ class MarketData:
 
         df = df[list(mapping)].rename(columns=mapping)
         filename = fx(symbol, self.provider)
-        time_col, val_col = columns
+        time_col, val_cols = columns[0], columns[1:]
 
-        if time_col in df and val_col in df:
+        if time_col in df and set(val_cols).issubset(df.columns):
             df = self.reader.update_df(
                 filename, df, time_col).sort_values(by=[time_col])
-            df[val_col] = df[val_col].apply(
-                lambda val: float(val) if val else default)
+            for val_col in val_cols:
+                df[val_col] = df[val_col].apply(
+                    lambda val: float(val) if val else default)
 
         return df
 
@@ -98,6 +99,22 @@ class MarketData:
         self.writer.update_csv(
             self.finder.get_splits_path(symbol, self.provider), df)
 
+    def standardize_ohlc(self, symbol, df):
+        full_mapping = dict(
+            zip(
+                ['date', 'open', 'high', 'low', 'close', 'volume'],
+                [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE, C.VOL]
+            )
+        )
+        return self.standardize(
+            symbol,
+            df,
+            full_mapping,
+            self.finder.get_ohlc_path,
+            [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE],
+            0
+        )
+
 # make tiingo OR IEX CLOUD!! version of get dividends which
 # fetches existing dividend csv and adds a row if dividend
 # today or fetches last 5 years, joins with existing and updates if new
@@ -112,11 +129,13 @@ class IEXCloud(MarketData):
         self.token = os.environ['IEXCLOUD']
         self.provider = 'iexcloud'
 
-    def get_endpoint(self, parts):
+    def get_endpoint(self, parts, raw_params=[]):
         # given a url
         # return an authenticated endpoint
         url = '/'.join(parts)
-        endpoint = f'{url}?token={self.token}'
+        auth_params = raw_params + [f'token={self.token}']
+        params = '&'.join(auth_params)
+        endpoint = f'{url}?{params}'
         return endpoint
 
     def get_dividends(self, symbol, timeframe='3m'):
@@ -167,7 +186,6 @@ class IEXCloud(MarketData):
 
         if response.ok:
             data = response.json()
-            # self.writer.save_json(f'data/{symbol}.json', data)
         else:
             print(f'Invalid response from IEX for {symbol} splits.')
 
@@ -177,6 +195,36 @@ class IEXCloud(MarketData):
         df = pd.DataFrame(data)
 
         return self.standardize_splits(symbol, df)
+
+    def get_prev_ohlc(self, symbol):
+        # given a symbol, return the prev day's ohlc
+        category = 'stock'
+        dataset = 'previous'
+        parts = [
+            self.base,
+            self.version,
+            category,
+            symbol,
+            dataset
+        ]
+        endpoint = self.get_endpoint(parts)
+        response = requests.get(endpoint)
+        empty = pd.DataFrame()
+
+        if response.ok:
+            data = response.json()
+        else:
+            print(f'Invalid response from IEX for {symbol} splits.')
+
+        if not response.ok or data == []:
+            return empty
+
+        df = pd.DataFrame({k: [v] for k, v in data.items()})
+
+        return self.standardize_ohlc(symbol, df)
+
+    def get_intraday(self):
+        pass
 
 
 class Polygon(MarketData):
