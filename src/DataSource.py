@@ -221,7 +221,7 @@ class IEXCloud(MarketData):
         if not response.ok or data == []:
             return empty
 
-        df = pd.DataFrame({k: [v] for k, v in data.items()})
+        df = pd.DataFrame([data])
 
         return self.standardize_ohlc(symbol, df)
 
@@ -258,7 +258,7 @@ class Polygon(MarketData):
         raw = attrgetter('from_', 'open', 'high', 'low',
                          'close', 'volume')(response)
         labels = ['date', 'open', 'high', 'low', 'close', 'volume']
-        data = dict(zip(labels, [[datum] for datum in raw]))
-        df = pd.DataFrame(data)
-        return self.standardize_ohlc(df)
+        data = dict(zip(labels, raw))
+        df = pd.DataFrame([data])
+        return self.standardize_ohlc(symbol, df)
 # newShares = oldShares / ratio
