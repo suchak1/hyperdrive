@@ -44,6 +44,10 @@ LOW = 'Low'
 CLOSE = 'Close'
 VOL = 'Vol'
 
+# Sentiment
+POS = 'Pos'
+NEG = 'Neg'
+
 
 class PathFinder:
     def make_path(self, path):

@@ -91,6 +91,11 @@ class FileReader:
         filtered = df[df[col] > pd.to_datetime(date.today() - delta)]
         return filtered
 
+    def convert_dates(self, timeframe):
+        # if timeframe='max': timeframe = '25y'
+        delta = self.convert_delta(timeframe)
+        return from_, to
+
 
 class FileWriter:
     # file write operations

@@ -119,6 +119,8 @@ class MarketData:
 
     def save_ohlc(self):
         # TODO
+        # if 1d: get_prev_ohlc, else: get_ohlc
+        # get rid off get_prev_ohlc?
         pass
 
 
@@ -225,6 +227,9 @@ class IEXCloud(MarketData):
 
         return self.standardize_ohlc(symbol, df)
 
+    def get_ohlc(self, symbol, timeframe):
+        pass
+
     def get_intraday(self):
         pass
 
@@ -261,4 +266,24 @@ class Polygon(MarketData):
         data = dict(zip(labels, raw))
         df = pd.DataFrame([data])
         return self.standardize_ohlc(symbol, df)
+
+    def get_ohlc(self, symbol, timeframe):
+        pass
+
+    def get_intraday(self):
+        # all 1 min and 5 min ticks?
+        pass
 # newShares = oldShares / ratio
+
+
+# stocktwits
+# import requests
+# import json
+# res = request.get('https://stocktwits.com/symbol/TSLA')
+# start = res.text.find('sentimentChange')
+# end = start + res.text[start:].find(',')
+# sent = json.loads(f'{{"{res.text[start:end]}}}')
+# also look into message volume and note initial sentiment and volume then record every day
+
+# better way! https://api.stocktwits.com/api/2/symbols/TSLA/sentiment.json
+# https://api.stocktwits.com/api/2/symbols/TSLA/volume.json
