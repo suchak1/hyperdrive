@@ -286,4 +286,6 @@ class Polygon(MarketData):
 # also look into message volume and note initial sentiment and volume then record every day
 
 # better way! https://api.stocktwits.com/api/2/symbols/TSLA/sentiment.json
+# (but disregard / strip current date)
 # https://api.stocktwits.com/api/2/symbols/TSLA/volume.json
+# (but disregard / strip current date)
