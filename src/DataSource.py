@@ -1,5 +1,6 @@
 import os
 import requests
+import json
 import pandas as pd
 from operator import attrgetter
 from datetime import datetime, timedelta
@@ -122,6 +123,68 @@ class MarketData:
         # if 1d: get_prev_ohlc, else: get_ohlc
         # get rid off get_prev_ohlc?
         pass
+
+    def get_social_sentiment(self, symbol, timeframe='max'):
+        # given a symbol, return a cached dataframe
+        df = self.reader.load_csv(
+            self.finder.get_sentiment_path(symbol))
+        filtered = self.reader.data_in_timeframe(df, C.TIME, timeframe)[
+            [C.TIME, C.POS, C.NEG]]
+        return filtered
+
+    def get_social_volume(self, symbol, timeframe='max'):
+        # given a symbol, return a cached dataframe
+        df = self.reader.load_csv(
+            self.finder.get_sentiment_path(symbol))
+        filtered = self.reader.data_in_timeframe(df, C.TIME, timeframe)[
+            [C.TIME, C.VOL, C.DELTA]]
+        return filtered
+
+    def save_social_sentiment(self, **kwargs):
+        # # given a symbol, save its sentiment data
+        symbol = kwargs['symbol']
+        sen_df = self.get_social_sentiment(**kwargs)
+        vol_df = self.get_social_volume(**kwargs)
+        df = sen_df.merge(vol_df, how='outer', on=C.TIME)
+        df = sen_df.merge(vol_df)
+        print(df)
+
+        # self.writer.update_csv(
+        #     self.finder.get_sentiment_path(symbol), df)
+
+    def standardize_sentiment(self, symbol, df):
+        full_mapping = dict(
+            zip(
+                ['timestamp', 'bullish', 'bearish'],
+                [C.TIME, C.POS, C.NEG]
+            )
+        )
+        return self.standardize(
+            symbol,
+            df,
+            full_mapping,
+            self.finder.get_sentiment_path,
+            [C.TIME, C.POS, C.NEG],
+            0
+        )
+
+    def standardize_volume(self, symbol, df):
+        full_mapping = dict(
+            zip(
+                ['timestamp', 'volume_score', 'volume_change'],
+                [C.TIME, C.VOL, C.DELTA]
+            )
+        )
+        return self.standardize(
+            symbol,
+            df,
+            full_mapping,
+            self.finder.get_sentiment_path,
+            [C.TIME, C.VOL, C.DELTA],
+            0
+        )
+
+    # def handle_request(self, url, err_msg):
 
 
 class IEXCloud(MarketData):
@@ -274,6 +337,58 @@ class Polygon(MarketData):
         # all 1 min and 5 min ticks?
         pass
 # newShares = oldShares / ratio
+
+
+class StockTwits(MarketData):
+    def __init__(self, broker=None):
+        super().__init__(broker=broker)
+        load_dotenv()
+        self.provider = 'stocktwits'
+
+    def get_social_volume(self, symbol, timeframe='max'):
+        vol_res = requests.get(
+            f'https://api.stocktwits.com/api/2/symbols/{symbol}/volume.json')
+        empty = pd.DataFrame()
+
+        if vol_res.ok:
+            vol_data = vol_res.json()['data']
+        else:
+            print(f'Invalid response from Stocktwits for {symbol}')
+
+        if not vol_res.ok or vol_data == []:
+            return empty
+
+        # vol_data = json.load(open('../data/volume.json')
+        #                      )['data']  # remove this
+        vol_data.sort(key=lambda x: x['timestamp'])
+        vol_data.pop()
+        df = pd.DataFrame(vol_data)
+        std = self.standardize_volume(symbol, df)
+        filtered = self.reader.data_in_timeframe(std, C.TIME, timeframe)
+        return filtered
+
+    def get_social_sentiment(self, symbol, timeframe='max'):
+        sen_res = requests.get(
+            f'https://api.stocktwits.com/api/2/symbols/{symbol}/sentiment.json')
+
+        empty = pd.DataFrame()
+
+        if sen_res.ok:
+            sen_data = sen_res.json()['data']
+        else:
+            print(f'Invalid response from Stocktwits for {symbol}.')
+
+        if not sen_res.ok or sen_data == []:
+            return empty
+
+        # sen_data = json.load(open('../data/sentiment.json')
+        #                      )['data']  # remove this
+        sen_data.sort(key=lambda x: x['timestamp'])
+        sen_data.pop()
+        df = pd.DataFrame(sen_data)
+        std = self.standardize_sentiment(symbol, df)
+        filtered = self.reader.data_in_timeframe(std, C.TIME, timeframe)
+        return filtered
 
 
 # stocktwits
