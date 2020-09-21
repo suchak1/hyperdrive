@@ -51,7 +51,7 @@ VOL = 'Vol'
 POS = 'Pos'
 NEG = 'Neg'
 DELTA = 'Delta'
-TWIT_RATE = 75
+TWIT_RATE = 175
 
 
 class PathFinder:

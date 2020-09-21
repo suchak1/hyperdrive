@@ -1,12 +1,12 @@
 # This workflow will automatically update data files
 # For more information see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#scheduled-events-schedule
 
-name: OHLC
+name: Sentiment (2nd batch)
 
 on:
   schedule:
-    - cron: "0 16 * * 2-6"
-    # 12pm EST Tues-Sat
+    - cron: "30 10 * * 3"
+    # 6:30am EST
 
 jobs:
   build:
@@ -36,12 +36,11 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Update splits
+      - name: Update social sentiment
         env:
-          IEXCLOUD: ${{ secrets.IEXCLOUD }}
+          STOCKTWITS: ${{ secrets.STOCKTWITS }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
-          APCA_API_KEY_ID: ${{ secrets.APCA_API_KEY_ID }}
-        run: python scripts/update_ohlc.py
+        run: python scripts/update_sent2.py

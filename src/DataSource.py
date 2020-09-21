@@ -352,10 +352,10 @@ class StockTwits(MarketData):
         self.token = os.environ.get('STOCKTWITS')
 
     def get_social_volume(self, symbol, timeframe='max'):
-        vol_res = requests.get(
-            f"""
-            https://api.stocktwits.com/api/2/symbols/{symbol}/volume.json?access_token={self.token}
-            """)
+        vol_res = requests.get((
+            f'https://api.stocktwits.com/api/2/symbols/{symbol}/volume.json'
+            f'?access_token={self.token}'
+        ))
         empty = pd.DataFrame()
 
         if vol_res.ok:
@@ -366,8 +366,6 @@ class StockTwits(MarketData):
         if not vol_res.ok or vol_data == []:
             return empty
 
-        # vol_data = json.load(open('../data/volume.json')
-        #                      )['data']  # remove this
         vol_data.sort(key=lambda x: x['timestamp'])
         vol_data.pop()
         df = pd.DataFrame(vol_data)
@@ -376,9 +374,10 @@ class StockTwits(MarketData):
         return filtered
 
     def get_social_sentiment(self, symbol, timeframe='max'):
-        sen_res = requests.get(
-            f'https://api.stocktwits.com/api/2/symbols/{symbol}/sentiment.json')
-
+        sen_res = requests.get((
+            f'https://api.stocktwits.com/api/2/symbols/{symbol}/sentiment.json'
+            f'?access_token={self.token}'
+        ))
         empty = pd.DataFrame()
 
         if sen_res.ok:
@@ -389,26 +388,9 @@ class StockTwits(MarketData):
         if not sen_res.ok or sen_data == []:
             return empty
 
-        # sen_data = json.load(open('../data/sentiment.json')
-        #                      )['data']  # remove this
         sen_data.sort(key=lambda x: x['timestamp'])
         sen_data.pop()
         df = pd.DataFrame(sen_data)
         std = self.standardize_sentiment(symbol, df)
         filtered = self.reader.data_in_timeframe(std, C.TIME, timeframe)
         return filtered
-
-
-# stocktwits
-# import requests
-# import json
-# res = request.get('https://stocktwits.com/symbol/TSLA')
-# start = res.text.find('sentimentChange')
-# end = start + res.text[start:].find(',')
-# sent = json.loads(f'{{"{res.text[start:end]}}}')
-# also look into message volume and note initial sentiment and volume then record every day
-
-# better way! https://api.stocktwits.com/api/2/symbols/TSLA/sentiment.json
-# (but disregard / strip current date)
-# https://api.stocktwits.com/api/2/symbols/TSLA/volume.json
-# (but disregard / strip current date)
