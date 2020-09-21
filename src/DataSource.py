@@ -145,12 +145,10 @@ class MarketData:
         symbol = kwargs['symbol']
         sen_df = self.get_social_sentiment(**kwargs)
         vol_df = self.get_social_volume(**kwargs)
-        df = sen_df.merge(vol_df, how='outer', on=C.TIME)
         df = sen_df.merge(vol_df)
-        print(df)
 
-        # self.writer.update_csv(
-        #     self.finder.get_sentiment_path(symbol), df)
+        self.writer.update_csv(
+            self.finder.get_sentiment_path(symbol), df)
 
     def standardize_sentiment(self, symbol, df):
         full_mapping = dict(
