@@ -1,6 +1,5 @@
 import os
 import requests
-import json
 import pandas as pd
 from operator import attrgetter
 from datetime import datetime, timedelta
@@ -145,7 +144,15 @@ class MarketData:
         symbol = kwargs['symbol']
         sen_df = self.get_social_sentiment(**kwargs)
         vol_df = self.get_social_volume(**kwargs)
-        df = sen_df.merge(vol_df)
+
+        if sen_df.empty and not vol_df.empty:
+            df = vol_df
+        elif not sen_df.empty and vol_df.empty:
+            df = sen_df
+        elif not sen_df.empty and not vol_df.empty:
+            df = sen_df.merge(vol_df, how="outer", on=C.TIME)
+        else:
+            return
 
         self.writer.update_csv(
             self.finder.get_sentiment_path(symbol), df)
@@ -342,10 +349,13 @@ class StockTwits(MarketData):
         super().__init__(broker=broker)
         load_dotenv()
         self.provider = 'stocktwits'
+        self.token = os.environ.get('STOCKTWITS')
 
     def get_social_volume(self, symbol, timeframe='max'):
         vol_res = requests.get(
-            f'https://api.stocktwits.com/api/2/symbols/{symbol}/volume.json')
+            f"""
+            https://api.stocktwits.com/api/2/symbols/{symbol}/volume.json?access_token={self.token}
+            """)
         empty = pd.DataFrame()
 
         if vol_res.ok:
