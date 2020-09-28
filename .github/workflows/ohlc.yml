@@ -36,7 +36,7 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Update splits
+      - name: Update OHLC
         env:
           IEXCLOUD: ${{ secrets.IEXCLOUD }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
