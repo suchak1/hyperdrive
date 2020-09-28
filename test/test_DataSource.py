@@ -4,12 +4,14 @@ from time import sleep
 from random import choice
 import pandas as pd
 sys.path.append('src')
-from DataSource import MarketData, IEXCloud, Polygon  # noqa autopep8
+from DataSource import MarketData, IEXCloud, Polygon, StockTwits  # noqa autopep8
 import Constants as C  # noqa autopep8
 
 md = MarketData()
 iex = IEXCloud()
 poly = Polygon()
+twits = StockTwits()
+
 if not os.environ.get('CI'):
     iex.token = os.environ['IEXCLOUD_SANDBOX']
     iex.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
@@ -18,6 +20,9 @@ if not os.environ.get('CI'):
     md.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
     poly.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
     poly.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    twits.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    twits.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
+
 iex.base = 'https://sandbox.iexapis.com'
 iex.base = 'https://sandbox.iexapis.com'
 exp_symbols = ['AAPL', 'FB', 'DIS']
@@ -131,6 +136,67 @@ class TestMarketData:
         if os.path.exists(temp_path):
             os.rename(temp_path, splt_path)
 
+    def test_get_social_sentiment(self):
+        df = md.get_social_sentiment('TSLA')
+        assert len(df) > 0
+        assert {C.TIME, C.POS, C.NEG}.issubset(df.columns)
+
+    def test_get_social_volume(self):
+        df = md.get_social_volume('TSLA')
+        assert len(df) > 0
+        assert {C.TIME, C.VOL, C.DELTA}.issubset(df.columns)
+
+    def test_save_social_sentiment(self):
+        symbol = 'ADBE'
+        sent_path = md.finder.get_sentiment_path(symbol)
+        temp_path = f'{sent_path}_TEMP'
+
+        if os.path.exists(sent_path):
+            os.rename(sent_path, temp_path)
+
+        twits.save_dividends(symbol=symbol, timeframe='1d')
+
+        assert md.reader.check_file_exists(sent_path)
+        assert md.reader.store.modified_delta(sent_path).total_seconds() < 60
+        df = md.reader.load_csv(sent_path)
+        assert {C.TIME, C.POS, C.NEG, C.VOL, C.DELTA}.issubset(df.columns)
+        assert len(df) > 0
+
+        if os.path.exists(temp_path):
+            os.rename(temp_path, sent_path)
+
+    def test_standardize_sentiment(self):
+        columns = ['timestamp', 'bullish', 'bearish']
+        new_cols = [C.TIME, C.POS, C.NEG]
+        sel_idx = 2
+        selected = columns[sel_idx:]
+        df = pd.DataFrame({column: [0] for column in columns})
+        standardized = md.standardize_sentiment('AAPL', df)
+        for column in new_cols:
+            assert column in standardized
+
+        df.drop(columns=selected, inplace=True)
+        standardized = md.standardize_sentiment('AAPL', df)
+        for curr_idx, column in enumerate(new_cols):
+            col_in_df = column in standardized
+            assert col_in_df if curr_idx < sel_idx else not col_in_df
+
+    def test_standardize_volume(self):
+        columns = ['timestamp', 'volume_score', 'volume_change']
+        new_cols = [C.TIME, C.VOL, C.DELTA]
+        sel_idx = 2
+        selected = columns[sel_idx:]
+        df = pd.DataFrame({column: [0] for column in columns})
+        standardized = md.standardize_volume('AAPL', df)
+        for column in new_cols:
+            assert column in standardized
+
+        df.drop(columns=selected, inplace=True)
+        standardized = md.standardize_volume('AAPL', df)
+        for curr_idx, column in enumerate(new_cols):
+            col_in_df = column in standardized
+            assert col_in_df if curr_idx < sel_idx else not col_in_df
+
 
 class TestIEXCloud:
     def test_init(self):
@@ -200,3 +266,20 @@ class TestPolygon:
         df = poly.get_splits('AAPL')
         assert {C.EX, C.DEC, C.RATIO}.issubset(df.columns)
         assert len(df) > 0
+
+
+class TestStockTwits:
+    def test_init(self):
+        assert type(twits).__name__ == 'StockTwits'
+        assert hasattr(twits, 'provider')
+        assert hasattr(twits, 'token')
+
+    def test_get_social_volume(self):
+        df = twits.get_social_volume('TSLA')
+        assert len(df) > 30
+        assert {C.TIME, C.VOL, C.DELTA}.issubset(df.columns)
+
+    def test_get_social_sentiment(self):
+        df = twits.get_social_sentiment('TSLA')
+        assert len(df) > 30
+        assert {C.TIME, C.POS, C.NEG}.issubset(df.columns)

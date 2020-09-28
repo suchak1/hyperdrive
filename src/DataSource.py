@@ -1,8 +1,8 @@
 import os
 import requests
 import pandas as pd
-from operator import attrgetter
-from datetime import datetime, timedelta
+# from operator import attrgetter
+# from datetime import datetime, timedelta
 from polygon import RESTClient
 from dotenv import load_dotenv
 from FileOps import FileReader, FileWriter
@@ -144,19 +144,14 @@ class MarketData:
         symbol = kwargs['symbol']
         sen_df = self.get_social_sentiment(**kwargs)
         vol_df = self.get_social_volume(**kwargs)
-        print(sen_df)
-        print(vol_df)
+
         if sen_df.empty and not vol_df.empty:
             df = vol_df
-            print('vol')
         elif not sen_df.empty and vol_df.empty:
             df = sen_df
-            print('sen')
         elif not sen_df.empty and not vol_df.empty:
             df = sen_df.merge(vol_df, how="outer", on=C.TIME)
-            print(df)
         else:
-            print('none')
             return
 
         self.writer.update_csv(
@@ -375,8 +370,11 @@ class StockTwits(MarketData):
         vol_data.pop()
         df = pd.DataFrame(vol_data)
         std = self.standardize_volume(symbol, df)
-        filtered = self.reader.data_in_timeframe(std, C.TIME, timeframe)[
-            [C.TIME, C.VOL, C.DELTA]]
+        if timeframe == '1d':
+            filtered = std.tail(1)
+        else:
+            filtered = self.reader.data_in_timeframe(std, C.TIME, timeframe)[
+                [C.TIME, C.VOL, C.DELTA]]
         return filtered
 
     def get_social_sentiment(self, symbol, timeframe='max'):
@@ -398,6 +396,9 @@ class StockTwits(MarketData):
         sen_data.pop()
         df = pd.DataFrame(sen_data)
         std = self.standardize_sentiment(symbol, df)
-        filtered = self.reader.data_in_timeframe(std, C.TIME, timeframe)[
-            [C.TIME, C.POS, C.NEG]]
+        if timeframe == '1d':
+            filtered = std.tail(1)
+        else:
+            filtered = self.reader.data_in_timeframe(std, C.TIME, timeframe)[
+                [C.TIME, C.POS, C.NEG]]
         return filtered
