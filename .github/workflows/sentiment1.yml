@@ -5,8 +5,10 @@ name: Sentiment (1st batch)
 
 on:
   schedule:
-    - cron: "0 9 * * 3"
+    - cron: "0 9 * * *"
     # 5am EST
+    # - cron: "30 10 * * *"
+    # # 6:30am EST
 
 jobs:
   build:
@@ -38,9 +40,10 @@ jobs:
 
       - name: Update social sentiment
         env:
+          BATCH: ${{ 1 }}
           STOCKTWITS: ${{ secrets.STOCKTWITS }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
-        run: python scripts/update_sent1.py
+        run: python scripts/update_sentiment.py
