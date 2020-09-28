@@ -75,7 +75,7 @@ Using Robinhood 2FA, we can simply provide our MFA one-time password in the `.en
   - [x] ![Splits](https://github.com/suchak1/scarlett/workflows/Splits/badge.svg)
 - [ ] Sentiment
   - [ ] News Sentiment
-  - [ ] Social Sentiment
+  - [x] Social Sentiment
   - [ ] Analyst Recommendations
 - [ ] Company / Micro
   - [ ] Profile (Sector, # of Employees)

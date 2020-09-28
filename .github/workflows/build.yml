@@ -13,6 +13,7 @@ env:
   RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
   RH_2FA: ${{ secrets.RH_2FA }}
   IEXCLOUD: ${{ secrets.IEXCLOUD_SANDBOX }}
+  STOCKTWITS: ${{ secrets.STOCKTWITS }}
   APCA_API_KEY_ID: ${{ secrets.APCA_API_KEY_ID }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -63,4 +64,4 @@ jobs:
       - name: Upload repo to S3
         env:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
-        run: python3 scripts/update_repo.py
+        run: python scripts/update_repo.py

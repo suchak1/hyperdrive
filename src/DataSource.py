@@ -1,6 +1,8 @@
 import os
 import requests
 import pandas as pd
+# from operator import attrgetter
+# from datetime import datetime, timedelta
 from polygon import RESTClient
 from dotenv import load_dotenv
 from FileOps import FileReader, FileWriter
@@ -35,13 +37,14 @@ class MarketData:
 
         df = df[list(mapping)].rename(columns=mapping)
         filename = fx(symbol, self.provider)
-        time_col, val_col = columns
+        time_col, val_cols = columns[0], columns[1:]
 
-        if time_col in df and val_col in df:
+        if time_col in df and set(val_cols).issubset(df.columns):
             df = self.reader.update_df(
                 filename, df, time_col).sort_values(by=[time_col])
-            df[val_col] = df[val_col].apply(
-                lambda val: float(val) if val else default)
+            for val_col in val_cols:
+                df[val_col] = df[val_col].apply(
+                    lambda val: float(val) if val else default)
 
         return df
 
@@ -98,9 +101,97 @@ class MarketData:
         self.writer.update_csv(
             self.finder.get_splits_path(symbol, self.provider), df)
 
-# make tiingo OR IEX CLOUD!! version of get dividends which
-# fetches existing dividend csv and adds a row if dividend
-# today or fetches last 5 years, joins with existing and updates if new
+    # def standardize_ohlc(self, symbol, df):
+    #     full_mapping = dict(
+    #         zip(
+    #             ['date', 'open', 'high', 'low', 'close', 'volume'],
+    #             [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE, C.VOL]
+    #         )
+    #     )
+    #     return self.standardize(
+    #         symbol,
+    #         df,
+    #         full_mapping,
+    #         self.finder.get_ohlc_path,
+    #         [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE],
+    #         0
+    #     )
+
+    # def save_ohlc(self):
+    #     # TODO
+    #     # if 1d: get_prev_ohlc, else: get_ohlc
+    #     # get rid off get_prev_ohlc?
+    #     pass
+
+    def get_social_sentiment(self, symbol, timeframe='max'):
+        # given a symbol, return a cached dataframe
+        df = self.reader.load_csv(
+            self.finder.get_sentiment_path(symbol))
+        filtered = self.reader.data_in_timeframe(df, C.TIME, timeframe)[
+            [C.TIME, C.POS, C.NEG]]
+        return filtered
+
+    def get_social_volume(self, symbol, timeframe='max'):
+        # given a symbol, return a cached dataframe
+        df = self.reader.load_csv(
+            self.finder.get_sentiment_path(symbol))
+        filtered = self.reader.data_in_timeframe(df, C.TIME, timeframe)[
+            [C.TIME, C.VOL, C.DELTA]]
+        return filtered
+
+    def save_social_sentiment(self, **kwargs):
+        # # given a symbol, save its sentiment data
+        symbol = kwargs['symbol']
+        sen_df = self.get_social_sentiment(**kwargs)
+        vol_df = self.get_social_volume(**kwargs)
+
+        if sen_df.empty and not vol_df.empty:
+            df = vol_df
+        elif not sen_df.empty and vol_df.empty:
+            df = sen_df
+        elif not sen_df.empty and not vol_df.empty:
+            df = sen_df.merge(vol_df, how="outer", on=C.TIME)
+        else:
+            return
+
+        self.writer.update_csv(
+            self.finder.get_sentiment_path(symbol), df)
+
+    def standardize_sentiment(self, symbol, df):
+        full_mapping = dict(
+            zip(
+                ['timestamp', 'bullish', 'bearish'],
+                [C.TIME, C.POS, C.NEG]
+            )
+        )
+        df = self.standardize(
+            symbol,
+            df,
+            full_mapping,
+            self.finder.get_sentiment_path,
+            [C.TIME, C.POS, C.NEG],
+            0
+        )
+        return df[{C.TIME, C.POS, C.NEG}.intersection(df.columns)]
+
+    def standardize_volume(self, symbol, df):
+        full_mapping = dict(
+            zip(
+                ['timestamp', 'volume_score', 'volume_change'],
+                [C.TIME, C.VOL, C.DELTA]
+            )
+        )
+        df = self.standardize(
+            symbol,
+            df,
+            full_mapping,
+            self.finder.get_sentiment_path,
+            [C.TIME, C.VOL, C.DELTA],
+            0
+        )
+        return df[{C.TIME, C.VOL, C.DELTA}.intersection(df.columns)]
+
+    # def handle_request(self, url, err_msg):
 
 
 class IEXCloud(MarketData):
@@ -112,11 +203,13 @@ class IEXCloud(MarketData):
         self.token = os.environ['IEXCLOUD']
         self.provider = 'iexcloud'
 
-    def get_endpoint(self, parts):
+    def get_endpoint(self, parts, raw_params=[]):
         # given a url
         # return an authenticated endpoint
         url = '/'.join(parts)
-        endpoint = f'{url}?token={self.token}'
+        auth_params = raw_params + [f'token={self.token}']
+        params = '&'.join(auth_params)
+        endpoint = f'{url}?{params}'
         return endpoint
 
     def get_dividends(self, symbol, timeframe='3m'):
@@ -167,7 +260,6 @@ class IEXCloud(MarketData):
 
         if response.ok:
             data = response.json()
-            # self.writer.save_json(f'data/{symbol}.json', data)
         else:
             print(f'Invalid response from IEX for {symbol} splits.')
 
@@ -177,6 +269,39 @@ class IEXCloud(MarketData):
         df = pd.DataFrame(data)
 
         return self.standardize_splits(symbol, df)
+
+    # def get_prev_ohlc(self, symbol):
+    #     # given a symbol, return the prev day's ohlc
+    #     category = 'stock'
+    #     dataset = 'previous'
+    #     parts = [
+    #         self.base,
+    #         self.version,
+    #         category,
+    #         symbol,
+    #         dataset
+    #     ]
+    #     endpoint = self.get_endpoint(parts)
+    #     response = requests.get(endpoint)
+    #     empty = pd.DataFrame()
+
+    #     if response.ok:
+    #         data = response.json()
+    #     else:
+    #         print(f'Invalid response from IEX for {symbol} splits.')
+
+    #     if not response.ok or data == []:
+    #         return empty
+
+    #     df = pd.DataFrame([data])
+
+    #     return self.standardize_ohlc(symbol, df)
+
+    # def get_ohlc(self, symbol, timeframe):
+    #     pass
+
+    # def get_intraday(self):
+    #     pass
 
 
 class Polygon(MarketData):
@@ -198,4 +323,83 @@ class Polygon(MarketData):
         df = self.standardize_splits(symbol, raw)
         return self.reader.data_in_timeframe(df, C.EX, timeframe)
 
+    # def get_prev_ohlc(self, symbol):
+    #     today = datetime.today()
+    #     one_day = timedelta(days=1)
+    #     yesterday = today - one_day
+    #     formatted_date = yesterday.strftime('%Y-%m-%d')
+    #     response = self.client.stocks_equities_daily_open_close(
+    #         symbol, formatted_date)
+    #     raw = attrgetter('from_', 'open', 'high', 'low',
+    #                      'close', 'volume')(response)
+    #     labels = ['date', 'open', 'high', 'low', 'close', 'volume']
+    #     data = dict(zip(labels, raw))
+    #     df = pd.DataFrame([data])
+    #     return self.standardize_ohlc(symbol, df)
+
+    # def get_ohlc(self, symbol, timeframe):
+    #     pass
+
+    # def get_intraday(self):
+    #     # all 1 min and 5 min ticks?
+    #     pass
 # newShares = oldShares / ratio
+
+
+class StockTwits(MarketData):
+    def __init__(self, broker=None):
+        super().__init__(broker=broker)
+        load_dotenv()
+        self.provider = 'stocktwits'
+        self.token = os.environ.get('STOCKTWITS')
+
+    def get_social_volume(self, symbol, timeframe='max'):
+        vol_res = requests.get((
+            f'https://api.stocktwits.com/api/2/symbols/{symbol}/volume.json'
+            f'?access_token={self.token}'
+        ))
+        empty = pd.DataFrame()
+
+        if vol_res.ok:
+            vol_data = vol_res.json()['data']
+        else:
+            print(f'Invalid response from Stocktwits for {symbol}')
+
+        if not vol_res.ok or vol_data == []:
+            return empty
+
+        vol_data.sort(key=lambda x: x['timestamp'])
+        vol_data.pop()
+        df = pd.DataFrame(vol_data)
+        std = self.standardize_volume(symbol, df)
+        if timeframe == '1d':
+            filtered = std.tail(1)
+        else:
+            filtered = self.reader.data_in_timeframe(std, C.TIME, timeframe)[
+                [C.TIME, C.VOL, C.DELTA]]
+        return filtered
+
+    def get_social_sentiment(self, symbol, timeframe='max'):
+        sen_res = requests.get((
+            f'https://api.stocktwits.com/api/2/symbols/{symbol}/sentiment.json'
+            f'?access_token={self.token}'
+        ))
+        empty = pd.DataFrame()
+
+        if sen_res.ok:
+            sen_data = sen_res.json()['data']
+        else:
+            print(f'Invalid response from Stocktwits for {symbol}.')
+
+        if not sen_res.ok or sen_data == []:
+            return empty
+
+        sen_data.sort(key=lambda x: x['timestamp'])
+        sen_data.pop()
+        df = pd.DataFrame(sen_data)
+        std = self.standardize_sentiment(symbol, df)
+        if timeframe == '1d':
+            filtered = std.tail(1)
+        else:
+            filtered = self.reader.data_in_timeframe(std, C.TIME, timeframe)
+        return filtered

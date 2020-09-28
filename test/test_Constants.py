@@ -24,3 +24,9 @@ class TestPathFinder():
             'aapl') == 'data/splits/iexcloud/AAPL.csv'
         assert finder.get_splits_path(
             'AMD') == 'data/splits/iexcloud/AMD.csv'
+
+    def test_get_sentiment_path(self):
+        assert finder.get_sentiment_path(
+            'aapl') == 'data/sentiment/stocktwits/AAPL.csv'
+        assert finder.get_sentiment_path(
+            'AMD') == 'data/sentiment/stocktwits/AMD.csv'
