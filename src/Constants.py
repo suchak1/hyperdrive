@@ -11,12 +11,16 @@ DATA_DIR = 'data'
 DEV_DIR = 'dev'
 DIV_DIR = 'dividends'
 SPLT_DIR = 'splits'
+OHLC_DIR = 'ohlc'
 IEX_DIR = 'iexcloud'
 POLY_DIR = 'polygon'
+SENT_DIR = 'sentiment'
+TWIT_DIR = 'stocktwits'
 
 folders = {
     'iexcloud': IEX_DIR,
-    'polygon': POLY_DIR
+    'polygon': POLY_DIR,
+    'stocktwits': TWIT_DIR
 }
 # PLYGN
 
@@ -24,7 +28,6 @@ folders = {
 # Symbols / Generic
 SYMBOL = 'Symbol'
 NAME = 'Name'
-DATE = 'Date'
 
 # Dividends
 DIV = 'Div'
@@ -34,6 +37,21 @@ PAY = 'Pay'  # Payment Date
 
 # Splits
 RATIO = 'Ratio'
+
+# OHLCV
+# DATE = 'Date'
+TIME = 'Time'
+OPEN = 'Open'
+HIGH = 'High'
+LOW = 'Low'
+CLOSE = 'Close'
+VOL = 'Vol'
+
+# Sentiment
+POS = 'Pos'
+NEG = 'Neg'
+DELTA = 'Delta'
+TWIT_RATE = 175
 
 
 class PathFinder:
@@ -63,6 +81,26 @@ class PathFinder:
         return os.path.join(
             DATA_DIR,
             SPLT_DIR,
+            folders[provider],
+            f'{symbol.upper()}.csv'
+        )
+
+    def get_ohlc_path(self, symbol, provider='iexcloud'):
+        # given a symbol
+        # return the path to its ohlc data
+        return os.path.join(
+            DATA_DIR,
+            OHLC_DIR,
+            folders[provider],
+            f'{symbol.upper()}.csv'
+        )
+
+    def get_sentiment_path(self, symbol, provider='stocktwits'):
+        # given a symbol
+        # return the path to its social sentiment data
+        return os.path.join(
+            DATA_DIR,
+            SENT_DIR,
             folders[provider],
             f'{symbol.upper()}.csv'
         )

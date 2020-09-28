@@ -105,8 +105,8 @@ class TestFileWriter:
         assert not reader.check_file_exists(filename)
 
     def test_rename_file(self):
-        src_path = f'{symbols_path}_{run_id}_SRC'
-        dst_path = f'{symbols_path}_{run_id}_DST'
+        src_path = f'{symbols_path}_{run_id}_SRC1'
+        dst_path = f'{symbols_path}_{run_id}_DST1'
 
         assert not reader.check_file_exists(src_path)
         writer.store.copy_object(symbols_path, src_path)
