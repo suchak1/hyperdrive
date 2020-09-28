@@ -171,7 +171,7 @@ class MarketData:
             self.finder.get_sentiment_path,
             [C.TIME, C.POS, C.NEG],
             0
-        )
+        )[[C.TIME, C.POS, C.NEG]]
 
     def standardize_volume(self, symbol, df):
         full_mapping = dict(
@@ -187,7 +187,7 @@ class MarketData:
             self.finder.get_sentiment_path,
             [C.TIME, C.VOL, C.DELTA],
             0
-        )
+        )[[C.TIME, C.VOL, C.DELTA]]
 
     # def handle_request(self, url, err_msg):
 
@@ -399,6 +399,5 @@ class StockTwits(MarketData):
         if timeframe == '1d':
             filtered = std.tail(1)
         else:
-            filtered = self.reader.data_in_timeframe(std, C.TIME, timeframe)[
-                [C.TIME, C.POS, C.NEG]]
+            filtered = self.reader.data_in_timeframe(std, C.TIME, timeframe)
         return filtered
