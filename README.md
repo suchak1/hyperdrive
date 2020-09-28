@@ -68,14 +68,14 @@ Using Robinhood 2FA, we can simply provide our MFA one-time password in the `.en
 
 - [ ] Price and Volume
   - [x] ![Symbols](https://github.com/suchak1/scarlett/workflows/Symbols/badge.svg)
-  - [ ] EOD OHLCV
+  - [x] ![OHLC](https://github.com/suchak1/scarlett/workflows/OHLC/badge.svg)
   - [ ] Intraday OHLCV 5 min ticks
 - [x] Actions
   - [x] ![Dividends](https://github.com/suchak1/scarlett/workflows/Dividends/badge.svg)
   - [x] ![Splits](https://github.com/suchak1/scarlett/workflows/Splits/badge.svg)
 - [ ] Sentiment
   - [ ] News Sentiment
-  - [x] Social Sentiment
+  - [x] ![Social Sentiment](<https://github.com/suchak1/scarlett/workflows/Social%20Sentiment%20(1)/badge.svg>)
   - [ ] Analyst Recommendations
 - [ ] Company / Micro
   - [ ] Profile (Sector, # of Employees)
