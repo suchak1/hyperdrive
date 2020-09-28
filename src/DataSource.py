@@ -164,14 +164,15 @@ class MarketData:
                 [C.TIME, C.POS, C.NEG]
             )
         )
-        return self.standardize(
+        df = self.standardize(
             symbol,
             df,
             full_mapping,
             self.finder.get_sentiment_path,
             [C.TIME, C.POS, C.NEG],
             0
-        )[[C.TIME, C.POS, C.NEG]]
+        )
+        return df[{C.TIME, C.POS, C.NEG}.intersection(df.columns)]
 
     def standardize_volume(self, symbol, df):
         full_mapping = dict(
@@ -180,14 +181,15 @@ class MarketData:
                 [C.TIME, C.VOL, C.DELTA]
             )
         )
-        return self.standardize(
+        df = self.standardize(
             symbol,
             df,
             full_mapping,
             self.finder.get_sentiment_path,
             [C.TIME, C.VOL, C.DELTA],
             0
-        )[[C.TIME, C.VOL, C.DELTA]]
+        )
+        return df[{C.TIME, C.VOL, C.DELTA}.intersection(df.columns)]
 
     # def handle_request(self, url, err_msg):
 
