@@ -68,8 +68,8 @@ jobs:
       - name: Update splits
         run: python scripts/update_splits.py
 
-      - name: Update OHLC
-        run: python scripts/update_ohlc.py
+      # - name: Update OHLC
+      #   run: python scripts/update_ohlc.py
 
       - name: Upload repo to S3
         run: python scripts/update_repo.py

@@ -9,7 +9,7 @@ symbols = twit.get_symbols()
 # Fourth batch
 for symbol in symbols[C.TWIT_RATE*3:C.TWIT_RATE*4]:
     try:
-        twit.save_social_sentiment(symbol=symbol)
+        twit.save_social_sentiment(symbol=symbol, timeframe='1d')
     except Exception as e:
         print(f'Stocktwits sentiment update failed for {symbol}.')
         print(e)

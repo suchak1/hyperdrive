@@ -370,7 +370,8 @@ class StockTwits(MarketData):
         vol_data.pop()
         df = pd.DataFrame(vol_data)
         std = self.standardize_volume(symbol, df)
-        filtered = self.reader.data_in_timeframe(std, C.TIME, timeframe)
+        filtered = self.reader.data_in_timeframe(std, C.TIME, timeframe)[
+            [C.TIME, C.VOL, C.DELTA]]
         return filtered
 
     def get_social_sentiment(self, symbol, timeframe='max'):
@@ -392,5 +393,6 @@ class StockTwits(MarketData):
         sen_data.pop()
         df = pd.DataFrame(sen_data)
         std = self.standardize_sentiment(symbol, df)
-        filtered = self.reader.data_in_timeframe(std, C.TIME, timeframe)
+        filtered = self.reader.data_in_timeframe(std, C.TIME, timeframe)[
+            [C.TIME, C.POS, C.NEG]]
         return filtered
