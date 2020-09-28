@@ -154,7 +154,7 @@ class TestMarketData:
         if os.path.exists(sent_path):
             os.rename(sent_path, temp_path)
 
-        twits.save_dividends(symbol=symbol, timeframe='1d')
+        twits.save_social_sentiment(symbol=symbol, timeframe='1d')
 
         assert md.reader.check_file_exists(sent_path)
         assert md.reader.store.modified_delta(sent_path).total_seconds() < 60
