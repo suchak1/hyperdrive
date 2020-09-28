@@ -101,27 +101,27 @@ class MarketData:
         self.writer.update_csv(
             self.finder.get_splits_path(symbol, self.provider), df)
 
-    def standardize_ohlc(self, symbol, df):
-        full_mapping = dict(
-            zip(
-                ['date', 'open', 'high', 'low', 'close', 'volume'],
-                [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE, C.VOL]
-            )
-        )
-        return self.standardize(
-            symbol,
-            df,
-            full_mapping,
-            self.finder.get_ohlc_path,
-            [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE],
-            0
-        )
+    # def standardize_ohlc(self, symbol, df):
+    #     full_mapping = dict(
+    #         zip(
+    #             ['date', 'open', 'high', 'low', 'close', 'volume'],
+    #             [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE, C.VOL]
+    #         )
+    #     )
+    #     return self.standardize(
+    #         symbol,
+    #         df,
+    #         full_mapping,
+    #         self.finder.get_ohlc_path,
+    #         [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE],
+    #         0
+    #     )
 
-    def save_ohlc(self):
-        # TODO
-        # if 1d: get_prev_ohlc, else: get_ohlc
-        # get rid off get_prev_ohlc?
-        pass
+    # def save_ohlc(self):
+    #     # TODO
+    #     # if 1d: get_prev_ohlc, else: get_ohlc
+    #     # get rid off get_prev_ohlc?
+    #     pass
 
     def get_social_sentiment(self, symbol, timeframe='max'):
         # given a symbol, return a cached dataframe
@@ -144,14 +144,19 @@ class MarketData:
         symbol = kwargs['symbol']
         sen_df = self.get_social_sentiment(**kwargs)
         vol_df = self.get_social_volume(**kwargs)
-
+        print(sen_df)
+        print(vol_df)
         if sen_df.empty and not vol_df.empty:
             df = vol_df
+            print('vol')
         elif not sen_df.empty and vol_df.empty:
             df = sen_df
+            print('sen')
         elif not sen_df.empty and not vol_df.empty:
             df = sen_df.merge(vol_df, how="outer", on=C.TIME)
+            print(df)
         else:
+            print('none')
             return
 
         self.writer.update_csv(
@@ -268,38 +273,38 @@ class IEXCloud(MarketData):
 
         return self.standardize_splits(symbol, df)
 
-    def get_prev_ohlc(self, symbol):
-        # given a symbol, return the prev day's ohlc
-        category = 'stock'
-        dataset = 'previous'
-        parts = [
-            self.base,
-            self.version,
-            category,
-            symbol,
-            dataset
-        ]
-        endpoint = self.get_endpoint(parts)
-        response = requests.get(endpoint)
-        empty = pd.DataFrame()
+    # def get_prev_ohlc(self, symbol):
+    #     # given a symbol, return the prev day's ohlc
+    #     category = 'stock'
+    #     dataset = 'previous'
+    #     parts = [
+    #         self.base,
+    #         self.version,
+    #         category,
+    #         symbol,
+    #         dataset
+    #     ]
+    #     endpoint = self.get_endpoint(parts)
+    #     response = requests.get(endpoint)
+    #     empty = pd.DataFrame()
 
-        if response.ok:
-            data = response.json()
-        else:
-            print(f'Invalid response from IEX for {symbol} splits.')
+    #     if response.ok:
+    #         data = response.json()
+    #     else:
+    #         print(f'Invalid response from IEX for {symbol} splits.')
 
-        if not response.ok or data == []:
-            return empty
+    #     if not response.ok or data == []:
+    #         return empty
 
-        df = pd.DataFrame([data])
+    #     df = pd.DataFrame([data])
 
-        return self.standardize_ohlc(symbol, df)
+    #     return self.standardize_ohlc(symbol, df)
 
-    def get_ohlc(self, symbol, timeframe):
-        pass
+    # def get_ohlc(self, symbol, timeframe):
+    #     pass
 
-    def get_intraday(self):
-        pass
+    # def get_intraday(self):
+    #     pass
 
 
 class Polygon(MarketData):
@@ -321,26 +326,26 @@ class Polygon(MarketData):
         df = self.standardize_splits(symbol, raw)
         return self.reader.data_in_timeframe(df, C.EX, timeframe)
 
-    def get_prev_ohlc(self, symbol):
-        today = datetime.today()
-        one_day = timedelta(days=1)
-        yesterday = today - one_day
-        formatted_date = yesterday.strftime('%Y-%m-%d')
-        response = self.client.stocks_equities_daily_open_close(
-            symbol, formatted_date)
-        raw = attrgetter('from_', 'open', 'high', 'low',
-                         'close', 'volume')(response)
-        labels = ['date', 'open', 'high', 'low', 'close', 'volume']
-        data = dict(zip(labels, raw))
-        df = pd.DataFrame([data])
-        return self.standardize_ohlc(symbol, df)
+    # def get_prev_ohlc(self, symbol):
+    #     today = datetime.today()
+    #     one_day = timedelta(days=1)
+    #     yesterday = today - one_day
+    #     formatted_date = yesterday.strftime('%Y-%m-%d')
+    #     response = self.client.stocks_equities_daily_open_close(
+    #         symbol, formatted_date)
+    #     raw = attrgetter('from_', 'open', 'high', 'low',
+    #                      'close', 'volume')(response)
+    #     labels = ['date', 'open', 'high', 'low', 'close', 'volume']
+    #     data = dict(zip(labels, raw))
+    #     df = pd.DataFrame([data])
+    #     return self.standardize_ohlc(symbol, df)
 
-    def get_ohlc(self, symbol, timeframe):
-        pass
+    # def get_ohlc(self, symbol, timeframe):
+    #     pass
 
-    def get_intraday(self):
-        # all 1 min and 5 min ticks?
-        pass
+    # def get_intraday(self):
+    #     # all 1 min and 5 min ticks?
+    #     pass
 # newShares = oldShares / ratio
 
 

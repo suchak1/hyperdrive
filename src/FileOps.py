@@ -83,12 +83,16 @@ class FileReader:
 
         return delta
 
-    def data_in_timeframe(self, df, col, timeframe='max'):
+    def data_in_timeframe(self, df, col, timeframe='max', tolerance='0d'):
         if col not in df:
             return df
         delta = self.convert_delta(timeframe)
+        tol = self.convert_delta(tolerance)
         df[col] = pd.to_datetime(df[col])
         filtered = df[df[col] > pd.to_datetime(date.today() - delta)]
+        if filtered.empty:
+            filtered = df[df[col] > pd.to_datetime(
+                date.today() - (delta + tol))]
         return filtered
 
     def convert_dates(self, timeframe):
