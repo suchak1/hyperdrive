@@ -23,7 +23,7 @@ if not os.environ.get('CI'):
     twit.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
     twit.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
 # TODO: uncomment this when sandbox comes back online
-# iex.base = 'https://sandbox.iexapis.com'
+iex.base = 'https://sandbox.iexapis.com'
 exp_symbols = ['AAPL', 'FB', 'DIS']
 retries = 10
 

@@ -12,6 +12,7 @@ env:
   RH_USERNAME: ${{ secrets.RH_USERNAME }}
   RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
   RH_2FA: ${{ secrets.RH_2FA }}
+  IEXCLOUD: ${{ secrets.IEXCLOUD_SANDBOX }}
   STOCKTWITS: ${{ secrets.STOCKTWITS }}
   S3_BUCKET: ${{ secrets.S3_DEV_BUCKET }}
   APCA_API_KEY_ID: ${{ secrets.APCA_API_KEY_ID }}
@@ -54,8 +55,6 @@ jobs:
           flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
 
       - name: Run all unit tests
-        env:
-          IEXCLOUD: ${{ secrets.IEXCLOUD }}
         run: coverage run -m pytest -vv
 
       - name: Generate test coverage report
@@ -65,13 +64,9 @@ jobs:
         run: python scripts/update_symbols.py
 
       - name: Update dividends
-        env:
-          IEXCLOUD: ${{ secrets.IEXCLOUD_SANDBOX }}
         run: python scripts/update_dividends.py
 
       - name: Update splits
-        env:
-          IEXCLOUD: ${{ secrets.IEXCLOUD_SANDBOX }}
         run: python scripts/update_splits.py
 
       - name: Update OHLC
