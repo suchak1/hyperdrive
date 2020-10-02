@@ -1,11 +1,11 @@
 # This workflow will automatically update data files
 # For more information see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#scheduled-events-schedule
 
-name: Sentiment (2nd batch)
+name: Social Sentiment (2)
 
 on:
   schedule:
-    - cron: "30 10 * * 3"
+    - cron: "30 10 * * *"
     # 6:30am EST
 
 jobs:
