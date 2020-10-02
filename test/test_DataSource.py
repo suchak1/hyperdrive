@@ -24,7 +24,6 @@ if not os.environ.get('CI'):
     twit.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
 
 iex.base = 'https://sandbox.iexapis.com'
-iex.base = 'https://sandbox.iexapis.com'
 exp_symbols = ['AAPL', 'FB', 'DIS']
 retries = 10
 
