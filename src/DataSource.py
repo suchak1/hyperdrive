@@ -67,9 +67,10 @@ class MarketData:
     def save_dividends(self, **kwargs):
         # given a symbol, save its dividend history
         symbol = kwargs['symbol']
-        df = self.get_dividends(**kwargs)
-        self.writer.update_csv(
-            self.finder.get_dividends_path(symbol, self.provider), df)
+        filename = self.finder.get_dividends_path(symbol, self.provider)
+        df = self.reader.update_df(
+            filename, self.get_dividends(**kwargs), C.EX)
+        self.writer.update_csv(filename, df)
 
     def get_splits(self, symbol, timeframe='max'):
         # given a symbol, return a cached dataframe
@@ -97,9 +98,9 @@ class MarketData:
     def save_splits(self, **kwargs):
         # given a symbol, save its splits history
         symbol = kwargs['symbol']
-        df = self.get_splits(**kwargs)
-        self.writer.update_csv(
-            self.finder.get_splits_path(symbol, self.provider), df)
+        filename = self.finder.get_splits_path(symbol, self.provider)
+        df = self.reader.update_df(filename, self.get_splits(**kwargs), C.EX)
+        self.writer.update_csv(filename, df)
 
     # def standardize_ohlc(self, symbol, df):
     #     full_mapping = dict(
@@ -142,8 +143,15 @@ class MarketData:
     def save_social_sentiment(self, **kwargs):
         # # given a symbol, save its sentiment data
         symbol = kwargs['symbol']
-        sen_df = self.get_social_sentiment(**kwargs)
-        vol_df = self.get_social_volume(**kwargs)
+        filename = self.finder.get_sentiment_path(symbol)
+
+        sen_df = self.reader.update_df(
+            filename, self.get_social_sentiment(**kwargs), C.TIME)
+        sen_df = sen_df[{C.TIME, C.POS, C.NEG}.intersection(sen_df.columns)]
+
+        vol_df = self.reader.update_df(
+            filename, self.get_social_volume(**kwargs), C.TIME)
+        vol_df = vol_df[{C.TIME, C.VOL, C.DELTA}.intersection(vol_df.columns)]
 
         if sen_df.empty and not vol_df.empty:
             df = vol_df
@@ -153,9 +161,7 @@ class MarketData:
             df = sen_df.merge(vol_df, how="outer", on=C.TIME)
         else:
             return
-
-        self.writer.update_csv(
-            self.finder.get_sentiment_path(symbol), df)
+        self.writer.update_csv(filename, df)
 
     def standardize_sentiment(self, symbol, df):
         full_mapping = dict(
