@@ -10,7 +10,7 @@ import Constants as C  # noqa autopep8
 md = MarketData()
 iex = IEXCloud()
 poly = Polygon()
-twits = StockTwits()
+twit = StockTwits()
 
 if not os.environ.get('CI'):
     iex.token = os.environ['IEXCLOUD_SANDBOX']
@@ -20,8 +20,8 @@ if not os.environ.get('CI'):
     md.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
     poly.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
     poly.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    twits.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    twits.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    twit.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    twit.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
 
 iex.base = 'https://sandbox.iexapis.com'
 iex.base = 'https://sandbox.iexapis.com'
@@ -154,7 +154,7 @@ class TestMarketData:
         if os.path.exists(sent_path):
             os.rename(sent_path, temp_path)
 
-        twits.save_social_sentiment(symbol=symbol, timeframe='1d')
+        twit.save_social_sentiment(symbol=symbol, timeframe='1d')
 
         assert md.reader.check_file_exists(sent_path)
         assert md.reader.store.modified_delta(sent_path).total_seconds() < 60
@@ -270,16 +270,16 @@ class TestPolygon:
 
 class TestStockTwits:
     def test_init(self):
-        assert type(twits).__name__ == 'StockTwits'
-        assert hasattr(twits, 'provider')
-        assert hasattr(twits, 'token')
+        assert type(twit).__name__ == 'StockTwits'
+        assert hasattr(twit, 'provider')
+        assert hasattr(twit, 'token')
 
     def test_get_social_volume(self):
-        df = twits.get_social_volume('TSLA')
+        df = twit.get_social_volume('TSLA')
         assert len(df) > 30
         assert {C.TIME, C.VOL, C.DELTA}.issubset(df.columns)
 
     def test_get_social_sentiment(self):
-        df = twits.get_social_sentiment('TSLA')
+        df = twit.get_social_sentiment('TSLA')
         assert len(df) > 30
         assert {C.TIME, C.POS, C.NEG}.issubset(df.columns)

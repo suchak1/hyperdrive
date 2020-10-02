@@ -4,7 +4,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 # Environment
-DEV = bool(os.environ.get('DEV'))
+DEV = bool(os.environ.get('DEV')
+           and os.environ['DEV'].lower() == 'true')
 
 # File Paths
 DATA_DIR = 'data'
