@@ -30,3 +30,7 @@ class TestPathFinder():
             'aapl') == 'data/sentiment/stocktwits/AAPL.csv'
         assert finder.get_sentiment_path(
             'AMD') == 'data/sentiment/stocktwits/AMD.csv'
+
+    def test_get_ohlc_path(self):
+        assert finder.get_ohlc_path('aapl') == 'data/ohlc/iexcloud/AAPL.csv'
+        assert finder.get_ohlc_path('AMD') == 'data/ohlc/iexcloud/AMD.csv'
