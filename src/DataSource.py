@@ -119,10 +119,10 @@ class MarketData:
         )
 
     def save_ohlc(self):
-        # TODO
-        # if 1d: get_prev_ohlc, else: get_ohlc
-        # get rid off get_prev_ohlc?
-        pass
+        symbol = kwargs['symbol']
+        filename = self.finder.get_ohlc_path(symbol, self.provider)
+        df = self.reader.update_df(filename, self.get_splits(**kwargs), C.EX)
+        self.writer.update_csv(filename, df)
 
     def get_social_sentiment(self, symbol, timeframe='max'):
         # given a symbol, return a cached dataframe
