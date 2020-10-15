@@ -294,7 +294,7 @@ class IEXCloud(MarketData):
         if response.ok:
             data = response.json()
         else:
-            print(f'Invalid response from IEX for {symbol} splits.')
+            print(f'Invalid response from IEX for {symbol} OHLC.')
 
         if not response.ok or data == []:
             return empty
@@ -304,12 +304,39 @@ class IEXCloud(MarketData):
         return self.standardize_ohlc(symbol, df)
 
     def get_ohlc(self, symbol, timeframe):
-        pass
-    # use historical prices endpoint
+        if timeframe == '1d':
+            return self.get_prev_ohlc(symbol)
 
-    def get_intraday(self):
-        pass
-    # use intraday endpoint
+        category = 'stock'
+        dataset = 'chart'
+        parts = [
+            self.base,
+            self.version,
+            category,
+            symbol,
+            dataset,
+            timeframe
+        ]
+        endpoint = self.get_endpoint(parts)
+        response = requests.get(endpoint)
+        empty = pd.DataFrame()
+
+        if response.ok:
+            data = response.json()
+        else:
+            print(f'Invalid response from IEX for {symbol} OHLC.')
+
+        if not response.ok or data == []:
+            return empty
+
+        df = pd.DataFrame(data)
+
+        return self.standardize_ohlc(symbol, df)
+
+
+def get_intraday(self):
+    pass
+    # use historical prices endpoint
 
 
 class Polygon(MarketData):
