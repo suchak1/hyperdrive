@@ -59,7 +59,7 @@ jobs:
         run: coverage run -m pytest -vv
 
       - name: Generate test coverage report
-        run: coverage report -m --fail-under=95
+        run: coverage report -m --fail-under=90
 
       - name: Upload repo to S3
         env:

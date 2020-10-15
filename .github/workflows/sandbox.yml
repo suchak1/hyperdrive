@@ -58,7 +58,7 @@ jobs:
         run: coverage run -m pytest -vv
 
       - name: Generate test coverage report
-        run: coverage report -m --fail-under=95
+        run: coverage report -m --fail-under=90
 
       - name: Update symbols
         run: python scripts/update_symbols.py
