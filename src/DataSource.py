@@ -118,6 +118,12 @@ class MarketData:
             0
         )
 
+    def get_ohlc(self, symbol, timeframe='max'):
+        df = self.reader.load_csv(
+            self.finder.get_ohlc_path(symbol, self.provider))
+        filtered = self.reader.data_in_timeframe(df, C.TIME, timeframe)
+        return filtered
+
     def save_ohlc(self, **kwargs):
         symbol = kwargs['symbol']
         filename = self.finder.get_ohlc_path(symbol, self.provider)
