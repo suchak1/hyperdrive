@@ -284,7 +284,7 @@ class IEXCloud(MarketData):
             self.base,
             self.version,
             category,
-            symbol,
+            symbol.lower(),
             dataset
         ]
         endpoint = self.get_endpoint(parts)
@@ -303,7 +303,7 @@ class IEXCloud(MarketData):
 
         return self.standardize_ohlc(symbol, df)
 
-    def get_ohlc(self, symbol, timeframe):
+    def get_ohlc(self, symbol, timeframe='1m'):
         if timeframe == '1d':
             return self.get_prev_ohlc(symbol)
 
@@ -313,7 +313,7 @@ class IEXCloud(MarketData):
             self.base,
             self.version,
             category,
-            symbol,
+            symbol.lower(),
             dataset,
             timeframe
         ]
@@ -364,7 +364,7 @@ class Polygon(MarketData):
         yesterday = today - one_day
         formatted_date = yesterday.strftime('%Y-%m-%d')
         response = self.client.stocks_equities_daily_open_close(
-            symbol, formatted_date)
+            symbol, formatted_date, unadjusted=False)
         raw = attrgetter('from_', 'open', 'high', 'low',
                          'close', 'volume')(response)
         labels = ['date', 'open', 'high', 'low', 'close', 'volume']
@@ -372,8 +372,21 @@ class Polygon(MarketData):
         df = pd.DataFrame([data])
         return self.standardize_ohlc(symbol, df)
 
-    def get_ohlc(self, symbol, timeframe):
-        pass
+    def get_ohlc(self, symbol, timeframe='max'):
+        end = datetime.today()
+        delta = self.reader.convert_delta(timeframe)
+        start = end - delta
+        formatted_start = start.strftime('%Y-%m-%d')
+        formatted_end = start.strftime('%Y-%m-%d')
+        response = self.client.stocks_equities_aggregates(
+            symbol, 1, 'day', from_=formatted_start, to=formatted_end, unadjusted=False
+        ).results
+        columns = {'t': 'date', 'o': 'open', 'h': 'high',
+                   'l': 'low', 'c': 'close', 'v': 'volume'}
+        df = pd.DataFrame(response).rename(columns=columns)
+        df['date'] = df['date'].apply(
+            lambda x: datetime.fromtimestamp(int(x)/1000))
+        return self.standardize_ohlc(symbol, df)
 
     def get_intraday(self):
         # all 1 min and 5 min ticks?
