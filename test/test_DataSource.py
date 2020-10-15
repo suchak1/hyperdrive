@@ -196,6 +196,12 @@ class TestMarketData:
             col_in_df = column in standardized
             assert col_in_df if curr_idx < sel_idx else not col_in_df
 
+    def test_standardize_ohlc(self):
+        pass
+
+    def test_save_ohlc(self):
+        pass
+
 
 class TestIEXCloud:
     def test_init(self):
@@ -249,6 +255,12 @@ class TestIEXCloud:
         assert {C.EX, C.DEC, C.RATIO}.issubset(
             df1.columns) or {C.EX, C.DEC, C.RATIO}.issubset(df2.columns)
 
+    def test_get_ohlc(self):
+        df = iex.get_ohlc('AAPL', '1m')
+        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+                C.CLOSE, C.VOL}.issubset(df.columns)
+        assert len(df) > 10
+
 
 class TestPolygon:
     def test_init(self):
@@ -265,6 +277,12 @@ class TestPolygon:
         df = poly.get_splits('AAPL')
         assert {C.EX, C.DEC, C.RATIO}.issubset(df.columns)
         assert len(df) > 0
+
+    def test_get_ohlc(self):
+        df = poly.get_ohlc('AAPL', '1m')
+        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+                C.CLOSE, C.VOL}.issubset(df.columns)
+        assert len(df) > 10
 
 
 class TestStockTwits:

@@ -305,9 +305,11 @@ class IEXCloud(MarketData):
 
     def get_ohlc(self, symbol, timeframe):
         pass
+    # use historical prices endpoint
 
     def get_intraday(self):
         pass
+    # use intraday endpoint
 
 
 class Polygon(MarketData):
