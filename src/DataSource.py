@@ -1,8 +1,8 @@
 import os
 import requests
 import pandas as pd
-# from operator import attrgetter
-# from datetime import datetime, timedelta
+from operator import attrgetter
+from datetime import datetime, timedelta
 from polygon import RESTClient
 from dotenv import load_dotenv
 from FileOps import FileReader, FileWriter
@@ -102,27 +102,33 @@ class MarketData:
         df = self.reader.update_df(filename, self.get_splits(**kwargs), C.EX)
         self.writer.update_csv(filename, df)
 
-    # def standardize_ohlc(self, symbol, df):
-    #     full_mapping = dict(
-    #         zip(
-    #             ['date', 'open', 'high', 'low', 'close', 'volume'],
-    #             [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE, C.VOL]
-    #         )
-    #     )
-    #     return self.standardize(
-    #         symbol,
-    #         df,
-    #         full_mapping,
-    #         self.finder.get_ohlc_path,
-    #         [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE],
-    #         0
-    #     )
+    def standardize_ohlc(self, symbol, df):
+        full_mapping = dict(
+            zip(
+                ['date', 'open', 'high', 'low', 'close', 'volume'],
+                [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE, C.VOL]
+            )
+        )
+        return self.standardize(
+            symbol,
+            df,
+            full_mapping,
+            self.finder.get_ohlc_path,
+            [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE],
+            0
+        )
 
-    # def save_ohlc(self):
-    #     # TODO
-    #     # if 1d: get_prev_ohlc, else: get_ohlc
-    #     # get rid off get_prev_ohlc?
-    #     pass
+    def get_ohlc(self, symbol, timeframe='max'):
+        df = self.reader.load_csv(
+            self.finder.get_ohlc_path(symbol, self.provider))
+        filtered = self.reader.data_in_timeframe(df, C.TIME, timeframe)
+        return filtered
+
+    def save_ohlc(self, **kwargs):
+        symbol = kwargs['symbol']
+        filename = self.finder.get_ohlc_path(symbol, self.provider)
+        df = self.reader.update_df(filename, self.get_ohlc(**kwargs), C.TIME)
+        self.writer.update_csv(filename, df)
 
     def get_social_sentiment(self, symbol, timeframe='max'):
         # given a symbol, return a cached dataframe
@@ -276,38 +282,67 @@ class IEXCloud(MarketData):
 
         return self.standardize_splits(symbol, df)
 
-    # def get_prev_ohlc(self, symbol):
-    #     # given a symbol, return the prev day's ohlc
-    #     category = 'stock'
-    #     dataset = 'previous'
-    #     parts = [
-    #         self.base,
-    #         self.version,
-    #         category,
-    #         symbol,
-    #         dataset
-    #     ]
-    #     endpoint = self.get_endpoint(parts)
-    #     response = requests.get(endpoint)
-    #     empty = pd.DataFrame()
+    def get_prev_ohlc(self, symbol):
+        # given a symbol, return the prev day's ohlc
+        category = 'stock'
+        dataset = 'previous'
+        parts = [
+            self.base,
+            self.version,
+            category,
+            symbol.lower(),
+            dataset
+        ]
+        endpoint = self.get_endpoint(parts)
+        response = requests.get(endpoint)
+        empty = pd.DataFrame()
 
-    #     if response.ok:
-    #         data = response.json()
-    #     else:
-    #         print(f'Invalid response from IEX for {symbol} splits.')
+        if response.ok:
+            data = response.json()
+        else:
+            print(f'Invalid response from IEX for {symbol} OHLC.')
 
-    #     if not response.ok or data == []:
-    #         return empty
+        if not response.ok or data == []:
+            return empty
 
-    #     df = pd.DataFrame([data])
+        df = pd.DataFrame([data])
 
-    #     return self.standardize_ohlc(symbol, df)
+        return self.standardize_ohlc(symbol, df)
 
-    # def get_ohlc(self, symbol, timeframe):
-    #     pass
+    def get_ohlc(self, symbol, timeframe='1m'):
+        if timeframe == '1d':
+            return self.get_prev_ohlc(symbol)
 
-    # def get_intraday(self):
-    #     pass
+        category = 'stock'
+        dataset = 'chart'
+        parts = [
+            self.base,
+            self.version,
+            category,
+            symbol.lower(),
+            dataset,
+            timeframe
+        ]
+        endpoint = self.get_endpoint(parts)
+        response = requests.get(endpoint)
+        empty = pd.DataFrame()
+
+        if response.ok:
+            data = response.json()
+        else:
+            print(f'Invalid response from IEX for {symbol} OHLC.')
+
+        if not response.ok or data == []:
+            return empty
+
+        df = pd.DataFrame(data)
+
+        return self.standardize_ohlc(symbol, df)
+
+
+# def get_intraday(self):
+#     pass
+    # use historical prices endpoint
 
 
 class Polygon(MarketData):
@@ -329,22 +364,38 @@ class Polygon(MarketData):
         df = self.standardize_splits(symbol, raw)
         return self.reader.data_in_timeframe(df, C.EX, timeframe)
 
-    # def get_prev_ohlc(self, symbol):
-    #     today = datetime.today()
-    #     one_day = timedelta(days=1)
-    #     yesterday = today - one_day
-    #     formatted_date = yesterday.strftime('%Y-%m-%d')
-    #     response = self.client.stocks_equities_daily_open_close(
-    #         symbol, formatted_date)
-    #     raw = attrgetter('from_', 'open', 'high', 'low',
-    #                      'close', 'volume')(response)
-    #     labels = ['date', 'open', 'high', 'low', 'close', 'volume']
-    #     data = dict(zip(labels, raw))
-    #     df = pd.DataFrame([data])
-    #     return self.standardize_ohlc(symbol, df)
+    def get_prev_ohlc(self, symbol):
+        today = datetime.today()
+        one_day = timedelta(days=1)
+        yesterday = today - one_day
+        formatted_date = yesterday.strftime('%Y-%m-%d')
+        response = self.client.stocks_equities_daily_open_close(
+            symbol, formatted_date, unadjusted=False)
+        raw = attrgetter('from_', 'open', 'high', 'low',
+                         'close', 'volume')(response)
+        labels = ['date', 'open', 'high', 'low', 'close', 'volume']
+        data = dict(zip(labels, raw))
+        df = pd.DataFrame([data])
+        return self.standardize_ohlc(symbol, df)
 
-    # def get_ohlc(self, symbol, timeframe):
-    #     pass
+    def get_ohlc(self, symbol, timeframe='max'):
+        if timeframe == '1d':
+            return self.get_prev_ohlc(symbol)
+        end = datetime.today()
+        delta = self.reader.convert_delta(timeframe)
+        start = end - delta
+        formatted_start = start.strftime('%Y-%m-%d')
+        formatted_end = end.strftime('%Y-%m-%d')
+        response = self.client.stocks_equities_aggregates(
+            symbol, 1, 'day',
+            from_=formatted_start, to=formatted_end, unadjusted=False
+        ).results
+        columns = {'t': 'date', 'o': 'open', 'h': 'high',
+                   'l': 'low', 'c': 'close', 'v': 'volume'}
+        df = pd.DataFrame(response).rename(columns=columns)
+        df['date'] = df['date'].apply(
+            lambda x: datetime.fromtimestamp(int(x)/1000))
+        return self.standardize_ohlc(symbol, df)
 
     # def get_intraday(self):
     #     # all 1 min and 5 min ticks?

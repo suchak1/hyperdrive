@@ -23,7 +23,7 @@ if not os.environ.get('CI'):
     twit.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
     twit.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
 # TODO: uncomment this when sandbox comes back online
-# iex.base = 'https://sandbox.iexapis.com'
+iex.base = 'https://sandbox.iexapis.com'
 exp_symbols = ['AAPL', 'FB', 'DIS']
 retries = 10
 
@@ -196,6 +196,48 @@ class TestMarketData:
             col_in_df = column in standardized
             assert col_in_df if curr_idx < sel_idx else not col_in_df
 
+    def test_standardize_ohlc(self):
+        columns = ['date', 'open', 'high', 'low', 'close', 'volume']
+        new_cols = [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE, C.VOL]
+        sel_idx = 2
+        selected = columns[sel_idx:]
+        df = pd.DataFrame({column: [0] for column in columns})
+        standardized = md.standardize_ohlc('NFLX', df)
+        for column in new_cols:
+            assert column in standardized
+
+        df.drop(columns=selected, inplace=True)
+        standardized = md.standardize_ohlc('NFLX', df)
+        for curr_idx, column in enumerate(new_cols):
+            col_in_df = column in standardized
+            assert col_in_df if curr_idx < sel_idx else not col_in_df
+
+    def test_save_ohlc(self):
+        symbol = 'NFLX'
+        ohlc_path = md.finder.get_ohlc_path(symbol)
+        temp_path = f'{ohlc_path}_TEMP'
+
+        if os.path.exists(ohlc_path):
+            os.rename(ohlc_path, temp_path)
+
+        for _ in range(retries):
+            iex.save_ohlc(symbol=symbol, timeframe='1m')
+            if not md.reader.check_file_exists(ohlc_path):
+                delay = choice(range(5, 10))
+                sleep(delay)
+            else:
+                break
+
+        assert md.reader.check_file_exists(ohlc_path)
+        assert md.reader.store.modified_delta(ohlc_path).total_seconds() < 60
+        df = md.reader.load_csv(ohlc_path)
+        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+                C.CLOSE, C.VOL}.issubset(df.columns)
+        assert len(df) > 0
+
+        if os.path.exists(temp_path):
+            os.rename(temp_path, ohlc_path)
+
 
 class TestIEXCloud:
     def test_init(self):
@@ -249,6 +291,12 @@ class TestIEXCloud:
         assert {C.EX, C.DEC, C.RATIO}.issubset(
             df1.columns) or {C.EX, C.DEC, C.RATIO}.issubset(df2.columns)
 
+    def test_get_ohlc(self):
+        df = iex.get_ohlc('AAPL', '1m')
+        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+                C.CLOSE, C.VOL}.issubset(df.columns)
+        assert len(df) > 10
+
 
 class TestPolygon:
     def test_init(self):
@@ -265,6 +313,12 @@ class TestPolygon:
         df = poly.get_splits('AAPL')
         assert {C.EX, C.DEC, C.RATIO}.issubset(df.columns)
         assert len(df) > 0
+
+    def test_get_ohlc(self):
+        df = poly.get_ohlc('AAPL', '1m')
+        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+                C.CLOSE, C.VOL}.issubset(df.columns)
+        assert len(df) > 10
 
 
 class TestStockTwits:
