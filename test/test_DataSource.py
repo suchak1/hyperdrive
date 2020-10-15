@@ -197,7 +197,20 @@ class TestMarketData:
             assert col_in_df if curr_idx < sel_idx else not col_in_df
 
     def test_standardize_ohlc(self):
-        pass
+        columns = ['date', 'open', 'high', 'low', 'close', 'volume']
+        new_cols = [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE, C.VOL]
+        sel_idx = 2
+        selected = columns[sel_idx:]
+        df = pd.DataFrame({column: [0] for column in columns})
+        standardized = md.standardize_ohlc('NFLX', df)
+        for column in new_cols:
+            assert column in standardized
+
+        df.drop(columns=selected, inplace=True)
+        standardized = md.standardize_ohlc('NFLX', df)
+        for curr_idx, column in enumerate(new_cols):
+            col_in_df = column in standardized
+            assert col_in_df if curr_idx < sel_idx else not col_in_df
 
     def test_save_ohlc(self):
         pass
