@@ -213,7 +213,30 @@ class TestMarketData:
             assert col_in_df if curr_idx < sel_idx else not col_in_df
 
     def test_save_ohlc(self):
-        pass
+        symbol = 'NFLX'
+        ohlc_path = md.finder.get_ohlc_path(symbol)
+        temp_path = f'{ohlc_path}_TEMP'
+
+        if os.path.exists(ohlc_path):
+            os.rename(ohlc_path, temp_path)
+
+        for _ in range(retries):
+            iex.save_ohlc(symbol=symbol, timeframe='1m')
+            if not md.reader.check_file_exists(ohlc_path):
+                delay = choice(range(5, 10))
+                sleep(delay)
+            else:
+                break
+
+        assert md.reader.check_file_exists(ohlc_path)
+        assert md.reader.store.modified_delta(ohlc_path).total_seconds() < 60
+        df = md.reader.load_csv(ohlc_path)
+        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+                C.CLOSE, C.VOL}.issubset(df.columns)
+        assert len(df) > 0
+
+        if os.path.exists(temp_path):
+            os.rename(temp_path, ohlc_path)
 
 
 class TestIEXCloud:
