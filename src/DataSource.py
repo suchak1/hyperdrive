@@ -373,11 +373,13 @@ class Polygon(MarketData):
         return self.standardize_ohlc(symbol, df)
 
     def get_ohlc(self, symbol, timeframe='max'):
+        if timeframe == '1d':
+            return self.get_prev_ohlc(symbol)
         end = datetime.today()
         delta = self.reader.convert_delta(timeframe)
         start = end - delta
         formatted_start = start.strftime('%Y-%m-%d')
-        formatted_end = start.strftime('%Y-%m-%d')
+        formatted_end = end.strftime('%Y-%m-%d')
         response = self.client.stocks_equities_aggregates(
             symbol, 1, 'day', from_=formatted_start, to=formatted_end, unadjusted=False
         ).results
