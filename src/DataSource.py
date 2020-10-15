@@ -118,10 +118,10 @@ class MarketData:
             0
         )
 
-    def save_ohlc(self):
+    def save_ohlc(self, **kwargs):
         symbol = kwargs['symbol']
         filename = self.finder.get_ohlc_path(symbol, self.provider)
-        df = self.reader.update_df(filename, self.get_splits(**kwargs), C.EX)
+        df = self.reader.update_df(filename, self.get_ohlc(**kwargs), C.TIME)
         self.writer.update_csv(filename, df)
 
     def get_social_sentiment(self, symbol, timeframe='max'):
