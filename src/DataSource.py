@@ -340,8 +340,8 @@ class IEXCloud(MarketData):
         return self.standardize_ohlc(symbol, df)
 
 
-def get_intraday(self):
-    pass
+# def get_intraday(self):
+#     pass
     # use historical prices endpoint
 
 
@@ -387,7 +387,8 @@ class Polygon(MarketData):
         formatted_start = start.strftime('%Y-%m-%d')
         formatted_end = end.strftime('%Y-%m-%d')
         response = self.client.stocks_equities_aggregates(
-            symbol, 1, 'day', from_=formatted_start, to=formatted_end, unadjusted=False
+            symbol, 1, 'day',
+            from_=formatted_start, to=formatted_end, unadjusted=False
         ).results
         columns = {'t': 'date', 'o': 'open', 'h': 'high',
                    'l': 'low', 'c': 'close', 'v': 'volume'}
@@ -396,9 +397,9 @@ class Polygon(MarketData):
             lambda x: datetime.fromtimestamp(int(x)/1000))
         return self.standardize_ohlc(symbol, df)
 
-    def get_intraday(self):
-        # all 1 min and 5 min ticks?
-        pass
+    # def get_intraday(self):
+    #     # all 1 min and 5 min ticks?
+    #     pass
 # newShares = oldShares / ratio
 
 

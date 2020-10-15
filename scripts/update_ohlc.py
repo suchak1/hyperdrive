@@ -11,14 +11,14 @@ symbols = iex.get_symbols()
 for symbol in symbols:
     # 1st pass
     try:
-        iex.save_ohlc(symbol=symbol, timeframe='3m')
+        iex.save_ohlc(symbol=symbol, timeframe='1d')
     except Exception as e:
         print(f'IEX Cloud OHLC update failed for {symbol}.')
         print(e)
 
     # 2nd pass
     try:
-        poly.save_ohlc(symbol=symbol, timeframe='max')
+        poly.save_ohlc(symbol=symbol, timeframe='1d')
     except Exception as e:
         print(f'Polygon.io OHLC update failed for {symbol}.')
         print(e)

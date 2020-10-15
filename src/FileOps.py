@@ -95,10 +95,10 @@ class FileReader:
                 date.today() - (delta + tol))]
         return filtered
 
-    def convert_dates(self, timeframe):
-        # if timeframe='max': timeframe = '25y'
-        delta = self.convert_delta(timeframe)
-        return from_, to
+    # def convert_dates(self, timeframe):
+    #     # if timeframe='max': timeframe = '25y'
+    #     delta = self.convert_delta(timeframe)
+    #     return from_, to
 
 
 class FileWriter:
