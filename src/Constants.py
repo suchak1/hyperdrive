@@ -8,14 +8,17 @@ DEV = bool(os.environ.get('DEV')
            and os.environ['DEV'].lower() == 'true')
 
 # File Paths
+# data
 DATA_DIR = 'data'
 DEV_DIR = 'dev'
 DIV_DIR = 'dividends'
 SPLT_DIR = 'splits'
 OHLC_DIR = 'ohlc'
+SENT_DIR = 'sentiment'
+INTRA_DIR = 'intraday'
+# providers
 IEX_DIR = 'iexcloud'
 POLY_DIR = 'polygon'
-SENT_DIR = 'sentiment'
 TWIT_DIR = 'stocktwits'
 
 folders = {
@@ -102,6 +105,16 @@ class PathFinder:
         return os.path.join(
             DATA_DIR,
             SENT_DIR,
+            folders[provider],
+            f'{symbol.upper()}.csv'
+        )
+
+    def get_intraday_path(self, symbol, provider='iexcloud'):
+        # given a symbol,
+        # return the path to its intraday ohlc data
+        return os.path.join(
+            DATA_DIR,
+            INTRA_DIR,
             folders[provider],
             f'{symbol.upper()}.csv'
         )

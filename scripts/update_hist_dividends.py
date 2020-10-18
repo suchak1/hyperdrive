@@ -3,6 +3,7 @@ sys.path.append('src')
 from DataSource import IEXCloud, Polygon  # noqa autopep8
 
 iex = IEXCloud()
+poly = Polygon()
 symbols = iex.get_symbols()
 
 # Double redundancy
@@ -17,7 +18,7 @@ for symbol in symbols[250:]:
 
     # 2nd pass
     try:
-        iex.save_splits(symbol=symbol, timeframe='5y')
+        poly.save_dividends(symbol=symbol, timeframe='max')
     except Exception as e:
-        print(f'IEX Cloud split update failed for {symbol}.')
+        print(f'Polygon.io dividend update failed for {symbol}.')
         print(e)

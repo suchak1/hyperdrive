@@ -109,7 +109,7 @@ class MarketData:
                 [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE, C.VOL]
             )
         )
-        return self.standardize(
+        df = self.standardize(
             symbol,
             df,
             full_mapping,
@@ -117,6 +117,9 @@ class MarketData:
             [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE],
             0
         )
+
+        df[C.VOL] = df[C.VOL].apply(int)
+        return df
 
     def get_ohlc(self, symbol, timeframe='max'):
         df = self.reader.load_csv(
