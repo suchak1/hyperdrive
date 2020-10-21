@@ -77,6 +77,7 @@ Using Robinhood 2FA, we can simply provide our MFA one-time password in the `.en
 - [ ] Sentiment
   - [ ] News Sentiment
   - [x] ![Social Sentiment](<https://github.com/suchak1/scarlett/workflows/Social%20Sentiment%20(1)/badge.svg>)
+  - [ ] [Institutional Sentiment](http://www.aaii.com/files/surveys/sentiment.xls)
   - [ ] Analyst Recommendations
 - [ ] Company / Micro
   - [ ] Profile (Sector, # of Employees)
