@@ -6,6 +6,7 @@ import Constants as C  # noqa autopep8
 
 twit = StockTwits()
 symbols = twit.get_symbols()
+symbols.extend(['BTC-X', 'ETH-X', 'LTC-X', 'XMR-X', 'IOT-X'])
 BATCH = int(os.environ.get('BATCH')) if os.environ.get('BATCH') else 1
 # better solution is to dynamically choose 175 most outdated symbols
 
