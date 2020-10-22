@@ -353,8 +353,8 @@ class IEXCloud(MarketData):
 
         return self.standardize_ohlc(symbol, df)
 
-    # should be True if possible
-    def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=?):
+    # extra_hrs should be True if possible
+    def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=True):
         # pass min directly into hist prices endpoint to get 1, 5, 30, 60 min granularity if possible
         # and get extra hrs if possible
         pass
