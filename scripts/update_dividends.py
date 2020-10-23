@@ -18,7 +18,7 @@ for symbol in symbols:
 
     # 2nd pass
     try:
-        poly.save_dividends(symbol=symbol, timeframe='max')
+        poly.save_dividends(symbol=symbol, timeframe='3m')
     except Exception as e:
         print(f'Polygon.io dividend update failed for {symbol}.')
         print(e)

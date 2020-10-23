@@ -18,7 +18,7 @@ for symbol in symbols:
 
     # 2nd pass
     try:
-        poly.save_splits(symbol=symbol, timeframe='max')
+        poly.save_splits(symbol=symbol, timeframe='3m')
     except Exception as e:
         print(f'Polygon.io split update failed for {symbol}.')
         print(e)
