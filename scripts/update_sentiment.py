@@ -3,6 +3,8 @@ import sys
 sys.path.append('src')
 from DataSource import StockTwits  # noqa autopep8
 import Constants as C  # noqa autopep8
+from Constants import CI, PathFinder  # noqa autopep8
+
 
 twit = StockTwits()
 symbols = twit.get_symbols()
@@ -17,3 +19,8 @@ for symbol in symbols[C.TWIT_RATE*(BATCH-1):C.TWIT_RATE*BATCH]:
     except Exception as e:
         print(f'Stocktwits sentiment update failed for {symbol}.')
         print(e)
+    finally:
+        filename = PathFinder().get_sentiment_path(
+            symbol=symbol, provider=twit.provider)
+        if CI and os.path.exists(filename):
+            os.remove(filename)

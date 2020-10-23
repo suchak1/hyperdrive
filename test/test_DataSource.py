@@ -12,7 +12,7 @@ iex = IEXCloud()
 poly = Polygon()
 twit = StockTwits()
 
-if not os.environ.get('CI'):
+if not C.CI:
     iex.token = os.environ['IEXCLOUD_SANDBOX']
     iex.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
     iex.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
@@ -22,7 +22,10 @@ if not os.environ.get('CI'):
     poly.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
     twit.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
     twit.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
-# TODO: uncomment this when sandbox comes back online
+    # consider function that takes in
+    # list of datasource objs and returns clean ones
+    # or simply make DevStore class that has s3 dev bucket name
+
 iex.base = 'https://sandbox.iexapis.com'
 exp_symbols = ['AAPL', 'FB', 'DIS']
 retries = 10
@@ -200,7 +203,7 @@ class TestMarketData:
         columns = ['date', 'open', 'high', 'low', 'close', 'volume']
         new_cols = [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE, C.VOL]
         sel_idx = 2
-        selected = columns[sel_idx:]
+        selected = columns[:sel_idx]
         df = pd.DataFrame({column: [0] for column in columns})
         standardized = md.standardize_ohlc('NFLX', df)
         for column in new_cols:
@@ -210,7 +213,7 @@ class TestMarketData:
         standardized = md.standardize_ohlc('NFLX', df)
         for curr_idx, column in enumerate(new_cols):
             col_in_df = column in standardized
-            assert col_in_df if curr_idx < sel_idx else not col_in_df
+            assert col_in_df if curr_idx >= sel_idx else not col_in_df
 
     def test_save_ohlc(self):
         symbol = 'NFLX'
