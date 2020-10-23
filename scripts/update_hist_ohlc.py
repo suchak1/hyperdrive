@@ -9,6 +9,7 @@ from Constants import CI, PathFinder  # noqa autopep8
 iex = IEXCloud()
 poly = Polygon()
 symbols = iex.get_symbols()
+symbols = symbols[125:?]
 
 # Double redundancy
 
@@ -18,7 +19,7 @@ symbols = iex.get_symbols()
 def update_iex_ohlc():
     for symbol in symbols:
         try:
-            iex.save_ohlc(symbol=symbol, timeframe='1d')
+            iex.save_ohlc(symbol=symbol, timeframe='max')
         except Exception as e:
             print(f'IEX Cloud OHLC update failed for {symbol}.')
             print(e)
@@ -33,7 +34,7 @@ def update_iex_ohlc():
 def update_poly_ohlc():
     for symbol in symbols:
         try:
-            poly.save_ohlc(symbol=symbol, timeframe='1d')
+            poly.save_ohlc(symbol=symbol, timeframe='max')
         except Exception as e:
             print(f'Polygon.io OHLC update failed for {symbol}.')
             print(e)

@@ -6,6 +6,8 @@ load_dotenv()
 # Environment
 DEV = bool(os.environ.get('DEV')
            and os.environ['DEV'].lower() == 'true')
+CI = bool(os.environ.get('CI')
+          and os.environ['CI'].lower() == 'true')
 
 # File Paths
 # data

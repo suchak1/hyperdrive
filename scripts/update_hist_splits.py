@@ -1,7 +1,10 @@
+import os
 import sys
 from multiprocessing import Process
 sys.path.append('src')
 from DataSource import IEXCloud, Polygon  # noqa autopep8
+from Constants import CI, PathFinder  # noqa autopep8
+
 
 iex = IEXCloud()
 poly = Polygon()
@@ -20,6 +23,11 @@ def update_iex_splits():
         except Exception as e:
             print(f'IEX Cloud split update failed for {symbol}.')
             print(e)
+        finally:
+            filename = PathFinder().get_splits_path(
+                symbol=symbol, provider=iex.provider)
+            if CI and os.path.exists(filename):
+                os.remove(filename)
 # 2nd pass
 
 
@@ -30,6 +38,11 @@ def update_poly_splits():
         except Exception as e:
             print(f'Polygon.io split update failed for {symbol}.')
             print(e)
+        finally:
+            filename = PathFinder().get_splits_path(
+                symbol=symbol, provider=poly.provider)
+            if CI and os.path.exists(filename):
+                os.remove(filename)
 
 
 p1 = Process(target=update_iex_splits)
