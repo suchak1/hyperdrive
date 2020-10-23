@@ -7,7 +7,7 @@ from Broker import Robinhood  # noqa autopep8
 import Constants as C  # noqa autopep8
 
 rh = Robinhood()
-if not os.environ.get('CI'):
+if not C.CI:
     rh.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
     rh.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
 exp_symbols = ['AAPL', 'FB', 'DIS']

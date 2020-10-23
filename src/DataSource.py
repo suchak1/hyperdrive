@@ -120,7 +120,8 @@ class MarketData:
             0
         )
 
-        df[C.VOL] = df[C.VOL].apply(int)
+        if C.VOL in df:
+            df[C.VOL] = df[C.VOL].apply(int)
         return df
 
     def get_ohlc(self, symbol, timeframe='max'):
