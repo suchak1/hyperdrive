@@ -42,7 +42,8 @@ class MarketData:
         if time_col in df and set(val_cols).issubset(df.columns):
             df = self.reader.update_df(
                 filename, df, time_col).sort_values(by=[time_col])
-            # since time col is pd.datetime, consider converting to YYYY-MM-DD str format
+            # since time col is pd.datetime,
+            # consider converting to YYYY-MM-DD str format
             for val_col in val_cols:
                 df[val_col] = df[val_col].apply(
                     lambda val: float(val) if val else default)
@@ -208,7 +209,8 @@ class MarketData:
         return df[{C.TIME, C.VOL, C.DELTA}.intersection(df.columns)]
 
     def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=False):
-        # implement way to transform 1 min dataset to 5 min data or 30 or 60 should be flexible soln
+        # implement way to transform 1 min dataset to 5 min data
+        #  or 30 or 60 should be flexible soln
         # implement way to only get market hours
         pass
 
@@ -355,7 +357,8 @@ class IEXCloud(MarketData):
 
     # extra_hrs should be True if possible
     def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=True):
-        # pass min directly into hist prices endpoint to get 1, 5, 30, 60 min granularity if possible
+        # pass min directly into hist prices endpoint
+        # to get 1, 5, 30, 60 min granularity if possible
         # and get extra hrs if possible
         pass
     # use historical prices endpoint
@@ -442,8 +445,6 @@ class StockTwits(MarketData):
             return empty
 
         vol_data.sort(key=lambda x: x['timestamp'])
-        # FIX THIS!! WHAT HAPPENS WHEN AROUND NEW YEAR'S WHEN JANUARY IS CONSIDERED EARLIER THAN DEC??
-        # actually should be fine bc data is in YYYY-MM-DD format
         vol_data.pop()
         df = pd.DataFrame(vol_data)
         std = self.standardize_volume(symbol, df)
@@ -470,8 +471,6 @@ class StockTwits(MarketData):
             return empty
 
         sen_data.sort(key=lambda x: x['timestamp'])
-        # FIX THIS!! WHAT HAPPENS WHEN AROUND NEW YEAR'S WHEN JANUARY IS CONSIDERED EARLIER THAN DEC??
-        # actually should be fine bc data is in YYYY-MM-DD format
         sen_data.pop()
         df = pd.DataFrame(sen_data)
         std = self.standardize_sentiment(symbol, df)

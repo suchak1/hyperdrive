@@ -9,7 +9,7 @@ from Constants import CI, PathFinder  # noqa autopep8
 iex = IEXCloud()
 poly = Polygon()
 symbols = iex.get_symbols()
-symbols = symbols[125:?]
+symbols = symbols[140:]
 
 # Double redundancy
 
