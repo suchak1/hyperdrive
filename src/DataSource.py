@@ -42,6 +42,8 @@ class MarketData:
         if time_col in df and set(val_cols).issubset(df.columns):
             df = self.reader.update_df(
                 filename, df, time_col).sort_values(by=[time_col])
+            # since time col is pd.datetime,
+            # consider converting to YYYY-MM-DD str format
             for val_col in val_cols:
                 df[val_col] = df[val_col].apply(
                     lambda val: float(val) if val else default)
@@ -109,7 +111,7 @@ class MarketData:
                 [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE, C.VOL]
             )
         )
-        return self.standardize(
+        df = self.standardize(
             symbol,
             df,
             full_mapping,
@@ -117,6 +119,10 @@ class MarketData:
             [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE],
             0
         )
+
+        if C.VOL in df:
+            df[C.VOL] = df[C.VOL].apply(int)
+        return df
 
     def get_ohlc(self, symbol, timeframe='max'):
         df = self.reader.load_csv(
@@ -203,6 +209,17 @@ class MarketData:
         )
         return df[{C.TIME, C.VOL, C.DELTA}.intersection(df.columns)]
 
+    def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=False):
+        # implement way to transform 1 min dataset to 5 min data
+        #  or 30 or 60 should be flexible soln
+        # implement way to only get market hours
+        pass
+
+    def standardize_intraday(self):
+        pass
+
+    def save_intraday(self):
+        pass
     # def handle_request(self, url, err_msg):
 
 
@@ -339,9 +356,12 @@ class IEXCloud(MarketData):
 
         return self.standardize_ohlc(symbol, df)
 
-
-# def get_intraday(self):
-#     pass
+    # extra_hrs should be True if possible
+    def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=True):
+        # pass min directly into hist prices endpoint
+        # to get 1, 5, 30, 60 min granularity if possible
+        # and get extra hrs if possible
+        pass
     # use historical prices endpoint
 
 
@@ -397,9 +417,9 @@ class Polygon(MarketData):
             lambda x: datetime.fromtimestamp(int(x)/1000))
         return self.standardize_ohlc(symbol, df)
 
-    # def get_intraday(self):
-    #     # all 1 min and 5 min ticks?
-    #     pass
+    def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=True):
+        # pass min directly into stock_aggs function as multiplier
+        pass
 # newShares = oldShares / ratio
 
 
