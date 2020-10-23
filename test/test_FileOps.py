@@ -11,7 +11,7 @@ reader = FileReader()
 writer = FileWriter()
 
 run_id = ''
-if not os.environ.get('CI'):
+if not C.CI:
     reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
     writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
 else:
