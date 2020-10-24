@@ -18,12 +18,16 @@ class TestPathFinder():
             'aapl') == 'data/dividends/iexcloud/AAPL.csv'
         assert finder.get_dividends_path(
             'AMD') == 'data/dividends/iexcloud/AMD.csv'
+        assert finder.get_dividends_path(
+            'TSLA', 'polygon') == 'data/dividends/polygon/TSLA.csv'
 
     def test_get_splits_path(self):
         assert finder.get_splits_path(
             'aapl') == 'data/splits/iexcloud/AAPL.csv'
         assert finder.get_splits_path(
             'AMD') == 'data/splits/iexcloud/AMD.csv'
+        assert finder.get_splits_path(
+            'TSLA', 'polygon') == 'data/splits/polygon/TSLA.csv'
 
     def test_get_sentiment_path(self):
         assert finder.get_sentiment_path(
@@ -34,3 +38,18 @@ class TestPathFinder():
     def test_get_ohlc_path(self):
         assert finder.get_ohlc_path('aapl') == 'data/ohlc/iexcloud/AAPL.csv'
         assert finder.get_ohlc_path('AMD') == 'data/ohlc/iexcloud/AMD.csv'
+        assert finder.get_ohlc_path(
+            'TSLA', 'polygon') == 'data/ohlc/polygon/TSLA.csv'
+
+    def test_get_intraday_path(self):
+        assert finder.get_intraday_path(
+            'aapl') == 'data/intraday/iexcloud/AAPL.csv'
+        assert finder.get_intraday_path(
+            'AMD') == 'data/intraday/iexcloud/AMD.csv'
+        assert finder.get_intraday_path(
+            'TSLA', 'polygon') == 'data/intraday/polygon/TSLA.csv'
+
+    def test_get_all_paths(self):
+        paths = set(finder.get_all_paths('src', True))
+        assert 'src/DataSource.py' in paths
+        assert 'test/test_Constants.py' in paths
