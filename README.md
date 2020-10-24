@@ -1,10 +1,10 @@
-| <img src="img/arc3.png" width="50" /> | _scarlett_: Robinhood analytics and algorithmic trading |
-| ------------------------------------- | ------------------------------------------------------- |
+| <img src="img/arc3.png" width="50" /> | _hyperdrive_: Robinhood analytics and algorithmic trading |
+| ------------------------------------- | --------------------------------------------------------- |
 
 
-![Build Pipeline](https://github.com/suchak1/scarlett/workflows/Build%20Pipeline/badge.svg) ![Dev Pipeline](https://github.com/suchak1/scarlett/workflows/Dev%20Pipeline/badge.svg) ![New Release](https://github.com/suchak1/scarlett/workflows/New%20Release/badge.svg)
+![Build Pipeline](https://github.com/suchak1/hyperdrive/workflows/Build%20Pipeline/badge.svg) ![Dev Pipeline](https://github.com/suchak1/hyperdrive/workflows/Dev%20Pipeline/badge.svg) ![New Release](https://github.com/suchak1/hyperdrive/workflows/New%20Release/badge.svg)
 
-_scarlett_ is a project to obtain stock data, create trading strategies, test against historical data (backtesting), and deploy strategies for algorithmic trading.
+_hyperdrive_ is a project to obtain stock data, create trading strategies, test against historical data (backtesting), and deploy strategies for algorithmic trading.
 
 ## Getting Started
 
@@ -39,9 +39,9 @@ To make a script, create a new .py file in the `scripts/` dir with the following
 ```
 import sys
 sys.path.append('src')
-from Algotrader import Scarlett  # noqa autopep8
+from Algotrader import HyperDrive  # noqa autopep8
 
-sl = Scarlett()
+drive = HyperDrive()
 ```
 
 ## Features:
@@ -57,7 +57,7 @@ sl = Scarlett()
 - [ ] Live trading
 - [ ] Documentation
 
-Check out the [Roadmap](https://github.com/suchak1/scarlett/projects/2) for progress
+Check out the [Roadmap](https://github.com/suchak1/hyperdrive/projects/2) for progress
 ...
 
 ### Auth
@@ -67,16 +67,17 @@ Using Robinhood 2FA, we can simply provide our MFA one-time password in the `.en
 ### Data
 
 - [ ] Price and Volume
-  - [x] ![Symbols](https://github.com/suchak1/scarlett/workflows/Symbols/badge.svg)
-  - [x] ![OHLC](https://github.com/suchak1/scarlett/workflows/OHLC/badge.svg)
-  - [ ] Intraday 1 or 5 min OHLCV
+  - [x] ![Symbols](https://github.com/suchak1/hyperdrive/workflows/Symbols/badge.svg)
+  - [x] ![OHLC](https://github.com/suchak1/hyperdrive/workflows/OHLC/badge.svg)
+  - [x] ![Intraday](https://github.com/suchak1/hyperdrive/workflows/Intraday/badge.svg)
 - [x] Actions
-  - [x] ![Dividends](https://github.com/suchak1/scarlett/workflows/Dividends/badge.svg)
-  - [x] ![Splits](https://github.com/suchak1/scarlett/workflows/Splits/badge.svg)
+  - [x] ![Dividends](https://github.com/suchak1/hyperdrive/workflows/Dividends/badge.svg)
+  - [x] ![Splits](https://github.com/suchak1/hyperdrive/workflows/Splits/badge.svg)
   - [ ] Mergers
+  - [ ] Buybacks
 - [ ] Sentiment
   - [ ] News Sentiment
-  - [x] ![Social Sentiment](<https://github.com/suchak1/scarlett/workflows/Social%20Sentiment%20(1)/badge.svg>)
+  - [x] ![Social Sentiment](<https://github.com/suchak1/hyperdrive/workflows/Social%20Sentiment%20(1)/badge.svg>)
   - [ ] [Institutional Sentiment](http://www.aaii.com/files/surveys/sentiment.xls)
   - [ ] Analyst Recommendations
 - [ ] Company / Micro

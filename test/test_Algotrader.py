@@ -1,17 +1,17 @@
 import os
 import sys
 sys.path.append('src')
-from Algotrader import Scarlett  # noqa autopep8
+from Algotrader import HyperDrive  # noqa autopep8
 import Constants as C  # noqa autopep8
 
 
-sl = Scarlett()
+drive = HyperDrive()
 if not C.CI:
-    sl.broker.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    sl.broker.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    drive.broker.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    drive.broker.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
 
 
-class TestScarlett:
+class TestHyperDrive:
     def test_init(self):
-        assert type(sl).__name__ == 'Scarlett'
-        assert hasattr(sl, 'broker')
+        assert type(drive).__name__ == 'HyperDrive'
+        assert hasattr(drive, 'broker')

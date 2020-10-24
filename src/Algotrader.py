@@ -1,8 +1,8 @@
 from Broker import Robinhood
 
 
-class Scarlett:
-    # scarlett should have attrs Broker, Backtester, Strategy
+class HyperDrive:
+    # HyperDrive should have attrs Broker, Backtester, Strategy
 
     def __init__(self, load=False):
 
@@ -12,4 +12,4 @@ class Scarlett:
             self.broker.load_portfolio()
 
 
-# Scarlett(load=True).save_symbols()
+# HyperDrive(load=True).save_symbols()
