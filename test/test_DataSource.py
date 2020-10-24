@@ -300,6 +300,9 @@ class TestIEXCloud:
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 10
 
+    def test_get_intraday(self):
+        pass
+
 
 class TestPolygon:
     def test_init(self):
@@ -322,6 +325,9 @@ class TestPolygon:
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 10
+
+    def test_get_intraday(self):
+        pass
 
 
 class TestStockTwits:

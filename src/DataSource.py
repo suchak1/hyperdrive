@@ -42,14 +42,8 @@ class MarketData:
         if time_col in df and set(val_cols).issubset(df.columns):
             df = self.reader.update_df(
                 filename, df, time_col).sort_values(by=[time_col])
-
-
-<< << << < HEAD
-            # since time col is pd.datetime, consider converting to YYYY-MM-DD str format
-== == == =
             # since time col is pd.datetime,
             # consider converting to YYYY-MM-DD str format
->>>>>> > e2f90dd439c35ba92b9f82443826f58e54e6bd45
             for val_col in val_cols:
                 df[val_col] = df[val_col].apply(
                     lambda val: float(val) if val else default)
@@ -216,12 +210,14 @@ class MarketData:
         return df[{C.TIME, C.VOL, C.DELTA}.intersection(df.columns)]
 
     def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=False):
-<<<<<<< HEAD
+
+
+<< << << < HEAD
         # implement way to transform 1 min dataset to 5 min data or 30 or 60 should be flexible soln
-=======
+== == == =
         # implement way to transform 1 min dataset to 5 min data
         #  or 30 or 60 should be flexible soln
->>>>>>> e2f90dd439c35ba92b9f82443826f58e54e6bd45
+>>>>>> > e2f90dd439c35ba92b9f82443826f58e54e6bd45
         # implement way to only get market hours
         pass
 
