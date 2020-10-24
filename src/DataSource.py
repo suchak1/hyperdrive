@@ -210,14 +210,8 @@ class MarketData:
         return df[{C.TIME, C.VOL, C.DELTA}.intersection(df.columns)]
 
     def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=False):
-
-
-<< << << < HEAD
-        # implement way to transform 1 min dataset to 5 min data or 30 or 60 should be flexible soln
-== == == =
         # implement way to transform 1 min dataset to 5 min data
         #  or 30 or 60 should be flexible soln
->>>>>> > e2f90dd439c35ba92b9f82443826f58e54e6bd45
         # implement way to only get market hours
         pass
 
@@ -364,12 +358,8 @@ class IEXCloud(MarketData):
 
     # extra_hrs should be True if possible
     def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=True):
-<<<<<<< HEAD
-        # pass min directly into hist prices endpoint to get 1, 5, 30, 60 min granularity if possible
-=======
         # pass min directly into hist prices endpoint
         # to get 1, 5, 30, 60 min granularity if possible
->>>>>>> e2f90dd439c35ba92b9f82443826f58e54e6bd45
         # and get extra hrs if possible
         pass
     # use historical prices endpoint
