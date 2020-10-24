@@ -241,6 +241,16 @@ class TestMarketData:
         if os.path.exists(temp_path):
             os.rename(temp_path, ohlc_path)
 
+    def test_save_intraday(self):
+        pass
+
+    def test_standardize_intraday(self):
+        # may not be necessary - just use standardize_ohlc
+        pass
+
+    def test_get_intraday(self):
+        pass
+
 
 class TestIEXCloud:
     def test_init(self):
@@ -327,7 +337,10 @@ class TestPolygon:
         assert len(df) > 10
 
     def test_get_intraday(self):
-        pass
+        df = poly.get_intraday('AAPL', 1, '7d')
+        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+                C.CLOSE, C.VOL}.issubset(df.columns)
+        assert len(df) > 1000
 
 
 class TestStockTwits:
