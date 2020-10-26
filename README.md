@@ -1,5 +1,5 @@
-| <img src="img/arc3.png" width="50" /> | _hyperdrive_: Robinhood analytics and algorithmic trading |
-| ------------------------------------- | --------------------------------------------------------- |
+| <img src="img/1.png" width="75" /> | _hyperdrive_: Robinhood analytics and algorithmic trading |
+| ---------------------------------- | --------------------------------------------------------- |
 
 
 ![Build Pipeline](https://github.com/suchak1/hyperdrive/workflows/Build%20Pipeline/badge.svg) ![Dev Pipeline](https://github.com/suchak1/hyperdrive/workflows/Dev%20Pipeline/badge.svg) ![New Release](https://github.com/suchak1/hyperdrive/workflows/New%20Release/badge.svg)
