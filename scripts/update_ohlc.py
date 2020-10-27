@@ -4,15 +4,14 @@ from time import sleep
 from multiprocessing import Process
 sys.path.append('src')
 from DataSource import IEXCloud, Polygon  # noqa autopep8
-from Constants import CI, PathFinder  # noqa autopep8
+from Constants import CI, PathFinder, POLY_CRYPTO_SYMBOLS  # noqa autopep8
 
 
 iex = IEXCloud()
 poly_stocks = Polygon()
 poly_crypto = Polygon(os.environ['POLYGON'])
 stock_symbols = iex.get_symbols()
-crypto_symbols = ['X%3ABTCUSD', 'X%3AETHUSD',
-                  'X%3ALTCUSD', 'X%3AXMRUSD', 'X%3AIOTUSD']
+crypto_symbols = POLY_CRYPTO_SYMBOLS
 # Double redundancy
 
 # 1st pass

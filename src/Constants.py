@@ -59,6 +59,19 @@ NEG = 'Neg'
 DELTA = 'Delta'
 TWIT_RATE = 175
 
+# Misc
+POLY_CRYPTO_SYMBOLS = [
+    'X%3ABTCUSD', 'X%3AETHUSD',
+    'X%3ALTCUSD', 'X%3AXMRUSD', 'X%3AIOTUSD'
+]
+
+SENTIMENT_SYMBOLS_IGNORE = {
+    'SPYD', 'VWDRY', 'BPMP',
+    'FOX', 'YYY', 'SDIV',
+    'DIV', 'SHECY', 'PALL',
+    'DWDP', 'TFCF', 'SPAR',
+    'TMUSR', 'OXY+', 'BNTX^'}
+
 
 class PathFinder:
     def make_path(self, path):

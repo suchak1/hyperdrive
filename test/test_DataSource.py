@@ -76,7 +76,8 @@ class TestMarketData:
             os.rename(div_path, temp_path)
 
         for _ in range(retries):
-            iex.save_dividends(symbol=symbol, timeframe='5y')
+            iex.save_dividends(
+                symbol=symbol, timeframe='5y', retries=1, delay=0)
             if not md.reader.check_file_exists(div_path):
                 delay = choice(range(5, 10))
                 sleep(delay)
@@ -122,7 +123,7 @@ class TestMarketData:
             os.rename(splt_path, temp_path)
 
         for _ in range(retries):
-            iex.save_splits(symbol=symbol, timeframe='5y')
+            iex.save_splits(symbol=symbol, timeframe='5y', retries=1, delay=0)
             if not md.reader.check_file_exists(splt_path):
                 delay = choice(range(5, 10))
                 sleep(delay)
@@ -156,7 +157,8 @@ class TestMarketData:
         if os.path.exists(sent_path):
             os.rename(sent_path, temp_path)
 
-        twit.save_social_sentiment(symbol=symbol, timeframe='1d')
+        twit.save_social_sentiment(
+            symbol=symbol, timeframe='1d', retries=1, delay=0)
 
         assert md.reader.check_file_exists(sent_path)
         assert md.reader.store.modified_delta(sent_path).total_seconds() < 60
@@ -224,7 +226,7 @@ class TestMarketData:
             os.rename(ohlc_path, temp_path)
 
         for _ in range(retries):
-            iex.save_ohlc(symbol=symbol, timeframe='1m')
+            iex.save_ohlc(symbol=symbol, timeframe='1m', retries=1, delay=0)
             if not md.reader.check_file_exists(ohlc_path):
                 delay = choice(range(5, 10))
                 sleep(delay)

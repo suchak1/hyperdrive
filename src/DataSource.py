@@ -375,8 +375,8 @@ class IEXCloud(MarketData):
             if not response.ok or data == []:
                 return empty
 
-            df = pd.DataFrame(data)
-            return self.standardize_ohlc(symbol, df)
+            df = self.standardize_ohlc(symbol, pd.DataFrame(data))
+            return self.reader.data_in_timeframe(df, C.TIME, timeframe)
 
         return self.try_again(func=_get_ohlc, **kwargs)
 
@@ -412,38 +412,45 @@ class Polygon(MarketData):
             return self.reader.data_in_timeframe(df, C.EX, timeframe)
         return self.try_again(func=_get_splits, **kwargs)
 
-    def get_prev_ohlc(self, symbol):
-        today = datetime.today()
-        one_day = timedelta(days=1)
-        yesterday = today - one_day
-        formatted_date = yesterday.strftime('%Y-%m-%d')
-        response = self.client.stocks_equities_daily_open_close(
-            symbol, formatted_date, unadjusted=False)
-        raw = attrgetter('from_', 'open', 'high', 'low',
-                         'close', 'volume')(response)
-        labels = ['date', 'open', 'high', 'low', 'close', 'volume']
-        data = dict(zip(labels, raw))
-        df = pd.DataFrame([data])
-        return self.standardize_ohlc(symbol, df)
+    def get_prev_ohlc(self, **kwargs):
+        def _get_prev_ohlc(self, symbol):
+            today = datetime.today()
+            one_day = timedelta(days=1)
+            yesterday = today - one_day
+            formatted_date = yesterday.strftime('%Y-%m-%d')
+            response = self.client.stocks_equities_daily_open_close(
+                symbol, formatted_date, unadjusted=False)
+            raw = attrgetter('from_', 'open', 'high', 'low',
+                             'close', 'volume')(response)
+            labels = ['date', 'open', 'high', 'low', 'close', 'volume']
+            data = dict(zip(labels, raw))
+            df = pd.DataFrame([data])
+            return self.standardize_ohlc(symbol, df)
 
-    def get_ohlc(self, symbol, timeframe='max'):
-        if timeframe == '1d':
-            return self.get_prev_ohlc(symbol)
-        end = datetime.today()
-        delta = self.reader.convert_delta(timeframe)
-        start = end - delta
-        formatted_start = start.strftime('%Y-%m-%d')
-        formatted_end = end.strftime('%Y-%m-%d')
-        response = self.client.stocks_equities_aggregates(
-            symbol, 1, 'day',
-            from_=formatted_start, to=formatted_end, unadjusted=False
-        ).results
-        columns = {'t': 'date', 'o': 'open', 'h': 'high',
-                   'l': 'low', 'c': 'close', 'v': 'volume'}
-        df = pd.DataFrame(response).rename(columns=columns)
-        df['date'] = df['date'].apply(
-            lambda x: datetime.fromtimestamp(int(x)/1000))
-        return self.standardize_ohlc(symbol, df)
+        return self.try_again(func=_get_prev_ohlc, **kwargs)
+
+    def get_ohlc(self, **kwargs):
+        def _get_ohlc(self, symbol, timeframe='max'):
+            if timeframe == '1d':
+                return self.get_prev_ohlc(symbol)
+            end = datetime.today()
+            delta = self.reader.convert_delta(timeframe)
+            start = end - delta
+            formatted_start = start.strftime('%Y-%m-%d')
+            formatted_end = end.strftime('%Y-%m-%d')
+            response = self.client.stocks_equities_aggregates(
+                symbol, 1, 'day',
+                from_=formatted_start, to=formatted_end, unadjusted=False
+            ).results
+            columns = {'t': 'date', 'o': 'open', 'h': 'high',
+                       'l': 'low', 'c': 'close', 'v': 'volume'}
+            df = pd.DataFrame(response).rename(columns=columns)
+            df['date'] = df['date'].apply(
+                lambda x: datetime.fromtimestamp(int(x)/1000))
+            df = self.standardize_ohlc(symbol, df)
+            return self.reader.data_in_timeframe(df, C.TIME, timeframe)
+
+        return self.try_again(func=_get_ohlc, **kwargs)
 
     def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=True):
         # pass min directly into stock_aggs function as multiplier
@@ -458,53 +465,62 @@ class StockTwits(MarketData):
         self.provider = 'stocktwits'
         self.token = os.environ.get('STOCKTWITS')
 
-    def get_social_volume(self, symbol, timeframe='max'):
-        vol_res = requests.get((
-            f'https://api.stocktwits.com/api/2/symbols/{symbol}/volume.json'
-            f'?access_token={self.token}'
-        ))
-        empty = pd.DataFrame()
+    def get_social_volume(self, **kwargs):
+        def _get_social_volume(self, symbol, timeframe='max'):
+            vol_res = requests.get((
+                f'https://api.stocktwits.com/api/2/symbols/{symbol}/volume.json'
+                f'?access_token={self.token}'
+            ))
+            empty = pd.DataFrame()
 
-        if vol_res.ok:
-            vol_data = vol_res.json()['data']
-        else:
-            raise Exception(f'Invalid response from Stocktwits for {symbol}')
+            if vol_res.ok:
+                vol_data = vol_res.json()['data']
+            else:
+                raise Exception(
+                    f'Invalid response from Stocktwits for {symbol}')
 
-        if not vol_res.ok or vol_data == []:
-            return empty
+            if not vol_res.ok or vol_data == []:
+                return empty
 
-        vol_data.sort(key=lambda x: x['timestamp'])
-        vol_data.pop()
-        df = pd.DataFrame(vol_data)
-        std = self.standardize_volume(symbol, df)
-        if timeframe == '1d':
-            filtered = std.tail(1)
-        else:
-            filtered = self.reader.data_in_timeframe(std, C.TIME, timeframe)[
-                [C.TIME, C.VOL, C.DELTA]]
-        return filtered
+            vol_data.sort(key=lambda x: x['timestamp'])
+            vol_data.pop()
+            df = pd.DataFrame(vol_data)
+            std = self.standardize_volume(symbol, df)
+            if timeframe == '1d':
+                filtered = std.tail(1)
+            else:
+                filtered = self.reader.data_in_timeframe(
+                    std, C.TIME, timeframe)
+                [[C.TIME, C.VOL, C.DELTA]]
+            return filtered
 
-    def get_social_sentiment(self, symbol, timeframe='max'):
-        sen_res = requests.get((
-            f'https://api.stocktwits.com/api/2/symbols/{symbol}/sentiment.json'
-            f'?access_token={self.token}'
-        ))
-        empty = pd.DataFrame()
+        return self.try_again(func=_get_social_volume, **kwargs)
 
-        if sen_res.ok:
-            sen_data = sen_res.json()['data']
-        else:
-            raise Exception(f'Invalid response from Stocktwits for {symbol}.')
+    def get_social_sentiment(self, **kwargs):
+        def _get_social_sentiment(self, symbol, timeframe='max'):
+            sen_res = requests.get((
+                f'https://api.stocktwits.com/api/2/symbols/{symbol}/sentiment.json'
+                f'?access_token={self.token}'
+            ))
+            empty = pd.DataFrame()
 
-        if not sen_res.ok or sen_data == []:
-            return empty
+            if sen_res.ok:
+                sen_data = sen_res.json()['data']
+            else:
+                raise Exception(
+                    f'Invalid response from Stocktwits for {symbol}.')
 
-        sen_data.sort(key=lambda x: x['timestamp'])
-        sen_data.pop()
-        df = pd.DataFrame(sen_data)
-        std = self.standardize_sentiment(symbol, df)
-        if timeframe == '1d':
-            filtered = std.tail(1)
-        else:
-            filtered = self.reader.data_in_timeframe(std, C.TIME, timeframe)
-        return filtered
+            if not sen_res.ok or sen_data == []:
+                return empty
+
+            sen_data.sort(key=lambda x: x['timestamp'])
+            sen_data.pop()
+            df = pd.DataFrame(sen_data)
+            std = self.standardize_sentiment(symbol, df)
+            if timeframe == '1d':
+                filtered = std.tail(1)
+            else:
+                filtered = self.reader.data_in_timeframe(
+                    std, C.TIME, timeframe)
+            return filtered
+        return self.try_again(func=_get_social_sentiment, **kwargs)

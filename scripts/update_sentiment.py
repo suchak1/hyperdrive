@@ -3,7 +3,7 @@ import sys
 sys.path.append('src')
 from DataSource import StockTwits  # noqa autopep8
 import Constants as C  # noqa autopep8
-from Constants import CI, PathFinder  # noqa autopep8
+from Constants import CI, PathFinder, SENTIMENT_SYMBOLS_IGNORE  # noqa autopep8
 
 
 twit = StockTwits()
@@ -14,8 +14,10 @@ BATCH = int(os.environ.get('BATCH')) if os.environ.get('BATCH') else 1
 
 # First batch
 for symbol in symbols[C.TWIT_RATE*(BATCH-1):C.TWIT_RATE*BATCH]:
+    if symbol in SENTIMENT_SYMBOLS_IGNORE:
+        continue
     try:
-        twit.save_social_sentiment(symbol=symbol, timeframe='1d')
+        twit.save_social_sentiment(symbol=symbol, timeframe='1d', retries=2)
     except Exception as e:
         print(f'Stocktwits sentiment update failed for {symbol}.')
         print(e)
