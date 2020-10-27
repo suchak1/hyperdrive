@@ -21,11 +21,11 @@ class MarketData:
     def try_again(self, func, **kwargs):
         retries = kwargs['retries'] if 'retries' in kwargs else 3
         delay = kwargs['delay'] if 'delay' in kwargs else 2
-
+        func_args = {k: v for k, v in kwargs.items() if k not in {
+            'retries', 'delay'}}
         for retry in range(retries):
             try:
-                return func(**kwargs)
-                break
+                return func(**func_args)
             except Exception as e:
                 if retry == retries - 1:
                     raise e
@@ -288,7 +288,7 @@ class IEXCloud(MarketData):
 
     def get_splits(self, **kwargs):
         # given a symbol, return the stock splits
-        def _get_splits(self, symbol, timeframe='3m'):
+        def _get_splits(symbol, timeframe='3m'):
             category = 'stock'
             dataset = 'splits'
             parts = [
@@ -319,7 +319,7 @@ class IEXCloud(MarketData):
 
     def get_prev_ohlc(self, **kwargs):
         # given a symbol, return the prev day's ohlc
-        def _get_prev_ohlc(self, symbol):
+        def _get_prev_ohlc(symbol):
             category = 'stock'
             dataset = 'previous'
             parts = [
@@ -348,7 +348,7 @@ class IEXCloud(MarketData):
         return self.try_again(func=_get_prev_ohlc, **kwargs)
 
     def get_ohlc(self, **kwargs):
-        def _get_ohlc(self, symbol, timeframe='1m'):
+        def _get_ohlc(symbol, timeframe='1m'):
             if timeframe == '1d':
                 return self.get_prev_ohlc(symbol)
 
@@ -405,7 +405,7 @@ class Polygon(MarketData):
         return self.try_again(func=_get_dividends, **kwargs)
 
     def get_splits(self, **kwargs):
-        def _get_splits(self, symbol, timeframe='max'):
+        def _get_splits(symbol, timeframe='max'):
             response = self.client.reference_stock_splits(symbol)
             raw = pd.DataFrame(response.results)
             df = self.standardize_splits(symbol, raw)
@@ -413,7 +413,7 @@ class Polygon(MarketData):
         return self.try_again(func=_get_splits, **kwargs)
 
     def get_prev_ohlc(self, **kwargs):
-        def _get_prev_ohlc(self, symbol):
+        def _get_prev_ohlc(symbol):
             today = datetime.today()
             one_day = timedelta(days=1)
             yesterday = today - one_day
@@ -430,7 +430,7 @@ class Polygon(MarketData):
         return self.try_again(func=_get_prev_ohlc, **kwargs)
 
     def get_ohlc(self, **kwargs):
-        def _get_ohlc(self, symbol, timeframe='max'):
+        def _get_ohlc(symbol, timeframe='max'):
             if timeframe == '1d':
                 return self.get_prev_ohlc(symbol)
             end = datetime.today()
@@ -466,7 +466,7 @@ class StockTwits(MarketData):
         self.token = os.environ.get('STOCKTWITS')
 
     def get_social_volume(self, **kwargs):
-        def _get_social_volume(self, symbol, timeframe='max'):
+        def _get_social_volume(symbol, timeframe='max'):
             vol_res = requests.get((
                 f'https://api.stocktwits.com/api/2/symbols/{symbol}/volume.json'
                 f'?access_token={self.token}'
@@ -497,7 +497,7 @@ class StockTwits(MarketData):
         return self.try_again(func=_get_social_volume, **kwargs)
 
     def get_social_sentiment(self, **kwargs):
-        def _get_social_sentiment(self, symbol, timeframe='max'):
+        def _get_social_sentiment(symbol, timeframe='max'):
             sen_res = requests.get((
                 f'https://api.stocktwits.com/api/2/symbols/{symbol}/sentiment.json'
                 f'?access_token={self.token}'
