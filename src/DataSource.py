@@ -1,5 +1,6 @@
 import os
 import requests
+from time import sleep
 import pandas as pd
 from operator import attrgetter
 from datetime import datetime, timedelta
@@ -16,6 +17,20 @@ class MarketData:
         self.reader = FileReader()
         self.finder = PathFinder()
         self.provider = 'iexcloud'
+
+    def try_again(**kwargs):
+        retries = kwargs['retries']
+        delay = kwargs['delay']
+        func = kwargs['func']
+        for retry in range(retries):
+            try:
+                return func()
+                break
+            except Exception as e:
+                if retry == retries - 1:
+                    raise e
+                else:
+                    sleep(delay)
 
     def get_symbols(self):
         # get cached list of symbols
