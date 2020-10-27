@@ -317,62 +317,68 @@ class IEXCloud(MarketData):
 
         return self.try_again(func=_get_splits, **kwargs)
 
-    def get_prev_ohlc(self, symbol):
+    def get_prev_ohlc(self, **kwargs):
         # given a symbol, return the prev day's ohlc
-        category = 'stock'
-        dataset = 'previous'
-        parts = [
-            self.base,
-            self.version,
-            category,
-            symbol.lower(),
-            dataset
-        ]
-        endpoint = self.get_endpoint(parts)
-        response = requests.get(endpoint)
-        empty = pd.DataFrame()
+        def _get_prev_ohlc(self, symbol):
+            category = 'stock'
+            dataset = 'previous'
+            parts = [
+                self.base,
+                self.version,
+                category,
+                symbol.lower(),
+                dataset
+            ]
+            endpoint = self.get_endpoint(parts)
+            response = requests.get(endpoint)
+            empty = pd.DataFrame()
 
-        if response.ok:
-            data = response.json()
-        else:
-            raise Exception(f'Invalid response from IEX for {symbol} OHLC.')
+            if response.ok:
+                data = response.json()
+            else:
+                raise Exception(
+                    f'Invalid response from IEX for {symbol} OHLC.')
 
-        if not response.ok or data == []:
-            return empty
+            if not response.ok or data == []:
+                return empty
 
-        df = pd.DataFrame([data])
+            df = pd.DataFrame([data])
+            return self.standardize_ohlc(symbol, df)
 
-        return self.standardize_ohlc(symbol, df)
+        return self.try_again(func=_get_prev_ohlc, **kwargs)
 
-    def get_ohlc(self, symbol, timeframe='1m'):
-        if timeframe == '1d':
-            return self.get_prev_ohlc(symbol)
+    def get_ohlc(self, **kwargs):
+        def _get_ohlc(self, symbol, timeframe='1m'):
+            if timeframe == '1d':
+                return self.get_prev_ohlc(symbol)
 
-        category = 'stock'
-        dataset = 'chart'
-        parts = [
-            self.base,
-            self.version,
-            category,
-            symbol.lower(),
-            dataset,
-            timeframe
-        ]
-        endpoint = self.get_endpoint(parts)
-        response = requests.get(endpoint)
-        empty = pd.DataFrame()
+            category = 'stock'
+            dataset = 'chart'
+            parts = [
+                self.base,
+                self.version,
+                category,
+                symbol.lower(),
+                dataset,
+                timeframe
+            ]
+            endpoint = self.get_endpoint(parts)
+            response = requests.get(endpoint)
+            empty = pd.DataFrame()
 
-        if response.ok:
-            data = response.json()
-        else:
-            raise Exception(f'Invalid response from IEX for {symbol} OHLC.')
+            if response.ok:
+                data = response.json()
+            else:
+                raise Exception(
+                    f'Invalid response from IEX for {symbol} OHLC.')
 
-        if not response.ok or data == []:
-            return empty
+            if not response.ok or data == []:
+                return empty
 
-        df = pd.DataFrame(data)
+            df = pd.DataFrame(data)
+            return self.standardize_ohlc(symbol, df)
 
-        return self.standardize_ohlc(symbol, df)
+        return self.try_again(func=_get_ohlc, **kwargs)
 
     # extra_hrs should be True if possible
     def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=True):
