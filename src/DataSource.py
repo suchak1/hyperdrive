@@ -18,13 +18,13 @@ class MarketData:
         self.finder = PathFinder()
         self.provider = 'iexcloud'
 
-    def try_again(**kwargs):
-        retries = kwargs['retries']
-        delay = kwargs['delay']
-        func = kwargs['func']
+    def try_again(self, func, **kwargs):
+        retries = kwargs['retries'] if 'retries' in kwargs else 3
+        delay = kwargs['delay'] if 'delay' in kwargs else 2
+
         for retry in range(retries):
             try:
-                return func()
+                return func(**kwargs)
                 break
             except Exception as e:
                 if retry == retries - 1:
@@ -238,6 +238,7 @@ class MarketData:
 class IEXCloud(MarketData):
     def __init__(self):
         load_dotenv()
+        super().__init__()
         self.base = 'https://cloud.iexapis.com'
         self.version = 'stable'
         self.token = os.environ['IEXCLOUD']
@@ -252,66 +253,71 @@ class IEXCloud(MarketData):
         endpoint = f'{url}?{params}'
         return endpoint
 
-    def get_dividends(self, symbol, timeframe='3m', retries=3, delay=2):
+    def get_dividends(self, **kwargs):
         # given a symbol, return the dividend history
-        category = 'stock'
-        dataset = 'dividends'
-        parts = [
-            self.base,
-            self.version,
-            category,
-            symbol.lower(),
-            dataset,
-            timeframe
-        ]
-        endpoint = self.get_endpoint(parts)
-        response = requests.get(endpoint)
-        empty = pd.DataFrame()
+        def _get_dividends(symbol, timeframe='3m'):
+            print(timeframe)
+            category = 'stock'
+            dataset = 'dividends'
+            parts = [
+                self.base,
+                self.version,
+                category,
+                symbol.lower(),
+                dataset,
+                timeframe
+            ]
+            endpoint = self.get_endpoint(parts)
+            response = requests.get(endpoint)
+            empty = pd.DataFrame()
 
-        if response.ok:
-            data = [datum for datum in response.json() if datum['flag']
-                    == 'Cash' and datum['currency'] == 'USD']
-            # self.writer.save_json(f'data/{symbol}.json', data)
-        else:
-            raise Exception(
-                f'Invalid response from IEX for {symbol} dividends.')
+            if response.ok:
+                data = [datum for datum in response.json() if datum['flag']
+                        == 'Cash' and datum['currency'] == 'USD']
+            else:
+                raise Exception(
+                    f'Invalid response from IEX for {symbol} dividends.')
 
-        if not response.ok or data == []:
-            return empty
+            if not response.ok or data == []:
+                return empty
 
-        df = pd.DataFrame(data)
+            df = self.standardize_dividends(symbol, pd.DataFrame(data))
+            return self.reader.data_in_timeframe(df, C.EX, timeframe)
 
-        return self.standardize_dividends(symbol, df)
+        return self.try_again(func=_get_dividends, **kwargs)
 
-    def get_splits(self, symbol, timeframe='3m', retries=3, delay=2):
+    def get_splits(self, **kwargs):
         # given a symbol, return the stock splits
-        category = 'stock'
-        dataset = 'splits'
-        parts = [
-            self.base,
-            self.version,
-            category,
-            symbol.lower(),
-            dataset,
-            timeframe
-        ]
-        endpoint = self.get_endpoint(parts)
-        response = requests.get(endpoint)
-        empty = pd.DataFrame()
+        def _get_splits(self, symbol, timeframe='3m'):
+            category = 'stock'
+            dataset = 'splits'
+            parts = [
+                self.base,
+                self.version,
+                category,
+                symbol.lower(),
+                dataset,
+                timeframe
+            ]
+            endpoint = self.get_endpoint(parts)
+            response = requests.get(endpoint)
+            empty = pd.DataFrame()
 
-        if response.ok:
-            data = response.json()
-        else:
-            raise Exception(f'Invalid response from IEX for {symbol} splits.')
+            if response.ok:
+                data = response.json()
+            else:
+                raise Exception(
+                    f'Invalid response from IEX for {symbol} splits.')
 
-        if not response.ok or data == []:
-            return empty
+            if not response.ok or data == []:
+                return empty
 
-        df = pd.DataFrame(data)
+            df = self.standardize_splits(symbol, pd.DataFrame(data))
+            return self.reader.data_in_timeframe(df, C.EX, timeframe)
 
-        return self.standardize_splits(symbol, df)
+        return self.try_again(func=_get_splits, **kwargs)
 
-    def get_prev_ohlc(self, symbol, retries=3, delay=2):
+    def get_prev_ohlc(self, symbol):
         # given a symbol, return the prev day's ohlc
         category = 'stock'
         dataset = 'previous'
@@ -338,7 +344,7 @@ class IEXCloud(MarketData):
 
         return self.standardize_ohlc(symbol, df)
 
-    def get_ohlc(self, symbol, timeframe='1m', retries=3, delay=2):
+    def get_ohlc(self, symbol, timeframe='1m'):
         if timeframe == '1d':
             return self.get_prev_ohlc(symbol)
 
@@ -380,22 +386,23 @@ class IEXCloud(MarketData):
 class Polygon(MarketData):
     def __init__(self, token=os.environ['APCA_API_KEY_ID']):
         load_dotenv()
+        super().__init__()
         self.client = RESTClient(token)
         self.provider = 'polygon'
 
-    def get_dividends(self, symbol, timeframe='max', retries=3, delay=2):
+    def get_dividends(self, symbol, timeframe='max'):
         response = self.client.reference_stock_dividends(symbol)
         raw = pd.DataFrame(response.results)
         df = self.standardize_dividends(symbol, raw)
         return self.reader.data_in_timeframe(df, C.EX, timeframe)
 
-    def get_splits(self, symbol, timeframe='max', retries=3, delay=2):
+    def get_splits(self, symbol, timeframe='max'):
         response = self.client.reference_stock_splits(symbol)
         raw = pd.DataFrame(response.results)
         df = self.standardize_splits(symbol, raw)
         return self.reader.data_in_timeframe(df, C.EX, timeframe)
 
-    def get_prev_ohlc(self, symbol, retries=3, delay=2):
+    def get_prev_ohlc(self, symbol):
         today = datetime.today()
         one_day = timedelta(days=1)
         yesterday = today - one_day
@@ -409,7 +416,7 @@ class Polygon(MarketData):
         df = pd.DataFrame([data])
         return self.standardize_ohlc(symbol, df)
 
-    def get_ohlc(self, symbol, timeframe='max', retries=3, delay=2):
+    def get_ohlc(self, symbol, timeframe='max'):
         if timeframe == '1d':
             return self.get_prev_ohlc(symbol)
         end = datetime.today()
@@ -437,10 +444,11 @@ class Polygon(MarketData):
 class StockTwits(MarketData):
     def __init__(self):
         load_dotenv()
+        super().__init__()
         self.provider = 'stocktwits'
         self.token = os.environ.get('STOCKTWITS')
 
-    def get_social_volume(self, symbol, timeframe='max', retries=3, delay=2):
+    def get_social_volume(self, symbol, timeframe='max'):
         vol_res = requests.get((
             f'https://api.stocktwits.com/api/2/symbols/{symbol}/volume.json'
             f'?access_token={self.token}'
@@ -466,7 +474,7 @@ class StockTwits(MarketData):
                 [C.TIME, C.VOL, C.DELTA]]
         return filtered
 
-    def get_social_sentiment(self, symbol, timeframe='max', retries=3, delay=2):
+    def get_social_sentiment(self, symbol, timeframe='max'):
         sen_res = requests.get((
             f'https://api.stocktwits.com/api/2/symbols/{symbol}/sentiment.json'
             f'?access_token={self.token}'
