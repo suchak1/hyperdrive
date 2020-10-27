@@ -390,17 +390,21 @@ class Polygon(MarketData):
         self.client = RESTClient(token)
         self.provider = 'polygon'
 
-    def get_dividends(self, symbol, timeframe='max'):
-        response = self.client.reference_stock_dividends(symbol)
-        raw = pd.DataFrame(response.results)
-        df = self.standardize_dividends(symbol, raw)
-        return self.reader.data_in_timeframe(df, C.EX, timeframe)
+    def get_dividends(self, **kwargs):
+        def _get_dividends(symbol, timeframe='max'):
+            response = self.client.reference_stock_dividends(symbol)
+            raw = pd.DataFrame(response.results)
+            df = self.standardize_dividends(symbol, raw)
+            return self.reader.data_in_timeframe(df, C.EX, timeframe)
+        return self.try_again(func=_get_dividends, **kwargs)
 
-    def get_splits(self, symbol, timeframe='max'):
-        response = self.client.reference_stock_splits(symbol)
-        raw = pd.DataFrame(response.results)
-        df = self.standardize_splits(symbol, raw)
-        return self.reader.data_in_timeframe(df, C.EX, timeframe)
+    def get_splits(self, **kwargs):
+        def _get_splits(self, symbol, timeframe='max'):
+            response = self.client.reference_stock_splits(symbol)
+            raw = pd.DataFrame(response.results)
+            df = self.standardize_splits(symbol, raw)
+            return self.reader.data_in_timeframe(df, C.EX, timeframe)
+        return self.try_again(func=_get_splits, **kwargs)
 
     def get_prev_ohlc(self, symbol):
         today = datetime.today()
