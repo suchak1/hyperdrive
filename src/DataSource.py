@@ -446,6 +446,8 @@ class StockTwits(MarketData):
             return empty
 
         vol_data.sort(key=lambda x: x['timestamp'])
+        # FIX THIS!! WHAT HAPPENS WHEN AROUND NEW YEAR'S WHEN JANUARY IS CONSIDERED EARLIER THAN DEC??
+        # actually should be fine bc data is in YYYY-MM-DD format
         vol_data.pop()
         df = pd.DataFrame(vol_data)
         std = self.standardize_volume(symbol, df)
@@ -472,6 +474,8 @@ class StockTwits(MarketData):
             return empty
 
         sen_data.sort(key=lambda x: x['timestamp'])
+        # FIX THIS!! WHAT HAPPENS WHEN AROUND NEW YEAR'S WHEN JANUARY IS CONSIDERED EARLIER THAN DEC??
+        # actually should be fine bc data is in YYYY-MM-DD format
         sen_data.pop()
         df = pd.DataFrame(sen_data)
         std = self.standardize_sentiment(symbol, df)
