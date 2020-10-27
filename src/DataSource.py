@@ -9,12 +9,9 @@ from FileOps import FileReader, FileWriter
 from Constants import PathFinder
 import Constants as C
 
-# MAKE market data class (broker=None):
-# if broker, then use broker.get_hist else use default get_hist (tiingo?)
-
 
 class MarketData:
-    def __init__(self, broker=None):
+    def __init__(self):
         self.writer = FileWriter()
         self.reader = FileReader()
         self.finder = PathFinder()
@@ -224,8 +221,7 @@ class MarketData:
 
 
 class IEXCloud(MarketData):
-    def __init__(self, broker=None):
-        super().__init__(broker=broker)
+    def __init__(self):
         load_dotenv()
         self.base = 'https://cloud.iexapis.com'
         self.version = 'stable'
@@ -241,7 +237,7 @@ class IEXCloud(MarketData):
         endpoint = f'{url}?{params}'
         return endpoint
 
-    def get_dividends(self, symbol, timeframe='3m'):
+    def get_dividends(self, symbol, timeframe='3m', retries=3, delay=2):
         # given a symbol, return the dividend history
         category = 'stock'
         dataset = 'dividends'
@@ -262,7 +258,8 @@ class IEXCloud(MarketData):
                     == 'Cash' and datum['currency'] == 'USD']
             # self.writer.save_json(f'data/{symbol}.json', data)
         else:
-            print(f'Invalid response from IEX for {symbol} dividends.')
+            raise Exception(
+                f'Invalid response from IEX for {symbol} dividends.')
 
         if not response.ok or data == []:
             return empty
@@ -271,7 +268,7 @@ class IEXCloud(MarketData):
 
         return self.standardize_dividends(symbol, df)
 
-    def get_splits(self, symbol, timeframe='3m'):
+    def get_splits(self, symbol, timeframe='3m', retries=3, delay=2):
         # given a symbol, return the stock splits
         category = 'stock'
         dataset = 'splits'
@@ -290,7 +287,7 @@ class IEXCloud(MarketData):
         if response.ok:
             data = response.json()
         else:
-            print(f'Invalid response from IEX for {symbol} splits.')
+            raise Exception(f'Invalid response from IEX for {symbol} splits.')
 
         if not response.ok or data == []:
             return empty
@@ -299,7 +296,7 @@ class IEXCloud(MarketData):
 
         return self.standardize_splits(symbol, df)
 
-    def get_prev_ohlc(self, symbol):
+    def get_prev_ohlc(self, symbol, retries=3, delay=2):
         # given a symbol, return the prev day's ohlc
         category = 'stock'
         dataset = 'previous'
@@ -317,7 +314,7 @@ class IEXCloud(MarketData):
         if response.ok:
             data = response.json()
         else:
-            print(f'Invalid response from IEX for {symbol} OHLC.')
+            raise Exception(f'Invalid response from IEX for {symbol} OHLC.')
 
         if not response.ok or data == []:
             return empty
@@ -326,7 +323,7 @@ class IEXCloud(MarketData):
 
         return self.standardize_ohlc(symbol, df)
 
-    def get_ohlc(self, symbol, timeframe='1m'):
+    def get_ohlc(self, symbol, timeframe='1m', retries=3, delay=2):
         if timeframe == '1d':
             return self.get_prev_ohlc(symbol)
 
@@ -347,7 +344,7 @@ class IEXCloud(MarketData):
         if response.ok:
             data = response.json()
         else:
-            print(f'Invalid response from IEX for {symbol} OHLC.')
+            raise Exception(f'Invalid response from IEX for {symbol} OHLC.')
 
         if not response.ok or data == []:
             return empty
@@ -366,25 +363,24 @@ class IEXCloud(MarketData):
 
 
 class Polygon(MarketData):
-    def __init__(self, broker=None):
-        super().__init__(broker=broker)
+    def __init__(self, token=os.environ['APCA_API_KEY_ID']):
         load_dotenv()
-        self.client = RESTClient(os.environ['APCA_API_KEY_ID'])
+        self.client = RESTClient(token)
         self.provider = 'polygon'
 
-    def get_dividends(self, symbol, timeframe='max'):
+    def get_dividends(self, symbol, timeframe='max', retries=3, delay=2):
         response = self.client.reference_stock_dividends(symbol)
         raw = pd.DataFrame(response.results)
         df = self.standardize_dividends(symbol, raw)
         return self.reader.data_in_timeframe(df, C.EX, timeframe)
 
-    def get_splits(self, symbol, timeframe='max'):
+    def get_splits(self, symbol, timeframe='max', retries=3, delay=2):
         response = self.client.reference_stock_splits(symbol)
         raw = pd.DataFrame(response.results)
         df = self.standardize_splits(symbol, raw)
         return self.reader.data_in_timeframe(df, C.EX, timeframe)
 
-    def get_prev_ohlc(self, symbol):
+    def get_prev_ohlc(self, symbol, retries=3, delay=2):
         today = datetime.today()
         one_day = timedelta(days=1)
         yesterday = today - one_day
@@ -398,7 +394,7 @@ class Polygon(MarketData):
         df = pd.DataFrame([data])
         return self.standardize_ohlc(symbol, df)
 
-    def get_ohlc(self, symbol, timeframe='max'):
+    def get_ohlc(self, symbol, timeframe='max', retries=3, delay=2):
         if timeframe == '1d':
             return self.get_prev_ohlc(symbol)
         end = datetime.today()
@@ -424,13 +420,12 @@ class Polygon(MarketData):
 
 
 class StockTwits(MarketData):
-    def __init__(self, broker=None):
-        super().__init__(broker=broker)
+    def __init__(self):
         load_dotenv()
         self.provider = 'stocktwits'
         self.token = os.environ.get('STOCKTWITS')
 
-    def get_social_volume(self, symbol, timeframe='max'):
+    def get_social_volume(self, symbol, timeframe='max', retries=3, delay=2):
         vol_res = requests.get((
             f'https://api.stocktwits.com/api/2/symbols/{symbol}/volume.json'
             f'?access_token={self.token}'
@@ -440,7 +435,7 @@ class StockTwits(MarketData):
         if vol_res.ok:
             vol_data = vol_res.json()['data']
         else:
-            print(f'Invalid response from Stocktwits for {symbol}')
+            raise Exception(f'Invalid response from Stocktwits for {symbol}')
 
         if not vol_res.ok or vol_data == []:
             return empty
@@ -456,7 +451,7 @@ class StockTwits(MarketData):
                 [C.TIME, C.VOL, C.DELTA]]
         return filtered
 
-    def get_social_sentiment(self, symbol, timeframe='max'):
+    def get_social_sentiment(self, symbol, timeframe='max', retries=3, delay=2):
         sen_res = requests.get((
             f'https://api.stocktwits.com/api/2/symbols/{symbol}/sentiment.json'
             f'?access_token={self.token}'
@@ -466,7 +461,7 @@ class StockTwits(MarketData):
         if sen_res.ok:
             sen_data = sen_res.json()['data']
         else:
-            print(f'Invalid response from Stocktwits for {symbol}.')
+            raise Exception(f'Invalid response from Stocktwits for {symbol}.')
 
         if not sen_res.ok or sen_data == []:
             return empty

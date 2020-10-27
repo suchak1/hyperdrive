@@ -1,5 +1,6 @@
 import os
 import sys
+from time import sleep
 from multiprocessing import Process
 sys.path.append('src')
 from DataSource import IEXCloud, Polygon  # noqa autopep8
@@ -7,16 +8,18 @@ from Constants import CI, PathFinder  # noqa autopep8
 
 
 iex = IEXCloud()
-poly = Polygon()
-symbols = iex.get_symbols()
-
+poly_stocks = Polygon()
+poly_crypto = Polygon(os.environ['POLYGON'])
+stock_symbols = iex.get_symbols()
+crypto_symbols = ['X%3ABTCUSD', 'X%3AETHUSD',
+                  'X%3ALTCUSD', 'X%3AXMRUSD', 'X%3AIOTUSD']
 # Double redundancy
 
 # 1st pass
 
 
 def update_iex_ohlc():
-    for symbol in symbols:
+    for symbol in stock_symbols:
         try:
             iex.save_ohlc(symbol=symbol, timeframe='1d')
         except Exception as e:
@@ -30,21 +33,41 @@ def update_iex_ohlc():
 # 2nd pass
 
 
-def update_poly_ohlc():
-    for symbol in symbols:
+def update_poly_stocks_ohlc():
+    for symbol in stock_symbols:
         try:
-            poly.save_ohlc(symbol=symbol, timeframe='1d')
+            poly_stocks.save_ohlc(symbol=symbol, timeframe='1d')
         except Exception as e:
             print(f'Polygon.io OHLC update failed for {symbol}.')
             print(e)
         finally:
             filename = PathFinder().get_ohlc_path(
-                symbol=symbol, provider=poly.provider)
+                symbol=symbol, provider=poly_stocks.provider)
+            if CI and os.path.exists(filename):
+                os.remove(filename)
+# Crypto pass
+
+
+def update_poly_crypto_ohlc():
+    for idx, symbol in enumerate(crypto_symbols):
+        try:
+            poly_crypto.save_ohlc(symbol=symbol, timeframe='1d')
+        except Exception as e:
+            print(f'Polygon.io OHLC update failed for {symbol}.')
+            print(e)
+        finally:
+            filename = PathFinder().get_ohlc_path(
+                symbol=symbol, provider=poly_crypto.provider)
             if CI and os.path.exists(filename):
                 os.remove(filename)
 
+            if idx != len(crypto_symbols) - 1:
+                sleep(60 // len(crypto_symbols) + 5)
+
 
 p1 = Process(target=update_iex_ohlc)
-p2 = Process(target=update_poly_ohlc)
+p2 = Process(target=update_poly_stocks_ohlc)
+p3 = Process(target=update_poly_crypto_ohlc)
 p1.start()
 p2.start()
+p3.start()
