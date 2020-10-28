@@ -1,6 +1,8 @@
 import os
 import requests
+from time import sleep
 import pandas as pd
+from pytz import timezone
 from operator import attrgetter
 from datetime import datetime, timedelta
 from polygon import RESTClient
@@ -9,16 +11,31 @@ from FileOps import FileReader, FileWriter
 from Constants import PathFinder
 import Constants as C
 
-# MAKE market data class (broker=None):
-# if broker, then use broker.get_hist else use default get_hist (tiingo?)
-
 
 class MarketData:
-    def __init__(self, broker=None):
+    def __init__(self):
         self.writer = FileWriter()
         self.reader = FileReader()
         self.finder = PathFinder()
         self.provider = 'iexcloud'
+
+    def try_again(self, func, **kwargs):
+        retries = (kwargs['retries']
+                   if 'retries' in kwargs
+                   else C.DEFAULT_RETRIES)
+        delay = (kwargs['delay']
+                 if 'delay' in kwargs
+                 else C.DEFAULT_DELAY)
+        func_args = {k: v for k, v in kwargs.items() if k not in {
+            'retries', 'delay'}}
+        for retry in range(retries):
+            try:
+                return func(**func_args)
+            except Exception as e:
+                if retry == retries - 1:
+                    raise e
+                else:
+                    sleep(delay)
 
     def get_symbols(self):
         # get cached list of symbols
@@ -224,9 +241,9 @@ class MarketData:
 
 
 class IEXCloud(MarketData):
-    def __init__(self, broker=None):
-        super().__init__(broker=broker)
+    def __init__(self):
         load_dotenv()
+        super().__init__()
         self.base = 'https://cloud.iexapis.com'
         self.version = 'stable'
         self.token = os.environ['IEXCLOUD']
@@ -241,120 +258,127 @@ class IEXCloud(MarketData):
         endpoint = f'{url}?{params}'
         return endpoint
 
-    def get_dividends(self, symbol, timeframe='3m'):
+    def get_dividends(self, **kwargs):
         # given a symbol, return the dividend history
-        category = 'stock'
-        dataset = 'dividends'
-        parts = [
-            self.base,
-            self.version,
-            category,
-            symbol.lower(),
-            dataset,
-            timeframe
-        ]
-        endpoint = self.get_endpoint(parts)
-        response = requests.get(endpoint)
-        empty = pd.DataFrame()
+        def _get_dividends(symbol, timeframe='3m'):
+            category = 'stock'
+            dataset = 'dividends'
+            parts = [
+                self.base,
+                self.version,
+                category,
+                symbol.lower(),
+                dataset,
+                timeframe
+            ]
+            endpoint = self.get_endpoint(parts)
+            response = requests.get(endpoint)
+            empty = pd.DataFrame()
 
-        if response.ok:
-            data = [datum for datum in response.json() if datum['flag']
-                    == 'Cash' and datum['currency'] == 'USD']
-            # self.writer.save_json(f'data/{symbol}.json', data)
-        else:
-            print(f'Invalid response from IEX for {symbol} dividends.')
+            if response.ok:
+                data = [datum for datum in response.json() if datum['flag']
+                        == 'Cash' and datum['currency'] == 'USD']
+            else:
+                raise Exception(
+                    f'Invalid response from IEX for {symbol} dividends.')
 
-        if not response.ok or data == []:
-            return empty
+            if data == []:
+                return empty
 
-        df = pd.DataFrame(data)
+            df = self.standardize_dividends(symbol, pd.DataFrame(data))
+            return self.reader.data_in_timeframe(df, C.EX, timeframe)
 
-        return self.standardize_dividends(symbol, df)
+        return self.try_again(func=_get_dividends, **kwargs)
 
-    def get_splits(self, symbol, timeframe='3m'):
+    def get_splits(self, **kwargs):
         # given a symbol, return the stock splits
-        category = 'stock'
-        dataset = 'splits'
-        parts = [
-            self.base,
-            self.version,
-            category,
-            symbol.lower(),
-            dataset,
-            timeframe
-        ]
-        endpoint = self.get_endpoint(parts)
-        response = requests.get(endpoint)
-        empty = pd.DataFrame()
+        def _get_splits(symbol, timeframe='3m'):
+            category = 'stock'
+            dataset = 'splits'
+            parts = [
+                self.base,
+                self.version,
+                category,
+                symbol.lower(),
+                dataset,
+                timeframe
+            ]
+            endpoint = self.get_endpoint(parts)
+            response = requests.get(endpoint)
+            empty = pd.DataFrame()
 
-        if response.ok:
-            data = response.json()
-        else:
-            print(f'Invalid response from IEX for {symbol} splits.')
+            if response.ok:
+                data = response.json()
+            else:
+                raise Exception(
+                    f'Invalid response from IEX for {symbol} splits.')
 
-        if not response.ok or data == []:
-            return empty
+            if data == []:
+                return empty
 
-        df = pd.DataFrame(data)
+            df = self.standardize_splits(symbol, pd.DataFrame(data))
+            return self.reader.data_in_timeframe(df, C.EX, timeframe)
 
-        return self.standardize_splits(symbol, df)
+        return self.try_again(func=_get_splits, **kwargs)
 
-    def get_prev_ohlc(self, symbol):
-        # given a symbol, return the prev day's ohlc
-        category = 'stock'
-        dataset = 'previous'
-        parts = [
-            self.base,
-            self.version,
-            category,
-            symbol.lower(),
-            dataset
-        ]
-        endpoint = self.get_endpoint(parts)
-        response = requests.get(endpoint)
-        empty = pd.DataFrame()
+    def get_ohlc(self, **kwargs):
+        def _get_prev_ohlc(symbol):
+            category = 'stock'
+            dataset = 'previous'
+            parts = [
+                self.base,
+                self.version,
+                category,
+                symbol.lower(),
+                dataset
+            ]
+            endpoint = self.get_endpoint(parts)
+            response = requests.get(endpoint)
+            empty = pd.DataFrame()
 
-        if response.ok:
-            data = response.json()
-        else:
-            print(f'Invalid response from IEX for {symbol} OHLC.')
+            if response.ok:
+                data = response.json()
+            else:
+                raise Exception(
+                    f'Invalid response from IEX for {symbol} OHLC.')
 
-        if not response.ok or data == []:
-            return empty
+            if data == []:
+                return empty
 
-        df = pd.DataFrame([data])
+            df = pd.DataFrame([data])
+            return self.standardize_ohlc(symbol, df)
 
-        return self.standardize_ohlc(symbol, df)
+        def _get_ohlc(symbol, timeframe='1m'):
+            if timeframe == '1d':
+                return _get_prev_ohlc(symbol)
 
-    def get_ohlc(self, symbol, timeframe='1m'):
-        if timeframe == '1d':
-            return self.get_prev_ohlc(symbol)
+            category = 'stock'
+            dataset = 'chart'
+            parts = [
+                self.base,
+                self.version,
+                category,
+                symbol.lower(),
+                dataset,
+                timeframe
+            ]
+            endpoint = self.get_endpoint(parts)
+            response = requests.get(endpoint)
+            empty = pd.DataFrame()
 
-        category = 'stock'
-        dataset = 'chart'
-        parts = [
-            self.base,
-            self.version,
-            category,
-            symbol.lower(),
-            dataset,
-            timeframe
-        ]
-        endpoint = self.get_endpoint(parts)
-        response = requests.get(endpoint)
-        empty = pd.DataFrame()
+            if response.ok:
+                data = response.json()
+            else:
+                raise Exception(
+                    f'Invalid response from IEX for {symbol} OHLC.')
 
-        if response.ok:
-            data = response.json()
-        else:
-            print(f'Invalid response from IEX for {symbol} OHLC.')
+            if data == []:
+                return empty
 
-        if not response.ok or data == []:
-            return empty
+            df = self.standardize_ohlc(symbol, pd.DataFrame(data))
+            return self.reader.data_in_timeframe(df, C.TIME, timeframe)
 
-        df = pd.DataFrame(data)
-
-        return self.standardize_ohlc(symbol, df)
+        return self.try_again(func=_get_ohlc, **kwargs)
 
     # extra_hrs should be True if possible
     def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=True):
@@ -366,56 +390,64 @@ class IEXCloud(MarketData):
 
 
 class Polygon(MarketData):
-    def __init__(self, broker=None):
-        super().__init__(broker=broker)
+    def __init__(self, token=os.environ['APCA_API_KEY_ID']):
         load_dotenv()
-        self.client = RESTClient(os.environ['APCA_API_KEY_ID'])
+        super().__init__()
+        self.client = RESTClient(token)
         self.provider = 'polygon'
 
-    def get_dividends(self, symbol, timeframe='max'):
-        response = self.client.reference_stock_dividends(symbol)
-        raw = pd.DataFrame(response.results)
-        df = self.standardize_dividends(symbol, raw)
-        return self.reader.data_in_timeframe(df, C.EX, timeframe)
+    def get_dividends(self, **kwargs):
+        def _get_dividends(symbol, timeframe='max'):
+            response = self.client.reference_stock_dividends(symbol)
+            raw = pd.DataFrame(response.results)
+            df = self.standardize_dividends(symbol, raw)
+            return self.reader.data_in_timeframe(df, C.EX, timeframe)
+        return self.try_again(func=_get_dividends, **kwargs)
 
-    def get_splits(self, symbol, timeframe='max'):
-        response = self.client.reference_stock_splits(symbol)
-        raw = pd.DataFrame(response.results)
-        df = self.standardize_splits(symbol, raw)
-        return self.reader.data_in_timeframe(df, C.EX, timeframe)
+    def get_splits(self, **kwargs):
+        def _get_splits(symbol, timeframe='max'):
+            response = self.client.reference_stock_splits(symbol)
+            raw = pd.DataFrame(response.results)
+            df = self.standardize_splits(symbol, raw)
+            return self.reader.data_in_timeframe(df, C.EX, timeframe)
+        return self.try_again(func=_get_splits, **kwargs)
 
-    def get_prev_ohlc(self, symbol):
-        today = datetime.today()
-        one_day = timedelta(days=1)
-        yesterday = today - one_day
-        formatted_date = yesterday.strftime('%Y-%m-%d')
-        response = self.client.stocks_equities_daily_open_close(
-            symbol, formatted_date, unadjusted=False)
-        raw = attrgetter('from_', 'open', 'high', 'low',
-                         'close', 'volume')(response)
-        labels = ['date', 'open', 'high', 'low', 'close', 'volume']
-        data = dict(zip(labels, raw))
-        df = pd.DataFrame([data])
-        return self.standardize_ohlc(symbol, df)
+    def get_ohlc(self, **kwargs):
+        def _get_prev_ohlc(symbol):
+            today = datetime.now(timezone('US/Eastern'))
+            one_day = timedelta(days=1)
+            yesterday = today - one_day
+            formatted_date = yesterday.strftime('%Y-%m-%d')
+            response = self.client.stocks_equities_daily_open_close(
+                symbol, formatted_date, unadjusted=False)
+            raw = attrgetter('from_', 'open', 'high', 'low',
+                             'close', 'volume')(response)
+            labels = ['date', 'open', 'high', 'low', 'close', 'volume']
+            data = dict(zip(labels, raw))
+            df = pd.DataFrame([data])
+            return self.standardize_ohlc(symbol, df)
 
-    def get_ohlc(self, symbol, timeframe='max'):
-        if timeframe == '1d':
-            return self.get_prev_ohlc(symbol)
-        end = datetime.today()
-        delta = self.reader.convert_delta(timeframe)
-        start = end - delta
-        formatted_start = start.strftime('%Y-%m-%d')
-        formatted_end = end.strftime('%Y-%m-%d')
-        response = self.client.stocks_equities_aggregates(
-            symbol, 1, 'day',
-            from_=formatted_start, to=formatted_end, unadjusted=False
-        ).results
-        columns = {'t': 'date', 'o': 'open', 'h': 'high',
-                   'l': 'low', 'c': 'close', 'v': 'volume'}
-        df = pd.DataFrame(response).rename(columns=columns)
-        df['date'] = df['date'].apply(
-            lambda x: datetime.fromtimestamp(int(x)/1000))
-        return self.standardize_ohlc(symbol, df)
+        def _get_ohlc(symbol, timeframe='max'):
+            if timeframe == '1d':
+                return _get_prev_ohlc(symbol)
+            end = datetime.now(timezone('US/Eastern'))
+            delta = self.reader.convert_delta(timeframe)
+            start = end - delta
+            formatted_start = start.strftime('%Y-%m-%d')
+            formatted_end = end.strftime('%Y-%m-%d')
+            response = self.client.stocks_equities_aggregates(
+                symbol, 1, 'day',
+                from_=formatted_start, to=formatted_end, unadjusted=False
+            ).results
+            columns = {'t': 'date', 'o': 'open', 'h': 'high',
+                       'l': 'low', 'c': 'close', 'v': 'volume'}
+            df = pd.DataFrame(response).rename(columns=columns)
+            df['date'] = df['date'].apply(
+                lambda x: datetime.fromtimestamp(int(x)/1000))
+            df = self.standardize_ohlc(symbol, df)
+            return self.reader.data_in_timeframe(df, C.TIME, timeframe)
+
+        return self.try_again(func=_get_ohlc, **kwargs)
 
     def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=True):
         # pass min directly into stock_aggs function as multiplier
@@ -424,63 +456,68 @@ class Polygon(MarketData):
 
 
 class StockTwits(MarketData):
-    def __init__(self, broker=None):
-        super().__init__(broker=broker)
+    def __init__(self):
         load_dotenv()
+        super().__init__()
         self.provider = 'stocktwits'
         self.token = os.environ.get('STOCKTWITS')
 
-    def get_social_volume(self, symbol, timeframe='max'):
-        vol_res = requests.get((
-            f'https://api.stocktwits.com/api/2/symbols/{symbol}/volume.json'
-            f'?access_token={self.token}'
-        ))
-        empty = pd.DataFrame()
+    def get_social_volume(self, **kwargs):
+        def _get_social_volume(symbol, timeframe='max'):
+            vol_res = requests.get((
+                f'https://api.stocktwits.com/api/2/symbols/{symbol}'
+                f'/volume.json?access_token={self.token}'
+            ))
+            empty = pd.DataFrame()
 
-        if vol_res.ok:
-            vol_data = vol_res.json()['data']
-        else:
-            print(f'Invalid response from Stocktwits for {symbol}')
+            if vol_res.ok:
+                vol_data = vol_res.json()['data']
+            else:
+                raise Exception(
+                    f'Invalid response from Stocktwits for {symbol}')
 
-        if not vol_res.ok or vol_data == []:
-            return empty
+            if vol_data == []:
+                return empty
 
-        vol_data.sort(key=lambda x: x['timestamp'])
-        # FIX THIS!! WHAT HAPPENS WHEN AROUND NEW YEAR'S WHEN JANUARY IS CONSIDERED EARLIER THAN DEC??
-        # actually should be fine bc data is in YYYY-MM-DD format
-        vol_data.pop()
-        df = pd.DataFrame(vol_data)
-        std = self.standardize_volume(symbol, df)
-        if timeframe == '1d':
-            filtered = std.tail(1)
-        else:
-            filtered = self.reader.data_in_timeframe(std, C.TIME, timeframe)[
-                [C.TIME, C.VOL, C.DELTA]]
-        return filtered
+            vol_data.sort(key=lambda x: x['timestamp'])
+            vol_data.pop()
+            df = pd.DataFrame(vol_data)
+            std = self.standardize_volume(symbol, df)
+            if timeframe == '1d':
+                filtered = std.tail(1)
+            else:
+                filtered = self.reader.data_in_timeframe(
+                    std, C.TIME, timeframe)
+                [[C.TIME, C.VOL, C.DELTA]]
+            return filtered
 
-    def get_social_sentiment(self, symbol, timeframe='max'):
-        sen_res = requests.get((
-            f'https://api.stocktwits.com/api/2/symbols/{symbol}/sentiment.json'
-            f'?access_token={self.token}'
-        ))
-        empty = pd.DataFrame()
+        return self.try_again(func=_get_social_volume, **kwargs)
 
-        if sen_res.ok:
-            sen_data = sen_res.json()['data']
-        else:
-            print(f'Invalid response from Stocktwits for {symbol}.')
+    def get_social_sentiment(self, **kwargs):
+        def _get_social_sentiment(symbol, timeframe='max'):
+            sen_res = requests.get((
+                f'https://api.stocktwits.com/api/2/symbols/{symbol}'
+                f'/sentiment.json?access_token={self.token}'
+            ))
+            empty = pd.DataFrame()
 
-        if not sen_res.ok or sen_data == []:
-            return empty
+            if sen_res.ok:
+                sen_data = sen_res.json()['data']
+            else:
+                raise Exception(
+                    f'Invalid response from Stocktwits for {symbol}.')
 
-        sen_data.sort(key=lambda x: x['timestamp'])
-        # FIX THIS!! WHAT HAPPENS WHEN AROUND NEW YEAR'S WHEN JANUARY IS CONSIDERED EARLIER THAN DEC??
-        # actually should be fine bc data is in YYYY-MM-DD format
-        sen_data.pop()
-        df = pd.DataFrame(sen_data)
-        std = self.standardize_sentiment(symbol, df)
-        if timeframe == '1d':
-            filtered = std.tail(1)
-        else:
-            filtered = self.reader.data_in_timeframe(std, C.TIME, timeframe)
-        return filtered
+            if sen_data == []:
+                return empty
+
+            sen_data.sort(key=lambda x: x['timestamp'])
+            sen_data.pop()
+            df = pd.DataFrame(sen_data)
+            std = self.standardize_sentiment(symbol, df)
+            if timeframe == '1d':
+                filtered = std.tail(1)
+            else:
+                filtered = self.reader.data_in_timeframe(
+                    std, C.TIME, timeframe)
+            return filtered
+        return self.try_again(func=_get_social_sentiment, **kwargs)

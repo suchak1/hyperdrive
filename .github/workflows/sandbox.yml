@@ -16,9 +16,11 @@ env:
   STOCKTWITS: ${{ secrets.STOCKTWITS }}
   S3_BUCKET: ${{ secrets.S3_DEV_BUCKET }}
   APCA_API_KEY_ID: ${{ secrets.APCA_API_KEY_ID }}
+  POLYGON: ${{ secrets.POLYGON }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+  TEST: true
 
 jobs:
   build:
@@ -71,6 +73,9 @@ jobs:
 
       - name: Update OHLC
         run: python scripts/update_ohlc.py
+
+      - name: Update social sentiment
+        run: python scripts/update_sentiment.py
 
       - name: Upload repo to S3
         run: python scripts/update_repo.py
