@@ -64,9 +64,9 @@ def update_poly_crypto_ohlc():
                 sleep(60 // len(crypto_symbols) + 5)
 
 
-p1 = Process(target=update_iex_ohlc)
-p2 = Process(target=update_poly_stocks_ohlc)
+# p1 = Process(target=update_iex_ohlc)
+# p2 = Process(target=update_poly_stocks_ohlc)
 p3 = Process(target=update_poly_crypto_ohlc)
-p1.start()
-p2.start()
+# p1.start()
+# p2.start()
 p3.start()

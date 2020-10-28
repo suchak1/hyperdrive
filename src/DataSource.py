@@ -317,8 +317,7 @@ class IEXCloud(MarketData):
 
         return self.try_again(func=_get_splits, **kwargs)
 
-    def get_prev_ohlc(self, **kwargs):
-        # given a symbol, return the prev day's ohlc
+    def get_ohlc(self, **kwargs):
         def _get_prev_ohlc(symbol):
             category = 'stock'
             dataset = 'previous'
@@ -345,12 +344,9 @@ class IEXCloud(MarketData):
             df = pd.DataFrame([data])
             return self.standardize_ohlc(symbol, df)
 
-        return self.try_again(func=_get_prev_ohlc, **kwargs)
-
-    def get_ohlc(self, **kwargs):
         def _get_ohlc(symbol, timeframe='1m'):
             if timeframe == '1d':
-                return self.get_prev_ohlc(symbol)
+                return _get_prev_ohlc(symbol)
 
             category = 'stock'
             dataset = 'chart'
@@ -412,7 +408,7 @@ class Polygon(MarketData):
             return self.reader.data_in_timeframe(df, C.EX, timeframe)
         return self.try_again(func=_get_splits, **kwargs)
 
-    def get_prev_ohlc(self, **kwargs):
+    def get_ohlc(self, **kwargs):
         def _get_prev_ohlc(symbol):
             today = datetime.today()
             one_day = timedelta(days=1)
@@ -427,12 +423,9 @@ class Polygon(MarketData):
             df = pd.DataFrame([data])
             return self.standardize_ohlc(symbol, df)
 
-        return self.try_again(func=_get_prev_ohlc, **kwargs)
-
-    def get_ohlc(self, **kwargs):
         def _get_ohlc(symbol, timeframe='max'):
             if timeframe == '1d':
-                return self.get_prev_ohlc(symbol)
+                return _get_prev_ohlc(symbol)
             end = datetime.today()
             delta = self.reader.convert_delta(timeframe)
             start = end - delta
