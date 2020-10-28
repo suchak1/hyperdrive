@@ -19,8 +19,12 @@ class MarketData:
         self.provider = 'iexcloud'
 
     def try_again(self, func, **kwargs):
-        retries = kwargs['retries'] if 'retries' in kwargs else 3
-        delay = kwargs['delay'] if 'delay' in kwargs else 2
+        retries = (kwargs['retries']
+                   if 'retries' in kwargs
+                   else C.DEFAULT_RETRIES)
+        delay = (kwargs['delay']
+                 if 'delay' in kwargs
+                 else C.DEFAULT_DELAY)
         func_args = {k: v for k, v in kwargs.items() if k not in {
             'retries', 'delay'}}
         for retry in range(retries):
@@ -256,7 +260,6 @@ class IEXCloud(MarketData):
     def get_dividends(self, **kwargs):
         # given a symbol, return the dividend history
         def _get_dividends(symbol, timeframe='3m'):
-            print(timeframe)
             category = 'stock'
             dataset = 'dividends'
             parts = [
@@ -278,7 +281,7 @@ class IEXCloud(MarketData):
                 raise Exception(
                     f'Invalid response from IEX for {symbol} dividends.')
 
-            if not response.ok or data == []:
+            if data == []:
                 return empty
 
             df = self.standardize_dividends(symbol, pd.DataFrame(data))
@@ -309,7 +312,7 @@ class IEXCloud(MarketData):
                 raise Exception(
                     f'Invalid response from IEX for {symbol} splits.')
 
-            if not response.ok or data == []:
+            if data == []:
                 return empty
 
             df = self.standardize_splits(symbol, pd.DataFrame(data))
@@ -338,7 +341,7 @@ class IEXCloud(MarketData):
                 raise Exception(
                     f'Invalid response from IEX for {symbol} OHLC.')
 
-            if not response.ok or data == []:
+            if data == []:
                 return empty
 
             df = pd.DataFrame([data])
@@ -368,7 +371,7 @@ class IEXCloud(MarketData):
                 raise Exception(
                     f'Invalid response from IEX for {symbol} OHLC.')
 
-            if not response.ok or data == []:
+            if data == []:
                 return empty
 
             df = self.standardize_ohlc(symbol, pd.DataFrame(data))
@@ -461,8 +464,8 @@ class StockTwits(MarketData):
     def get_social_volume(self, **kwargs):
         def _get_social_volume(symbol, timeframe='max'):
             vol_res = requests.get((
-                f'https://api.stocktwits.com/api/2/symbols/{symbol}/volume.json'
-                f'?access_token={self.token}'
+                f'https://api.stocktwits.com/api/2/symbols/{symbol}'
+                f'/volume.json?access_token={self.token}'
             ))
             empty = pd.DataFrame()
 
@@ -472,7 +475,7 @@ class StockTwits(MarketData):
                 raise Exception(
                     f'Invalid response from Stocktwits for {symbol}')
 
-            if not vol_res.ok or vol_data == []:
+            if vol_data == []:
                 return empty
 
             vol_data.sort(key=lambda x: x['timestamp'])
@@ -492,8 +495,8 @@ class StockTwits(MarketData):
     def get_social_sentiment(self, **kwargs):
         def _get_social_sentiment(symbol, timeframe='max'):
             sen_res = requests.get((
-                f'https://api.stocktwits.com/api/2/symbols/{symbol}/sentiment.json'
-                f'?access_token={self.token}'
+                f'https://api.stocktwits.com/api/2/symbols/{symbol}'
+                f'/sentiment.json?access_token={self.token}'
             ))
             empty = pd.DataFrame()
 
@@ -503,7 +506,7 @@ class StockTwits(MarketData):
                 raise Exception(
                     f'Invalid response from Stocktwits for {symbol}.')
 
-            if not sen_res.ok or sen_data == []:
+            if sen_data == []:
                 return empty
 
             sen_data.sort(key=lambda x: x['timestamp'])
