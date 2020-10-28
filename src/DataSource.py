@@ -390,7 +390,7 @@ class IEXCloud(MarketData):
 
 
 class Polygon(MarketData):
-    def __init__(self, token=os.environ['APCA_API_KEY_ID']):
+    def __init__(self, token=os.environ.get('APCA_API_KEY_ID')):
         load_dotenv()
         super().__init__()
         self.client = RESTClient(token)
