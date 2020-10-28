@@ -2,6 +2,7 @@ import os
 import requests
 from time import sleep
 import pandas as pd
+from pytz import timezone
 from operator import attrgetter
 from datetime import datetime, timedelta
 from polygon import RESTClient
@@ -413,7 +414,7 @@ class Polygon(MarketData):
 
     def get_ohlc(self, **kwargs):
         def _get_prev_ohlc(symbol):
-            today = datetime.today()
+            today = datetime.now(timezone('US/Eastern'))
             one_day = timedelta(days=1)
             yesterday = today - one_day
             formatted_date = yesterday.strftime('%Y-%m-%d')
@@ -429,7 +430,7 @@ class Polygon(MarketData):
         def _get_ohlc(symbol, timeframe='max'):
             if timeframe == '1d':
                 return _get_prev_ohlc(symbol)
-            end = datetime.today()
+            end = datetime.now(timezone('US/Eastern'))
             delta = self.reader.convert_delta(timeframe)
             start = end - delta
             formatted_start = start.strftime('%Y-%m-%d')
