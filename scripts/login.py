@@ -1,5 +1,5 @@
 import sys
 sys.path.append('src')
-from Algotrader import Scarlett  # noqa autopep8
+from Algotrader import HyperDrive  # noqa autopep8
 
-sl = Scarlett()
+drive = HyperDrive()
