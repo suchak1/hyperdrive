@@ -1,4 +1,4 @@
-python-dotenv == 0.14.0
+python-dotenv == 0.15.0
 pandas == 1.1.2
 robin-stocks == 1.5.2
 boto3 == 1.15.9
