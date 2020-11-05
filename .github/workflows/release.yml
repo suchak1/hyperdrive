@@ -35,13 +35,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install twine python-dotenv setuptools wheel
 
-      - name: Generate distro
-        run: python setup.py sdist bdist_wheel
-
       - name: Publish package
         env:
           GITHUB: ${{ secrets.GITHUB }}
           PYPI: ${{ secrets.PYPI }}
         run: |
+          python setup.py sdist bdist_wheel
           python util/pypi.py
           python -m twine upload dist/*
