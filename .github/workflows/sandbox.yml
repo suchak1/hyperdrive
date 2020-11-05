@@ -79,3 +79,13 @@ jobs:
 
       - name: Upload repo to S3
         run: python scripts/update_repo.py
+
+      - name: Publish package
+        env:
+          GITHUB: ${{ secrets.GITHUB }}
+          PYPI_TEST: ${{ secrets.PYPI_TEST }}
+        run: |
+          pip install twine python-dotenv setuptools wheel
+          python setup.py sdist bdist_wheel
+          python util/pypi.py
+          python -m twine upload --repository testpypi dist/*
