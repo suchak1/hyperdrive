@@ -28,7 +28,7 @@ def get_readme():
 
 
 setup(
-    name='hyperdrive-algotrading',
+    name='hyperdrive-quant',
     version=get_version(),
     description='An algorithmic trading platform',
     long_description=get_readme(),
