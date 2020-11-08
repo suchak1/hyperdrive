@@ -261,7 +261,7 @@ class TestMarketData:
 
     #     assert md.reader.check_file_exists(intra_path)
     #     assert md.reader.store.modified_delta(
-    #          intra_path).total_seconds() < 60)
+    # intra_path).total_seconds() < 60
     #     df = md.reader.load_csv(intra_path)
     #     assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
     #             C.CLOSE, C.VOL}.issubset(df.columns)
@@ -362,7 +362,7 @@ class TestPolygon:
     def test_get_ohlc(self):
         df = poly.get_ohlc(symbol='AAPL', timeframe='1m')
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
-                C.CLOSE, C.VOL}.issubset(df.columns)
+                C.CLOSE, C.VOL, C.AVG}.issubset(df.columns)
         assert len(df) > 10
 
     # def test_get_intraday(self):

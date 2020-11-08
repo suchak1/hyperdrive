@@ -58,6 +58,7 @@ HIGH = 'High'
 LOW = 'Low'
 CLOSE = 'Close'
 VOL = 'Vol'
+AVG = 'Avg'
 
 # Sentiment
 POS = 'Pos'

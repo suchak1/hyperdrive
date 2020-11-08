@@ -1,7 +1,8 @@
 import os
 import json
 import time
-from datetime import date, datetime, timedelta
+from pytz import timezone
+from datetime import datetime, timedelta
 import pandas as pd
 from Storage import Store
 # consider combining fileoperations into one class
@@ -83,16 +84,18 @@ class FileReader:
 
         return delta
 
-    def data_in_timeframe(self, df, col, timeframe='max', tolerance='0d'):
+    def data_in_timeframe(self, df, col, timeframe='max'):  # noqa , tolerance='0d'):
         if col not in df:
             return df
         delta = self.convert_delta(timeframe)
-        tol = self.convert_delta(tolerance)
-        df[col] = pd.to_datetime(df[col])
-        filtered = df[df[col] > pd.to_datetime(date.today() - delta)]
-        if filtered.empty:
-            filtered = df[df[col] > pd.to_datetime(
-                date.today() - (delta + tol))]
+        # tol = self.convert_delta(tolerance)
+        tz = timezone('US/Eastern')
+        df[col] = pd.to_datetime(df[col]).dt.tz_localize(tz)
+        today = datetime.now(tz)
+        filtered = df[df[col] > pd.to_datetime(today - delta)].copy(deep=True)
+        # if filtered.empty:
+        #     filtered = df[df[col] > pd.to_datetime(today - (delta + tol))]
+        filtered[col] = filtered[col].dt.tz_localize(None)
         return filtered
 
     # def convert_dates(self, timeframe):
