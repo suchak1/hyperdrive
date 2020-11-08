@@ -413,7 +413,8 @@ class Polygon(MarketData):
 
     def get_ohlc(self, **kwargs):
         def _get_ohlc(symbol, timeframe='max'):
-            end = datetime.now(timezone('US/Eastern'))
+            end = datetime.now(timezone('US/Eastern')) - \
+                self.reader.convert_delta('1d')
             delta = self.reader.convert_delta(
                 timeframe) - self.reader.convert_delta('1d')
             start = end - delta
