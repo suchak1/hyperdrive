@@ -361,7 +361,7 @@ class TestPolygon:
     def test_get_ohlc(self):
         df = poly.get_ohlc(symbol='AAPL', timeframe='1m')
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
-                C.CLOSE, C.VOL}.issubset(df.columns)
+                C.CLOSE, C.VOL, C.AVG}.issubset(df.columns)
         assert len(df) > 10
 
     def test_get_intraday(self):
