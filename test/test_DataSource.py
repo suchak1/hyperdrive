@@ -243,31 +243,31 @@ class TestMarketData:
         if os.path.exists(temp_path):
             os.rename(temp_path, ohlc_path)
 
-    def test_save_intraday(self):
-        symbol = 'NFLX'
-        intra_path = md.finder.get_intraday_path(symbol)
-        temp_path = f'{intra_path}_TEMP'
+    # def test_save_intraday(self):
+    #     symbol = 'NFLX'
+    #     intra_path = md.finder.get_intraday_path(symbol)
+    #     temp_path = f'{intra_path}_TEMP'
 
-        if os.path.exists(intra_path):
-            os.rename(intra_path, temp_path)
+    #     if os.path.exists(intra_path):
+    #         os.rename(intra_path, temp_path)
 
-        for _ in range(retries):
-            iex.save_intraday(symbol=symbol, timeframe='1m')
-            if not md.reader.check_file_exists(intra_path):
-                delay = choice(range(5, 10))
-                sleep(delay)
-            else:
-                break
+    #     for _ in range(retries):
+    #         iex.save_intraday(symbol=symbol, timeframe='1m')
+    #         if not md.reader.check_file_exists(intra_path):
+    #             delay = choice(range(5, 10))
+    #             sleep(delay)
+    #         else:
+    #             break
 
-        assert md.reader.check_file_exists(intra_path)
-        assert md.reader.store.modified_delta(intra_path).total_seconds() < 60
-        df = md.reader.load_csv(intra_path)
-        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
-                C.CLOSE, C.VOL}.issubset(df.columns)
-        assert len(df) > 0
+    #     assert md.reader.check_file_exists(intra_path)
+    #     assert md.reader.store.modified_delta(intra_path).total_seconds() < 60
+    #     df = md.reader.load_csv(intra_path)
+    #     assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+    #             C.CLOSE, C.VOL}.issubset(df.columns)
+    #     assert len(df) > 0
 
-        if os.path.exists(temp_path):
-            os.rename(temp_path, intra_path)
+    #     if os.path.exists(temp_path):
+    #         os.rename(temp_path, intra_path)
 
     def test_standardize_intraday(self):
         # may not be necessary - just use standardize_ohlc
@@ -335,11 +335,11 @@ class TestIEXCloud:
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 10
 
-    def test_get_intraday(self):
-        df = iex.get_intraday('AAPL', 1, '7d')
-        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
-                C.CLOSE, C.VOL}.issubset(df.columns)
-        assert len(df) > 1000
+    # def test_get_intraday(self):
+    #     df = iex.get_intraday('AAPL', 1, '7d')
+    #     assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+    #             C.CLOSE, C.VOL}.issubset(df.columns)
+    #     assert len(df) > 1000
 
 
 class TestPolygon:
@@ -361,14 +361,14 @@ class TestPolygon:
     def test_get_ohlc(self):
         df = poly.get_ohlc(symbol='AAPL', timeframe='1m')
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
-                C.CLOSE, C.VOL}.issubset(df.columns)
+                C.CLOSE, C.VOL, C.AVG}.issubset(df.columns)
         assert len(df) > 10
 
-    def test_get_intraday(self):
-        df = poly.get_intraday('AAPL', 1, '7d')
-        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
-                C.CLOSE, C.VOL}.issubset(df.columns)
-        assert len(df) > 1000
+    # def test_get_intraday(self):
+    #     df = poly.get_intraday('AAPL', 1, '7d')
+    #     assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+    #             C.CLOSE, C.VOL}.issubset(df.columns)
+    #     assert len(df) > 1000
 
 
 class TestStockTwits:
