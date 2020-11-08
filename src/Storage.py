@@ -34,7 +34,7 @@ class Store:
 
     def delete_objects(self, keys):
         if keys:
-            objects = [{'Key': key} for key in keys]
+            objects = [{'Key': key.replace('\\', '/')} for key in keys]
             bucket = self.get_bucket()
             bucket.delete_objects(Delete={'Objects': objects})
 
@@ -44,6 +44,7 @@ class Store:
         return keys
 
     def key_exists(self, key, download=False):
+        key = key.replace('\\', '/')
         try:
             if download:
                 self.download_file(key)
@@ -60,13 +61,17 @@ class Store:
             self.finder.make_path(key)
             with open(key, 'wb') as file:
                 bucket = self.get_bucket()
-                bucket.download_fileobj(key, file)
+                s3_key = key.replace('\\', '/')
+                bucket.download_fileobj(s3_key, file)
         except ClientError as e:
             print(f'{key} does not exist in S3.')
             os.remove(key)
+            print(e)
             raise e
 
     def copy_object(self, src, dst):
+        src = src.replace('\\', '/')
+        dst = dst.replace('\\', '/')
         bucket = self.get_bucket()
         copy_source = {
             'Bucket': self.bucket_name,
@@ -75,16 +80,20 @@ class Store:
         bucket.copy(copy_source, dst)
 
     def rename_key(self, old_key, new_key):
+        old_key = old_key.replace('\\', '/')
+        new_key = new_key.replace('\\', '/')
         self.copy_object(old_key, new_key)
         self.delete_objects([old_key])
 
     def last_modified(self, key):
+        key = key.replace('\\', '/')
         bucket = self.get_bucket()
         obj = bucket.Object(key)
         then = obj.last_modified.replace(tzinfo=None)
         return then
 
     def modified_delta(self, key):
+        key = key.replace('\\', '/')
         then = self.last_modified(key)
         now = datetime.utcnow()
         return now - then

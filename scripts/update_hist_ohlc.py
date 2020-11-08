@@ -10,7 +10,7 @@ from Constants import CI, PathFinder, POLY_CRYPTO_SYMBOLS  # noqa autopep8
 iex = IEXCloud()
 poly_stocks = Polygon()
 poly_crypto = Polygon(os.environ['POLYGON'])
-stock_symbols = iex.get_symbols()[140:]
+stock_symbols = iex.get_symbols()[250:]
 crypto_symbols = POLY_CRYPTO_SYMBOLS
 # Double redundancy
 

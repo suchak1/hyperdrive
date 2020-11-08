@@ -124,8 +124,8 @@ class MarketData:
     def standardize_ohlc(self, symbol, df):
         full_mapping = dict(
             zip(
-                ['date', 'open', 'high', 'low', 'close', 'volume'],
-                [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE, C.VOL]
+                ['date', 'open', 'high', 'low', 'close', 'volume', 'average'],
+                [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE, C.VOL, C.AVG]
             )
         )
         df = self.standardize(
@@ -413,25 +413,10 @@ class Polygon(MarketData):
         return self.try_again(func=_get_splits, **kwargs)
 
     def get_ohlc(self, **kwargs):
-        def _get_prev_ohlc(symbol):
-            today = datetime.now(timezone('US/Eastern'))
-            one_day = timedelta(days=1)
-            yesterday = today - one_day
-            formatted_date = yesterday.strftime('%Y-%m-%d')
-            response = self.client.stocks_equities_daily_open_close(
-                symbol, formatted_date, unadjusted=False)
-            raw = attrgetter('from_', 'open', 'high', 'low',
-                             'close', 'volume')(response)
-            labels = ['date', 'open', 'high', 'low', 'close', 'volume']
-            data = dict(zip(labels, raw))
-            df = pd.DataFrame([data])
-            return self.standardize_ohlc(symbol, df)
-
         def _get_ohlc(symbol, timeframe='max'):
-            if timeframe == '1d':
-                return _get_prev_ohlc(symbol)
             end = datetime.now(timezone('US/Eastern'))
-            delta = self.reader.convert_delta(timeframe)
+            delta = self.reader.convert_delta(
+                timeframe) - self.reader.convert_delta('1d')
             start = end - delta
             formatted_start = start.strftime('%Y-%m-%d')
             formatted_end = end.strftime('%Y-%m-%d')
@@ -440,7 +425,8 @@ class Polygon(MarketData):
                 from_=formatted_start, to=formatted_end, unadjusted=False
             ).results
             columns = {'t': 'date', 'o': 'open', 'h': 'high',
-                       'l': 'low', 'c': 'close', 'v': 'volume'}
+                       'l': 'low', 'c': 'close', 'v': 'volume',
+                       'vw': 'average'}
             df = pd.DataFrame(response).rename(columns=columns)
             df['date'] = df['date'].apply(
                 lambda x: datetime.fromtimestamp(int(x)/1000))
