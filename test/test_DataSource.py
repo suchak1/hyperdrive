@@ -260,7 +260,8 @@ class TestMarketData:
     #             break
 
     #     assert md.reader.check_file_exists(intra_path)
-    #     assert md.reader.store.modified_delta(intra_path).total_seconds() < 60
+    #     assert md.reader.store.modified_delta(
+    # intra_path).total_seconds() < 60
     #     df = md.reader.load_csv(intra_path)
     #     assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
     #             C.CLOSE, C.VOL}.issubset(df.columns)

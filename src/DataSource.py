@@ -3,6 +3,7 @@ import requests
 from time import sleep
 import pandas as pd
 from pytz import timezone
+from datetime import datetime
 from polygon import RESTClient
 from dotenv import load_dotenv
 from FileOps import FileReader, FileWriter
