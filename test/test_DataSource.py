@@ -45,7 +45,7 @@ class TestMarketData:
             assert symbol in symbols
 
     def test_get_dividends(self):
-        df = md.get_dividends('AAPL')
+        df = md.get_dividends(symbol='AAPL')
         assert {C.EX, C.PAY, C.DEC, C.DIV}.issubset(df.columns)
         assert len(df) > 15
         assert len(df[df[C.EX] < '2015-12-25']) > 0
@@ -76,7 +76,8 @@ class TestMarketData:
             os.rename(div_path, temp_path)
 
         for _ in range(retries):
-            iex.save_dividends(symbol=symbol, timeframe='5y')
+            iex.save_dividends(
+                symbol=symbol, timeframe='5y', retries=1, delay=0)
             if not md.reader.check_file_exists(div_path):
                 delay = choice(range(5, 10))
                 sleep(delay)
@@ -122,7 +123,7 @@ class TestMarketData:
             os.rename(splt_path, temp_path)
 
         for _ in range(retries):
-            iex.save_splits(symbol=symbol, timeframe='5y')
+            iex.save_splits(symbol=symbol, timeframe='5y', retries=1, delay=0)
             if not md.reader.check_file_exists(splt_path):
                 delay = choice(range(5, 10))
                 sleep(delay)
@@ -156,7 +157,8 @@ class TestMarketData:
         if os.path.exists(sent_path):
             os.rename(sent_path, temp_path)
 
-        twit.save_social_sentiment(symbol=symbol, timeframe='1d')
+        twit.save_social_sentiment(
+            symbol=symbol, timeframe='1d', retries=1, delay=0)
 
         assert md.reader.check_file_exists(sent_path)
         assert md.reader.store.modified_delta(sent_path).total_seconds() < 60
@@ -224,7 +226,7 @@ class TestMarketData:
             os.rename(ohlc_path, temp_path)
 
         for _ in range(retries):
-            iex.save_ohlc(symbol=symbol, timeframe='1m')
+            iex.save_ohlc(symbol=symbol, timeframe='1m', retries=1, delay=0)
             if not md.reader.check_file_exists(ohlc_path):
                 delay = choice(range(5, 10))
                 sleep(delay)
@@ -301,7 +303,7 @@ class TestIEXCloud:
 
         for i in range(retries):
             if not len(df):
-                df = iex.get_dividends('AAPL', '5y')
+                df = iex.get_dividends(symbol='AAPL', timeframe='5y')
                 if not i:
                     delay = choice(range(5, 10))
                     sleep(delay)
@@ -315,8 +317,8 @@ class TestIEXCloud:
         df1, df2 = [], []
         for i in range(retries):
             if not(len(df1) or len(df2)):
-                df1 = iex.get_splits('AAPL', '5y')
-                df2 = iex.get_splits('NFLX', '5y')
+                df1 = iex.get_splits(symbol='AAPL', timeframe='5y')
+                df2 = iex.get_splits(symbol='NFLX', timeframe='5y')
                 if not i:
                     delay = choice(range(5, 10))
                     sleep(delay)
@@ -328,7 +330,7 @@ class TestIEXCloud:
             df1.columns) or {C.EX, C.DEC, C.RATIO}.issubset(df2.columns)
 
     def test_get_ohlc(self):
-        df = iex.get_ohlc('AAPL', '1m')
+        df = iex.get_ohlc(symbol='AAPL', timeframe='1m')
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 10
@@ -347,17 +349,17 @@ class TestPolygon:
         assert hasattr(poly, 'provider')
 
     def test_get_dividends(self):
-        df = poly.get_dividends('AAPL', '5y')
+        df = poly.get_dividends(symbol='AAPL', timeframe='5y')
         assert {C.EX, C.PAY, C.DEC, C.DIV}.issubset(df.columns)
         assert len(df) > 0
 
     def test_get_splits(self):
-        df = poly.get_splits('AAPL')
+        df = poly.get_splits(symbol='AAPL')
         assert {C.EX, C.DEC, C.RATIO}.issubset(df.columns)
         assert len(df) > 0
 
     def test_get_ohlc(self):
-        df = poly.get_ohlc('AAPL', '1m')
+        df = poly.get_ohlc(symbol='AAPL', timeframe='1m')
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 10
@@ -376,11 +378,11 @@ class TestStockTwits:
         assert hasattr(twit, 'token')
 
     def test_get_social_volume(self):
-        df = twit.get_social_volume('TSLA')
+        df = twit.get_social_volume(symbol='TSLA')
         assert len(df) > 30
         assert {C.TIME, C.VOL, C.DELTA}.issubset(df.columns)
 
     def test_get_social_sentiment(self):
-        df = twit.get_social_sentiment('TSLA')
+        df = twit.get_social_sentiment(symbol='TSLA')
         assert len(df) > 30
         assert {C.TIME, C.POS, C.NEG}.issubset(df.columns)

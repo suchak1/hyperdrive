@@ -3,11 +3,17 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
+
+
+def get_env_bool(var_name):
+    return bool(os.environ.get(var_name)
+                and os.environ[var_name].lower() == 'true')
+
+
 # Environment
-DEV = bool(os.environ.get('DEV')
-           and os.environ['DEV'].lower() == 'true')
-CI = bool(os.environ.get('CI')
-          and os.environ['CI'].lower() == 'true')
+DEV = get_env_bool('DEV')
+CI = get_env_bool('CI')
+TEST = get_env_bool('TEST')
 
 # File Paths
 # data
@@ -58,6 +64,22 @@ POS = 'Pos'
 NEG = 'Neg'
 DELTA = 'Delta'
 TWIT_RATE = 175
+
+# Misc
+POLY_CRYPTO_SYMBOLS = [
+    'X%3ABTCUSD', 'X%3AETHUSD',
+    'X%3ALTCUSD', 'X%3AXMRUSD', 'X%3AIOTUSD'
+]
+
+SENTIMENT_SYMBOLS_IGNORE = {
+    'SPYD', 'VWDRY', 'BPMP',
+    'FOX', 'YYY', 'SDIV',
+    'DIV', 'SHECY', 'PALL',
+    'DWDP', 'TFCF', 'SPAR',
+    'TMUSR', 'OXY+', 'BNTX^'}
+
+DEFAULT_RETRIES = 3
+DEFAULT_DELAY = 2
 
 
 class PathFinder:
