@@ -2,8 +2,6 @@ import os
 import requests
 from time import sleep
 import pandas as pd
-from pytz import timezone
-from datetime import datetime
 from polygon import RESTClient
 from dotenv import load_dotenv
 from FileOps import FileReader, FileWriter
@@ -234,8 +232,17 @@ class MarketData:
     def standardize_intraday(self):
         pass
 
-    def save_intraday(self):
-        pass
+    def save_intraday(self, **kwargs):
+        symbol = kwargs['symbol']
+        dfs = self.get_intraday(**kwargs)
+
+        for df in dfs:
+            date = df[C.TIME][0].strftime(C.DATE_FMT)
+            filename = self.finder.get_intraday_path(
+                symbol, date, self.provider)
+            df = self.reader.update_df(
+                filename, df, C.TIME)
+            self.writer.update_csv(filename, df)
     # def handle_request(self, url, err_msg):
 
 
@@ -423,8 +430,10 @@ class Polygon(MarketData):
                        'l': 'low', 'c': 'close', 'v': 'volume',
                        'vw': 'average'}
             df = pd.DataFrame(response).rename(columns=columns)
-            df['date'] = df['date'].apply(
-                lambda x: datetime.fromtimestamp(int(x)/1000))
+            df['date'] = pd.to_datetime(
+                df['date'], unit='ms').dt.tz_localize(
+                'UTC').dt.tz_convert(
+                C.TZ).dt.tz_localize(None)
             df = self.standardize_ohlc(symbol, df)
             return self.reader.data_in_timeframe(df, C.TIME, timeframe)
 
@@ -439,15 +448,28 @@ class Polygon(MarketData):
 
             def yield_intraday(self, symbol, min, dates):
                 for date in dates:
+                    response = self.client.stocks_equities_aggregates(
+                        symbol, min, 'minute', from_=date, to=date,
+                        unadjusted=False
+                    )
 
-            raw = (pd.DataFrame(self.client.stocks_equities_aggregates(
-                symbol, min, 'minute', from_=date, to=date, unadjusted=False)
-            ) for date in dates)
+                    if response == []:
+                        continue
+                    else:
+                        columns = {'t': 'date', 'o': 'open', 'h': 'high',
+                                   'l': 'low', 'c': 'close', 'v': 'volume',
+                                   'vw': 'average'}
+                        df = pd.DataFrame(response).rename(columns=columns)
+                        df['date'] = pd.to_datetime(
+                            df['date'], unit='ms').dt.tz_localize(
+                            'UTC').dt.tz_convert(
+                                C.TZ).dt.tz_localize(None)
+                        df = self.standardize_ohlc(symbol, df)
+                        yield self.reader.data_in_timeframe(
+                            df, C.TIME, timeframe
+                        )
 
-            filtered = (df for df in raw if not df.empty)
-
-            formatted = (df.apply() for df in filtered)
-            # standardized =
+            return yield_intraday(symbol, min, dates)
 
         return self.try_again(func=_get_intraday, **kwargs)
 

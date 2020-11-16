@@ -336,7 +336,7 @@ class TestIEXCloud:
         assert len(df) > 10
 
     def test_get_intraday(self):
-        df = iex.get_intraday('AAPL', 1, '7d')
+        df = pd.concat(iex.get_intraday('AAPL', 1, '7d'))
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 1000
@@ -365,7 +365,7 @@ class TestPolygon:
         assert len(df) > 10
 
     def test_get_intraday(self):
-        df = poly.get_intraday('AAPL', 1, '7d')
+        df = pd.concat(poly.get_intraday('AAPL', 1, '7d'))
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 1000

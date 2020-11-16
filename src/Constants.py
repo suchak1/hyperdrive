@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from pytz import timezone
 
 load_dotenv()
 
@@ -59,6 +60,10 @@ LOW = 'Low'
 CLOSE = 'Close'
 VOL = 'Vol'
 AVG = 'Avg'
+
+# Time
+TZ = timezone('US/Eastern')
+DATE_FMT = '%Y-%m-%d'
 
 # Sentiment
 POS = 'Pos'
@@ -134,14 +139,15 @@ class PathFinder:
             f'{symbol.upper()}.csv'
         )
 
-    def get_intraday_path(self, symbol, provider='iexcloud'):
+    def get_intraday_path(self, symbol, date, provider='iexcloud'):
         # given a symbol,
         # return the path to its intraday ohlc data
         return os.path.join(
             DATA_DIR,
             INTRA_DIR,
             folders[provider],
-            f'{symbol.upper()}.csv'
+            symbol.upper(),
+            f'{date}.csv'
         )
 
     def get_all_paths(self, path, truncate=False):

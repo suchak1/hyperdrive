@@ -5,6 +5,7 @@ from pytz import timezone
 from datetime import datetime, timedelta
 import pandas as pd
 from Storage import Store
+from Constants import TZ, DATE_FMT
 # consider combining fileoperations into one class
 
 
@@ -89,9 +90,8 @@ class FileReader:
             return df
         delta = self.convert_delta(timeframe)
         # tol = self.convert_delta(tolerance)
-        tz = timezone('US/Eastern')
-        df[col] = pd.to_datetime(df[col]).dt.tz_localize(tz)
-        today = datetime.now(tz)
+        df[col] = pd.to_datetime(df[col]).dt.tz_localize(TZ)
+        today = datetime.now(TZ)
         filtered = df[df[col] > pd.to_datetime(today - delta)].copy(deep=True)
         # if filtered.empty:
         #     filtered = df[df[col] > pd.to_datetime(today - (delta + tol))]
@@ -100,12 +100,12 @@ class FileReader:
 
     def convert_dates(self, timeframe, formatted=True):
         # if timeframe='max': timeframe = '25y'
-        end = datetime.now(timezone('US/Eastern')) - self.convert_delta('1d')
+        end = datetime.now(TZ) - self.convert_delta('1d')
         delta = self.convert_delta(timeframe) - self.convert_delta('1d')
         start = end - delta
         if formatted:
-            start = start.strftime('%Y-%m-%d')
-            end = end.strftime('%Y-%m-%d')
+            start = start.strftime(DATE_FMT)
+            end = end.strftime(DATE_FMT)
         return start, end
 
     def dates_in_range(self, timeframe, formatted=True):
@@ -113,7 +113,7 @@ class FileReader:
         dates = [start + timedelta(days=x)
                  for x in range(0, (end-start).days+1)]
         if formatted:
-            dates = [date.strftime('%Y-%m-%d') for date in dates]
+            dates = [date.strftime(DATE_FMT) for date in dates]
         return dates
 
 
