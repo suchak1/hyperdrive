@@ -66,7 +66,6 @@ class Store:
         except ClientError as e:
             print(f'{key} does not exist in S3.')
             os.remove(key)
-            print(e)
             raise e
 
     def copy_object(self, src, dst):

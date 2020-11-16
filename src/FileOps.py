@@ -98,10 +98,23 @@ class FileReader:
         filtered[col] = filtered[col].dt.tz_localize(None)
         return filtered
 
-    # def convert_dates(self, timeframe):
-    #     # if timeframe='max': timeframe = '25y'
-    #     delta = self.convert_delta(timeframe)
-    #     return from_, to
+    def convert_dates(self, timeframe, formatted=True):
+        # if timeframe='max': timeframe = '25y'
+        end = datetime.now(timezone('US/Eastern')) - self.convert_delta('1d')
+        delta = self.convert_delta(timeframe) - self.convert_delta('1d')
+        start = end - delta
+        if formatted:
+            start = start.strftime('%Y-%m-%d')
+            end = end.strftime('%Y-%m-%d')
+        return start, end
+
+    def dates_in_range(self, timeframe, formatted=True):
+        start, end = self.convert_dates(timeframe, False)
+        dates = [start + timedelta(days=x)
+                 for x in range(0, (end-start).days+1)]
+        if formatted:
+            dates = [date.strftime('%Y-%m-%d') for date in dates]
+        return dates
 
 
 class FileWriter:

@@ -413,13 +413,8 @@ class Polygon(MarketData):
 
     def get_ohlc(self, **kwargs):
         def _get_ohlc(symbol, timeframe='max'):
-            end = datetime.now(timezone('US/Eastern')) - \
-                self.reader.convert_delta('1d')
-            delta = self.reader.convert_delta(
-                timeframe) - self.reader.convert_delta('1d')
-            start = end - delta
-            formatted_start = start.strftime('%Y-%m-%d')
-            formatted_end = end.strftime('%Y-%m-%d')
+            formatted_start, formatted_end = self.reader.convert_dates(
+                timeframe)
             response = self.client.stocks_equities_aggregates(
                 symbol, 1, 'day',
                 from_=formatted_start, to=formatted_end, unadjusted=False
@@ -435,9 +430,28 @@ class Polygon(MarketData):
 
         return self.try_again(func=_get_ohlc, **kwargs)
 
-    def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=True):
-        # pass min directly into stock_aggs function as multiplier
-        pass
+    def get_intraday(self, **kwargs):
+        def _get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=True):
+            # pass min directly into stock_aggs function as multiplier
+            dates = self.reader.dates_in_range(timeframe)
+            if dates == []:
+                raise Exception(f'No dates in timeframe: {timeframe}.')
+
+            def yield_intraday(self, symbol, min, dates):
+                for date in dates:
+
+            raw = (pd.DataFrame(self.client.stocks_equities_aggregates(
+                symbol, min, 'minute', from_=date, to=date, unadjusted=False)
+            ) for date in dates)
+
+            filtered = (df for df in raw if not df.empty)
+
+            formatted = (df.apply() for df in filtered)
+            # standardized =
+
+        return self.try_again(func=_get_intraday, **kwargs)
+
+
 # newShares = oldShares / ratio
 
 
