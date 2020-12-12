@@ -227,10 +227,12 @@ class MarketData:
         # implement way to transform 1 min dataset to 5 min data
         #  or 30 or 60 should be flexible soln
         # implement way to only get market hours
-        pass
-
-    def standardize_intraday(self):
-        pass
+        # given a symbol, return a cached dataframe
+        dates = self.reader.dates_in_range(timeframe)
+        for date in dates:
+            df = self.reader.load_csv(
+                self.finder.get_intraday_path(symbol, date, self.provider))
+            yield self.reader.data_in_timeframe(df, C.TIME, timeframe)
 
     def save_intraday(self, **kwargs):
         symbol = kwargs['symbol']
@@ -387,11 +389,38 @@ class IEXCloud(MarketData):
         return self.try_again(func=_get_ohlc, **kwargs)
 
     # extra_hrs should be True if possible
-    def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=True):
-        # pass min directly into hist prices endpoint
-        # to get 1, 5, 30, 60 min granularity if possible
-        # and get extra hrs if possible
-        pass
+    def get_intraday(self, **kwargs):
+        def _get_intraday(symbol, min=1, timeframe='max', extra_hrs=True):
+            # pass min directly into hist prices endpoint
+            # to get 1, 5, 30, 60 min granularity if possible
+            # and get extra hrs if possible
+            category = 'stock'
+            dataset = 'chart'
+            parts = [
+                self.base,
+                self.version,
+                category,
+                symbol.lower(),
+                dataset,
+                timeframe
+            ]
+            endpoint = self.get_endpoint(parts)
+            response = requests.get(endpoint)
+            empty = pd.DataFrame()
+
+            if response.ok:
+                data = response.json()
+            else:
+                raise Exception(
+                    f'Invalid response from IEX for {symbol} OHLC.')
+
+            if data == []:
+                return empty
+
+            df = self.standardize_ohlc(symbol, pd.DataFrame(data))
+            return self.reader.data_in_timeframe(df, C.TIME, timeframe)
+
+        return self.try_again(func=_get_intraday, **kwargs)
     # use historical prices endpoint
 
 
@@ -440,36 +469,33 @@ class Polygon(MarketData):
         return self.try_again(func=_get_ohlc, **kwargs)
 
     def get_intraday(self, **kwargs):
-        def _get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=True):
+        def _get_intraday(symbol, min=1, timeframe='max', extra_hrs=True):
             # pass min directly into stock_aggs function as multiplier
             dates = self.reader.dates_in_range(timeframe)
             if dates == []:
                 raise Exception(f'No dates in timeframe: {timeframe}.')
 
-            def yield_intraday(self, symbol, min, dates):
-                for date in dates:
-                    response = self.client.stocks_equities_aggregates(
-                        symbol, min, 'minute', from_=date, to=date,
-                        unadjusted=False
+            for date in dates:
+                response = self.client.stocks_equities_aggregates(
+                    symbol, min, 'minute', from_=date, to=date,
+                    unadjusted=False
+                )
+
+                if response == []:
+                    continue
+                else:
+                    columns = {'t': 'date', 'o': 'open', 'h': 'high',
+                               'l': 'low', 'c': 'close', 'v': 'volume',
+                               'vw': 'average'}
+                    df = pd.DataFrame(response).rename(columns=columns)
+                    df['date'] = pd.to_datetime(
+                        df['date'], unit='ms').dt.tz_localize(
+                        'UTC').dt.tz_convert(
+                            C.TZ).dt.tz_localize(None)
+                    df = self.standardize_ohlc(symbol, df)
+                    yield self.reader.data_in_timeframe(
+                        df, C.TIME, timeframe
                     )
-
-                    if response == []:
-                        continue
-                    else:
-                        columns = {'t': 'date', 'o': 'open', 'h': 'high',
-                                   'l': 'low', 'c': 'close', 'v': 'volume',
-                                   'vw': 'average'}
-                        df = pd.DataFrame(response).rename(columns=columns)
-                        df['date'] = pd.to_datetime(
-                            df['date'], unit='ms').dt.tz_localize(
-                            'UTC').dt.tz_convert(
-                                C.TZ).dt.tz_localize(None)
-                        df = self.standardize_ohlc(symbol, df)
-                        yield self.reader.data_in_timeframe(
-                            df, C.TIME, timeframe
-                        )
-
-            return yield_intraday(symbol, min, dates)
 
         return self.try_again(func=_get_intraday, **kwargs)
 

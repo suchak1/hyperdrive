@@ -111,7 +111,7 @@ class FileReader:
     def dates_in_range(self, timeframe, formatted=True):
         start, end = self.convert_dates(timeframe, False)
         dates = [start + timedelta(days=x)
-                 for x in range(0, (end-start).days+1)]
+                 for x in range(0, (end - start).days + 1)]
         if formatted:
             dates = [date.strftime(DATE_FMT) for date in dates]
         return dates
