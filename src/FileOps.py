@@ -85,7 +85,6 @@ class FileReader:
         return delta
 
     def data_in_timeframe(self, df, col, timeframe='max'):  # noqa , tolerance='0d'):
-        # 1d doesn't work, issue #67 bug is here
         if col not in df:
             return df
         delta = self.convert_delta(timeframe)

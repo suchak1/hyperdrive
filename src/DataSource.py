@@ -482,26 +482,25 @@ class Polygon(MarketData):
                 raise Exception(f'No dates in timeframe: {timeframe}.')
 
             for date in dates:
-                response = self.client.stocks_equities_aggregates(
-                    symbol, min, 'minute', from_=date, to=date,
-                    unadjusted=False
-                )
-
-                if response == []:
+                try:
+                    response = self.client.stocks_equities_aggregates(
+                        symbol, min, 'minute', from_=date, to=date,
+                        unadjusted=False
+                    ).results
+                except Exception:
                     continue
-                else:
-                    columns = {'t': 'date', 'o': 'open', 'h': 'high',
-                               'l': 'low', 'c': 'close', 'v': 'volume',
-                               'vw': 'average'}
-                    df = pd.DataFrame(response).rename(columns=columns)
-                    df['date'] = pd.to_datetime(
-                        df['date'], unit='ms').dt.tz_localize(
-                        'UTC').dt.tz_convert(
-                            C.TZ).dt.tz_localize(None)
-                    df = self.standardize_ohlc(symbol, df)
-                    yield self.reader.data_in_timeframe(
-                        df, C.TIME, timeframe
-                    )
+                columns = {'t': 'date', 'o': 'open', 'h': 'high',
+                           'l': 'low', 'c': 'close', 'v': 'volume',
+                           'vw': 'average', 'n': 'trades'}
+                df = pd.DataFrame(response).rename(columns=columns)
+                df['date'] = pd.to_datetime(
+                    df['date'], unit='ms').dt.tz_localize(
+                    'UTC').dt.tz_convert(
+                        C.TZ).dt.tz_localize(None)
+                df = self.standardize_ohlc(symbol, df)
+                yield self.reader.data_in_timeframe(
+                    df, C.TIME, timeframe
+                )
 
         return self.try_again(func=_get_intraday, **kwargs)
 
