@@ -19,14 +19,16 @@ crypto_symbols = POLY_CRYPTO_SYMBOLS
 
 def update_iex_ohlc():
     for symbol in stock_symbols:
+        filename = PathFinder().get_ohlc_path(
+                symbol=symbol, provider=iex.provider)
+        if os.path.exists(filename):
+            os.remove(filename)
         try:
             iex.save_ohlc(symbol=symbol, timeframe='max')
         except Exception as e:
             print(f'IEX Cloud OHLC update failed for {symbol}.')
             print(e)
         finally:
-            filename = PathFinder().get_ohlc_path(
-                symbol=symbol, provider=iex.provider)
             if CI and os.path.exists(filename):
                 os.remove(filename)
 # 2nd pass
@@ -34,14 +36,16 @@ def update_iex_ohlc():
 
 def update_poly_stocks_ohlc():
     for symbol in stock_symbols:
+        filename = PathFinder().get_ohlc_path(
+            symbol=symbol, provider=poly.provider)
+        if os.path.exists(filename):
+            os.remove(filename)
         try:
             poly_stocks.save_ohlc(symbol=symbol, timeframe='max')
         except Exception as e:
             print(f'Polygon.io OHLC update failed for {symbol}.')
             print(e)
         finally:
-            filename = PathFinder().get_ohlc_path(
-                symbol=symbol, provider=poly_stocks.provider)
             if CI and os.path.exists(filename):
                 os.remove(filename)
 # Crypto pass
@@ -49,14 +53,16 @@ def update_poly_stocks_ohlc():
 
 def update_poly_crypto_ohlc():
     for idx, symbol in enumerate(crypto_symbols):
+        filename = PathFinder().get_ohlc_path(
+            symbol=symbol, provider=poly_crypto.provider)
+        if os.path.exists(filename):
+            os.remove(filename)
         try:
             poly_crypto.save_ohlc(symbol=symbol, timeframe='max')
         except Exception as e:
             print(f'Polygon.io OHLC update failed for {symbol}.')
             print(e)
         finally:
-            filename = PathFinder().get_ohlc_path(
-                symbol=symbol, provider=poly_crypto.provider)
             if CI and os.path.exists(filename):
                 os.remove(filename)
 
