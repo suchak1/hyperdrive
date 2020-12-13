@@ -420,6 +420,8 @@ class Polygon(MarketData):
             start = end - delta
             formatted_start = start.strftime('%Y-%m-%d')
             formatted_end = end.strftime('%Y-%m-%d')
+            print(formatted_start)
+            print(formatted_end)
             response = self.client.stocks_equities_aggregates(
                 symbol, 1, 'day',
                 from_=formatted_start, to=formatted_end, unadjusted=False
@@ -427,10 +429,13 @@ class Polygon(MarketData):
             columns = {'t': 'date', 'o': 'open', 'h': 'high',
                        'l': 'low', 'c': 'close', 'v': 'volume',
                        'vw': 'average'}
+                    #    add n here (num of trades)
             df = pd.DataFrame(response).rename(columns=columns)
             df['date'] = df['date'].apply(
                 lambda x: datetime.fromtimestamp(int(x)/1000))
+            print(df)
             df = self.standardize_ohlc(symbol, df)
+            print(df)
             return self.reader.data_in_timeframe(df, C.TIME, timeframe)
 
         return self.try_again(func=_get_ohlc, **kwargs)

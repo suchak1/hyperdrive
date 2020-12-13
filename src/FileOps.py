@@ -85,6 +85,7 @@ class FileReader:
         return delta
 
     def data_in_timeframe(self, df, col, timeframe='max'):  # noqa , tolerance='0d'):
+        # 1d doesn't work, issue #67 bug is here
         if col not in df:
             return df
         delta = self.convert_delta(timeframe)
@@ -92,6 +93,8 @@ class FileReader:
         tz = timezone('US/Eastern')
         df[col] = pd.to_datetime(df[col]).dt.tz_localize(tz)
         today = datetime.now(tz)
+        print(pd.to_datetime(today - delta))
+        print(df[col])
         filtered = df[df[col] > pd.to_datetime(today - delta)].copy(deep=True)
         # if filtered.empty:
         #     filtered = df[df[col] > pd.to_datetime(today - (delta + tol))]
