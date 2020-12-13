@@ -20,7 +20,7 @@ crypto_symbols = POLY_CRYPTO_SYMBOLS
 def update_iex_ohlc():
     for symbol in stock_symbols:
         filename = PathFinder().get_ohlc_path(
-                symbol=symbol, provider=iex.provider)
+            symbol=symbol, provider=iex.provider)
         if os.path.exists(filename):
             os.remove(filename)
         try:
@@ -37,7 +37,7 @@ def update_iex_ohlc():
 def update_poly_stocks_ohlc():
     for symbol in stock_symbols:
         filename = PathFinder().get_ohlc_path(
-            symbol=symbol, provider=poly.provider)
+            symbol=symbol, provider=poly_stocks.provider)
         if os.path.exists(filename):
             os.remove(filename)
         try:
