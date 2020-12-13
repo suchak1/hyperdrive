@@ -121,8 +121,10 @@ class MarketData:
     def standardize_ohlc(self, symbol, df):
         full_mapping = dict(
             zip(
-                ['date', 'open', 'high', 'low', 'close', 'volume', 'average'],
-                [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE, C.VOL, C.AVG]
+                ['date', 'open', 'high', 'low', 'close',
+                 'volume', 'average', 'trades'],
+                [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE,
+                 C.VOL, C.AVG, C.TRADES]
             )
         )
         df = self.standardize(
@@ -134,8 +136,11 @@ class MarketData:
             0
         )
 
-        if C.VOL in df:
-            df[C.VOL] = df[C.VOL].apply(int)
+        for col in [C.VOL, C.TRADES]:
+            if col in df:
+                df[col] = df[col].apply(
+                    lambda val: 0 if pd.isnull(val) else int(val))
+
         return df
 
     def get_ohlc(self, symbol, timeframe='max'):
@@ -457,7 +462,8 @@ class Polygon(MarketData):
             ).results
             columns = {'t': 'date', 'o': 'open', 'h': 'high',
                        'l': 'low', 'c': 'close', 'v': 'volume',
-                       'vw': 'average'}
+                       'vw': 'average', 'n': 'trades'}
+
             df = pd.DataFrame(response).rename(columns=columns)
             df['date'] = pd.to_datetime(
                 df['date'], unit='ms').dt.tz_localize(

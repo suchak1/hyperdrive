@@ -115,7 +115,7 @@ class TestMarketData:
             assert col_in_df if curr_idx < sel_idx else not col_in_df
 
     def test_save_splits(self):
-        symbol = 'NFLX'
+        symbol = 'AAPL'
         splt_path = md.finder.get_splits_path(symbol)
         temp_path = f'{splt_path}_TEMP'
 

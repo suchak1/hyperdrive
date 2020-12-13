@@ -60,6 +60,7 @@ LOW = 'Low'
 CLOSE = 'Close'
 VOL = 'Vol'
 AVG = 'Avg'
+TRADES = 'Trades'
 
 # Time
 TZ = timezone('US/Eastern')
