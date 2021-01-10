@@ -5,6 +5,7 @@ import pandas as pd
 from polygon import RESTClient
 from dotenv import load_dotenv
 from FileOps import FileReader, FileWriter
+from TimeMachine import TimeTraveller
 from Constants import PathFinder
 import Constants as C
 
@@ -14,6 +15,7 @@ class MarketData:
         self.writer = FileWriter()
         self.reader = FileReader()
         self.finder = PathFinder()
+        self.traveller = TimeTraveller()
         self.provider = 'iexcloud'
 
     def try_again(self, func, **kwargs):
@@ -233,7 +235,7 @@ class MarketData:
         #  or 30 or 60 should be flexible soln
         # implement way to only get market hours
         # given a symbol, return a cached dataframe
-        dates = self.reader.dates_in_range(timeframe)
+        dates = self.traveller.dates_in_range(timeframe)
         for date in dates:
             df = self.reader.load_csv(
                 self.finder.get_intraday_path(symbol, date, self.provider))
@@ -401,32 +403,50 @@ class IEXCloud(MarketData):
             # and get extra hrs if possible
             category = 'stock'
             dataset = 'chart'
-            parts = [
-                self.base,
-                self.version,
-                category,
-                symbol.lower(),
-                dataset,
-                timeframe
-            ]
-            endpoint = self.get_endpoint(parts)
-            response = requests.get(endpoint)
-            empty = pd.DataFrame()
 
-            if response.ok:
-                data = response.json()
-            else:
-                raise Exception(
-                    f'Invalid response from IEX for {symbol} OHLC.')
+            dates = self.traveller.dates_in_range(timeframe)
+            if dates == []:
+                raise Exception(f'No dates in timeframe: {timeframe}.')
 
-            if data == []:
-                return empty
+            dates = [date.replace('-', '') for date in dates]
 
-            df = self.standardize_ohlc(symbol, pd.DataFrame(data))
-            return self.reader.data_in_timeframe(df, C.TIME, timeframe)
+            for date in dates:
+                parts = [
+                    self.base,
+                    self.version,
+                    category,
+                    symbol.lower(),
+                    dataset,
+                    'date',
+                    date
+                ]
+
+                endpoint = self.get_endpoint(parts)
+                response = requests.get(endpoint)
+                empty = pd.DataFrame()
+
+                if response.ok:
+                    data = response.json()
+                else:
+                    raise Exception(
+                        f'Invalid response from IEX for {symbol} intraday.')
+
+                if data == []:
+                    return empty
+
+                columns = {
+                    'marketOpen': 'open', 'marketHigh': 'high',
+                    'marketLow': 'low', 'marketClose': 'close',
+                    'marketVolume': 'volume', 'marketAverage': 'average',
+                    'marketNumberOfTrades': 'trades'}
+                df = pd.DataFrame(response).rename(columns=columns)
+                df['date'] = pd.to_datetime(df['date'] + ' ' + df['minute'])
+                df = self.standardize_ohlc(symbol, df)
+                yield self.reader.data_in_timeframe(
+                    df, C.TIME, timeframe
+                )
 
         return self.try_again(func=_get_intraday, **kwargs)
-    # use historical prices endpoint
 
 
 class Polygon(MarketData):
@@ -454,7 +474,7 @@ class Polygon(MarketData):
 
     def get_ohlc(self, **kwargs):
         def _get_ohlc(symbol, timeframe='max'):
-            formatted_start, formatted_end = self.reader.convert_dates(
+            formatted_start, formatted_end = self.traveller.convert_dates(
                 timeframe)
             response = self.client.stocks_equities_aggregates(
                 symbol, 1, 'day',
@@ -477,18 +497,21 @@ class Polygon(MarketData):
     def get_intraday(self, **kwargs):
         def _get_intraday(symbol, min=1, timeframe='max', extra_hrs=True):
             # pass min directly into stock_aggs function as multiplier
-            dates = self.reader.dates_in_range(timeframe)
+            dates = self.traveller.dates_in_range(timeframe)
             if dates == []:
                 raise Exception(f'No dates in timeframe: {timeframe}.')
 
             for date in dates:
-                try:
-                    response = self.client.stocks_equities_aggregates(
-                        symbol, min, 'minute', from_=date, to=date,
-                        unadjusted=False
-                    ).results
-                except Exception:
+                response = self.client.stocks_equities_aggregates(
+                    symbol, min, 'minute', from_=date, to=date,
+                    unadjusted=False
+                )
+
+                if hasattr(response, 'results'):
+                    response = response.results
+                else:
                     continue
+
                 columns = {'t': 'date', 'o': 'open', 'h': 'high',
                            'l': 'low', 'c': 'close', 'v': 'volume',
                            'vw': 'average', 'n': 'trades'}

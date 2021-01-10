@@ -1,10 +1,11 @@
 import os
 import json
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 import pandas as pd
 from Storage import Store
-from Constants import TZ, DATE_FMT
+from Constants import TZ
+from TimeMachine import TimeTraveller
 # consider combining fileoperations into one class
 
 
@@ -12,6 +13,7 @@ class FileReader:
     # file read operations
     def __init__(self):
         self.store = Store()
+        self.traveller = TimeTraveller()
 
     def load_json(self, filename):
         # loads json file as dictionary data
@@ -59,36 +61,11 @@ class FileReader:
     def check_file_exists(self, filename):
         return os.path.exists(filename) and self.store.key_exists(filename)
 
-    def convert_delta(self, timeframe):
-        if timeframe == 'max':
-            return timedelta(days=36500)
-
-        periods = {'y': 365, 'm': 30, 'w': 7, 'd': 1}
-        period = 'y'
-        idx = -1
-
-        for curr_period in periods:
-            idx = timeframe.find(curr_period)
-            if idx != -1:
-                period = curr_period
-                break
-
-        if idx == -1:
-            supported = ', '.join(list(periods))
-            error_msg = f'Only certain suffixes ({supported}) are supported.'
-            raise ValueError(error_msg)
-
-        num = int(timeframe[:idx])
-        days = periods[period] * num
-        delta = timedelta(days=days)
-
-        return delta
-
     def data_in_timeframe(self, df, col, timeframe='max'):  # noqa , tolerance='0d'):
         if col not in df:
             return df
-        delta = self.convert_delta(timeframe)
-        # tol = self.convert_delta(tolerance)
+        delta = self.traveller.convert_delta(timeframe)
+        # tol = self.traveller.convert_delta(tolerance)
         df[col] = pd.to_datetime(df[col]).dt.tz_localize(TZ)
         today = datetime.now(TZ)
         filtered = df[df[col].apply(
@@ -98,24 +75,6 @@ class FileReader:
         #     filtered = df[df[col] > pd.to_datetime(today - (delta + tol))]
         filtered[col] = filtered[col].dt.tz_localize(None)
         return filtered
-
-    def convert_dates(self, timeframe, formatted=True):
-        # if timeframe='max': timeframe = '25y'
-        end = datetime.now(TZ) - self.convert_delta('1d')
-        delta = self.convert_delta(timeframe) - self.convert_delta('1d')
-        start = end - delta
-        if formatted:
-            start = start.strftime(DATE_FMT)
-            end = end.strftime(DATE_FMT)
-        return start, end
-
-    def dates_in_range(self, timeframe, formatted=True):
-        start, end = self.convert_dates(timeframe, False)
-        dates = [start + timedelta(days=x)
-                 for x in range(0, (end - start).days + 1)]
-        if formatted:
-            dates = [date.strftime(DATE_FMT) for date in dates]
-        return dates
 
 
 class FileWriter:

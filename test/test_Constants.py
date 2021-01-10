@@ -43,11 +43,14 @@ class TestPathFinder():
 
     def test_get_intraday_path(self):
         assert finder.get_intraday_path(
-            'aapl') == 'data/intraday/iexcloud/AAPL.csv'
+            'aapl', '2020-01-01'
+        ) == 'data/intraday/iexcloud/AAPL/2020-01-01.csv'
         assert finder.get_intraday_path(
-            'AMD') == 'data/intraday/iexcloud/AMD.csv'
+            'AMD', '2020-01-01'
+        ) == 'data/intraday/iexcloud/AMD/2020-01-01.csv'
         assert finder.get_intraday_path(
-            'TSLA', 'polygon') == 'data/intraday/polygon/TSLA.csv'
+            'TSLA', '2020-01-01', 'polygon'
+        ) == 'data/intraday/polygon/TSLA/2020-01-01.csv'
 
     def test_get_all_paths(self):
         paths = set(finder.get_all_paths('src', False))

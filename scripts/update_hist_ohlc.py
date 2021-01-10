@@ -52,6 +52,7 @@ def update_poly_stocks_ohlc():
 
 
 def update_poly_crypto_ohlc():
+    calls_per_min = 5
     for idx, symbol in enumerate(crypto_symbols):
         filename = PathFinder().get_ohlc_path(
             symbol=symbol, provider=poly_crypto.provider)
@@ -67,7 +68,7 @@ def update_poly_crypto_ohlc():
                 os.remove(filename)
 
             if idx != len(crypto_symbols) - 1:
-                sleep(60 // len(crypto_symbols) + 5)
+                sleep(60 // calls_per_min + 5)
 
 
 p1 = Process(target=update_iex_ohlc)
