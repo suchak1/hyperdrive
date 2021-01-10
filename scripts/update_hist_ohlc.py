@@ -21,8 +21,6 @@ def update_iex_ohlc():
     for symbol in stock_symbols:
         filename = PathFinder().get_ohlc_path(
             symbol=symbol, provider=iex.provider)
-        if os.path.exists(filename):
-            os.remove(filename)
         try:
             iex.save_ohlc(symbol=symbol, timeframe='max')
         except Exception as e:
@@ -38,8 +36,6 @@ def update_poly_stocks_ohlc():
     for symbol in stock_symbols:
         filename = PathFinder().get_ohlc_path(
             symbol=symbol, provider=poly_stocks.provider)
-        if os.path.exists(filename):
-            os.remove(filename)
         try:
             poly_stocks.save_ohlc(symbol=symbol, timeframe='max')
         except Exception as e:
@@ -56,8 +52,6 @@ def update_poly_crypto_ohlc():
     for idx, symbol in enumerate(crypto_symbols):
         filename = PathFinder().get_ohlc_path(
             symbol=symbol, provider=poly_crypto.provider)
-        if os.path.exists(filename):
-            os.remove(filename)
         try:
             poly_crypto.save_ohlc(symbol=symbol, timeframe='max')
         except Exception as e:

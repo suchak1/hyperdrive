@@ -19,9 +19,7 @@ symbols = symbols[250:]
 def update_iex_splits():
     for symbol in symbols:
         filename = PathFinder().get_splits_path(
-                symbol=symbol, provider=iex.provider)
-        if os.path.exists(filename):
-            os.remove(filename)
+            symbol=symbol, provider=iex.provider)
         try:
             iex.save_splits(symbol=symbol, timeframe='5y')
         except Exception as e:
@@ -37,8 +35,6 @@ def update_poly_splits():
     for symbol in symbols:
         filename = PathFinder().get_splits_path(
             symbol=symbol, provider=poly.provider)
-        if os.path.exists(filename):
-            os.remove(filename)
         try:
             poly.save_splits(symbol=symbol, timeframe='max')
         except Exception as e:

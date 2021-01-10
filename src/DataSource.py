@@ -86,6 +86,8 @@ class MarketData:
         # given a symbol, save its dividend history
         symbol = kwargs['symbol']
         filename = self.finder.get_dividends_path(symbol, self.provider)
+        if os.path.exists(filename):
+            os.remove(filename)
         df = self.reader.update_df(
             filename, self.get_dividends(**kwargs), C.EX)
         self.writer.update_csv(filename, df)
@@ -117,6 +119,8 @@ class MarketData:
         # given a symbol, save its splits history
         symbol = kwargs['symbol']
         filename = self.finder.get_splits_path(symbol, self.provider)
+        if os.path.exists(filename):
+            os.remove(filename)
         df = self.reader.update_df(filename, self.get_splits(**kwargs), C.EX)
         self.writer.update_csv(filename, df)
 
@@ -154,6 +158,8 @@ class MarketData:
     def save_ohlc(self, **kwargs):
         symbol = kwargs['symbol']
         filename = self.finder.get_ohlc_path(symbol, self.provider)
+        if os.path.exists(filename):
+            os.remove(filename)
         df = self.reader.update_df(filename, self.get_ohlc(**kwargs), C.TIME)
         self.writer.update_csv(filename, df)
 
@@ -177,6 +183,9 @@ class MarketData:
         # # given a symbol, save its sentiment data
         symbol = kwargs['symbol']
         filename = self.finder.get_sentiment_path(symbol)
+
+        if os.path.exists(filename):
+            os.remove(filename)
 
         sen_df = self.reader.update_df(
             filename, self.get_social_sentiment(**kwargs), C.TIME)
@@ -249,6 +258,8 @@ class MarketData:
             date = df[C.TIME][0].strftime(C.DATE_FMT)
             filename = self.finder.get_intraday_path(
                 symbol, date, self.provider)
+            if os.path.exists(filename):
+                os.remove(filename)
             df = self.reader.update_df(
                 filename, df, C.TIME)
             self.writer.update_csv(filename, df)
@@ -423,7 +434,6 @@ class IEXCloud(MarketData):
 
                 endpoint = self.get_endpoint(parts)
                 response = requests.get(endpoint)
-                empty = pd.DataFrame()
 
                 if response.ok:
                     data = response.json()
@@ -432,7 +442,7 @@ class IEXCloud(MarketData):
                         f'Invalid response from IEX for {symbol} intraday.')
 
                 if data == []:
-                    return empty
+                    continue
 
                 res_cols = ['date', 'minute', 'marketOpen', 'marketHigh',
                             'marketLow', 'marketClose', 'marketVolume',
