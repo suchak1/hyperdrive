@@ -273,13 +273,13 @@ class TestMarketData:
     # get last weekday function
 
     def test_get_ohlc(self):
-        df = md.get_ohlc('TSLA', '1w')
+        df = md.get_ohlc('TSLA', '7d')
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 3
 
     def test_get_intraday(self):
-        df = md.get_intraday(symbol='TSLA', timeframe='1w')
+        df = pd.concat(md.get_intraday(symbol='TSLA', timeframe='1w'))
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 1000
@@ -344,7 +344,7 @@ class TestIEXCloud:
         assert len(df) > 10
 
     def test_get_intraday(self):
-        df = pd.concat(iex.get_intraday('AAPL', 1, '1w'))
+        df = pd.concat(iex.get_intraday(symbol='AAPL', timeframe='1w'))
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 1000
@@ -373,7 +373,7 @@ class TestPolygon:
         assert len(df) > 10
 
     def test_get_intraday(self):
-        df = pd.concat(poly.get_intraday('AAPL', 1, '1w'))
+        df = pd.concat(poly.get_intraday(symbol='AAPL', timeframe='1w'))
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 1000
