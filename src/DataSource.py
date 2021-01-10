@@ -434,13 +434,16 @@ class IEXCloud(MarketData):
                 if data == []:
                     return empty
 
-                columns = {
-                    'marketOpen': 'open', 'marketHigh': 'high',
-                    'marketLow': 'low', 'marketClose': 'close',
-                    'marketVolume': 'volume', 'marketAverage': 'average',
-                    'marketNumberOfTrades': 'trades'}
-                df = pd.DataFrame(response).rename(columns=columns)
+                res_cols = ['date', 'minute', 'marketOpen', 'marketHigh',
+                            'marketLow', 'marketClose', 'marketVolume',
+                            'marketAverage', 'marketNumberOfTrades']
+                std_cols = ['date', 'minute', 'open', 'high', 'low',
+                            'close', 'volume', 'average', 'trades']
+
+                columns = dict(zip(res_cols, std_cols))
+                df = pd.DataFrame(data)[res_cols].rename(columns=columns)
                 df['date'] = pd.to_datetime(df['date'] + ' ' + df['minute'])
+                df.drop(columns='minute', inplace=True)
                 df = self.standardize_ohlc(symbol, df)
                 yield self.reader.data_in_timeframe(
                     df, C.TIME, timeframe

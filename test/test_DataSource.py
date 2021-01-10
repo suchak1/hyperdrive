@@ -273,10 +273,10 @@ class TestMarketData:
     # get last weekday function
 
     def test_get_ohlc(self):
-        df = md.get_ohlc('TSLA', '7d')
+        df = md.get_ohlc('TSLA', '2m')
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                 C.CLOSE, C.VOL}.issubset(df.columns)
-        assert len(df) > 3
+        assert len(df) > 0
 
     def test_get_intraday(self):
         df = pd.concat(md.get_intraday(symbol='TSLA', timeframe='1w'))
