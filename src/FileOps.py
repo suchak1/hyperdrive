@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 import pandas as pd
 from Storage import Store
-from Constants import TZ, DATE_FMT
+from Constants import TZ
 from TimeMachine import TimeTraveller
 # consider combining fileoperations into one class
 
