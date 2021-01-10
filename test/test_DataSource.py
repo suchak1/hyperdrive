@@ -280,10 +280,10 @@ class TestMarketData:
         assert len(df) > 0
 
     def test_get_intraday(self):
-        df = pd.concat(md.get_intraday(symbol='TSLA', timeframe='1w'))
+        df = pd.concat(md.get_intraday(symbol='TSLA', timeframe='2m'))
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                 C.CLOSE, C.VOL}.issubset(df.columns)
-        assert len(df) > 1000
+        assert len(df) > 0
 
 
 class TestIEXCloud:
