@@ -255,7 +255,7 @@ class MarketData:
         dfs = self.get_intraday(**kwargs)
 
         for df in dfs:
-            date = df[C.TIME][0].strftime(C.DATE_FMT)
+            date = df[C.TIME].iloc[0].strftime(C.DATE_FMT)
             filename = self.finder.get_intraday_path(
                 symbol, date, self.provider)
             if os.path.exists(filename):
