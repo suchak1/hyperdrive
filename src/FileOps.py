@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 import pandas as pd
 from Storage import Store
-from Constants import TZ
+from Constants import TZ, DATE_FMT
 from TimeMachine import TimeTraveller
 # consider combining fileoperations into one class
 
@@ -49,13 +49,14 @@ class FileReader:
         # return whether the csv needs to be updated
         return len(df) >= len(self.load_csv(filename))
 
-    def update_df(self, filename, new, column):
+    def update_df(self, filename, new, column, fmt=DATE_FMT):
         old = self.load_csv(filename)
         if not old.empty:
             old[column] = pd.to_datetime(old[column])
             new[column] = pd.to_datetime(new[column])
             old = old[~old[column].isin(new[column])]
             new = old.append(new, ignore_index=True)
+        new[column] = new[column].dt.strftime(fmt)
         return new
 
     def check_file_exists(self, filename):

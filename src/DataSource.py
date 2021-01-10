@@ -260,8 +260,9 @@ class MarketData:
                 symbol, date, self.provider)
             if os.path.exists(filename):
                 os.remove(filename)
+            fmt = f'{C.DATE_FMT} {C.TIME_FMT}'
             df = self.reader.update_df(
-                filename, df, C.TIME)
+                filename, df, C.TIME, fmt)
             self.writer.update_csv(filename, df)
     # def handle_request(self, url, err_msg):
 
