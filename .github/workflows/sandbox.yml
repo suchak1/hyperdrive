@@ -76,6 +76,9 @@ jobs:
 
       - name: Update social sentiment
         run: python scripts/update_sentiment.py
+      
+      - name: Update intraday
+        run: python scripts/update_intraday.py
 
       - name: Upload repo to S3
         run: python scripts/update_repo.py

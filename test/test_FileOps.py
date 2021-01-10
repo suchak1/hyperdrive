@@ -1,7 +1,5 @@
 import os
 import sys
-from datetime import timedelta
-import pytest
 import pandas as pd
 sys.path.append('src')
 from FileOps import FileReader, FileWriter  # noqa autopep8
@@ -154,19 +152,3 @@ class TestFileReader:
     def test_check_file_exists(self):
         assert not reader.check_file_exists('test_check_file_exists')
         assert reader.check_file_exists(symbols_path)
-
-    def test_convert_delta(self):
-        assert reader.convert_delta('1d') == timedelta(days=1)
-        assert reader.convert_delta('3d') == timedelta(days=3)
-
-        assert reader.convert_delta('1w') == timedelta(days=7)
-        assert reader.convert_delta('3w') == timedelta(days=21)
-
-        assert reader.convert_delta('1m') == timedelta(days=30)
-        assert reader.convert_delta('3m') == timedelta(days=90)
-
-        assert reader.convert_delta('1y') == timedelta(days=365)
-        assert reader.convert_delta('3y') == timedelta(days=1095)
-
-        with pytest.raises(ValueError):
-            reader.convert_delta('0')

@@ -2,11 +2,10 @@ import os
 import requests
 from time import sleep
 import pandas as pd
-from pytz import timezone
-from datetime import datetime
 from polygon import RESTClient
 from dotenv import load_dotenv
 from FileOps import FileReader, FileWriter
+from TimeMachine import TimeTraveller
 from Constants import PathFinder
 import Constants as C
 
@@ -16,6 +15,7 @@ class MarketData:
         self.writer = FileWriter()
         self.reader = FileReader()
         self.finder = PathFinder()
+        self.traveller = TimeTraveller()
         self.provider = 'iexcloud'
 
     def try_again(self, func, **kwargs):
@@ -86,6 +86,8 @@ class MarketData:
         # given a symbol, save its dividend history
         symbol = kwargs['symbol']
         filename = self.finder.get_dividends_path(symbol, self.provider)
+        if os.path.exists(filename):
+            os.remove(filename)
         df = self.reader.update_df(
             filename, self.get_dividends(**kwargs), C.EX)
         self.writer.update_csv(filename, df)
@@ -117,6 +119,8 @@ class MarketData:
         # given a symbol, save its splits history
         symbol = kwargs['symbol']
         filename = self.finder.get_splits_path(symbol, self.provider)
+        if os.path.exists(filename):
+            os.remove(filename)
         df = self.reader.update_df(filename, self.get_splits(**kwargs), C.EX)
         self.writer.update_csv(filename, df)
 
@@ -154,6 +158,8 @@ class MarketData:
     def save_ohlc(self, **kwargs):
         symbol = kwargs['symbol']
         filename = self.finder.get_ohlc_path(symbol, self.provider)
+        if os.path.exists(filename):
+            os.remove(filename)
         df = self.reader.update_df(filename, self.get_ohlc(**kwargs), C.TIME)
         self.writer.update_csv(filename, df)
 
@@ -177,6 +183,9 @@ class MarketData:
         # # given a symbol, save its sentiment data
         symbol = kwargs['symbol']
         filename = self.finder.get_sentiment_path(symbol)
+
+        if os.path.exists(filename):
+            os.remove(filename)
 
         sen_df = self.reader.update_df(
             filename, self.get_social_sentiment(**kwargs), C.TIME)
@@ -234,13 +243,26 @@ class MarketData:
         # implement way to transform 1 min dataset to 5 min data
         #  or 30 or 60 should be flexible soln
         # implement way to only get market hours
-        pass
+        # given a symbol, return a cached dataframe
+        dates = self.traveller.dates_in_range(timeframe)
+        for date in dates:
+            df = self.reader.load_csv(
+                self.finder.get_intraday_path(symbol, date, self.provider))
+            yield self.reader.data_in_timeframe(df, C.TIME, timeframe)
 
-    def standardize_intraday(self):
-        pass
+    def save_intraday(self, **kwargs):
+        symbol = kwargs['symbol']
+        dfs = self.get_intraday(**kwargs)
 
-    def save_intraday(self):
-        pass
+        for df in dfs:
+            date = df[C.TIME].iloc[0].strftime(C.DATE_FMT)
+            filename = self.finder.get_intraday_path(
+                symbol, date, self.provider)
+            if os.path.exists(filename):
+                os.remove(filename)
+            df = self.reader.update_df(
+                filename, df, C.TIME)
+            self.writer.update_csv(filename, df)
     # def handle_request(self, url, err_msg):
 
 
@@ -385,12 +407,59 @@ class IEXCloud(MarketData):
         return self.try_again(func=_get_ohlc, **kwargs)
 
     # extra_hrs should be True if possible
-    def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=True):
-        # pass min directly into hist prices endpoint
-        # to get 1, 5, 30, 60 min granularity if possible
-        # and get extra hrs if possible
-        pass
-    # use historical prices endpoint
+    def get_intraday(self, **kwargs):
+        def _get_intraday(symbol, min=1, timeframe='max', extra_hrs=True):
+            # pass min directly into hist prices endpoint
+            # to get 1, 5, 30, 60 min granularity if possible
+            # and get extra hrs if possible
+            category = 'stock'
+            dataset = 'chart'
+
+            dates = self.traveller.dates_in_range(timeframe)
+            if dates == []:
+                raise Exception(f'No dates in timeframe: {timeframe}.')
+
+            dates = [date.replace('-', '') for date in dates]
+
+            for date in dates:
+                parts = [
+                    self.base,
+                    self.version,
+                    category,
+                    symbol.lower(),
+                    dataset,
+                    'date',
+                    date
+                ]
+
+                endpoint = self.get_endpoint(parts)
+                response = requests.get(endpoint)
+
+                if response.ok:
+                    data = response.json()
+                else:
+                    raise Exception(
+                        f'Invalid response from IEX for {symbol} intraday.')
+
+                if data == []:
+                    continue
+
+                res_cols = ['date', 'minute', 'marketOpen', 'marketHigh',
+                            'marketLow', 'marketClose', 'marketVolume',
+                            'marketAverage', 'marketNumberOfTrades']
+                std_cols = ['date', 'minute', 'open', 'high', 'low',
+                            'close', 'volume', 'average', 'trades']
+
+                columns = dict(zip(res_cols, std_cols))
+                df = pd.DataFrame(data)[res_cols].rename(columns=columns)
+                df['date'] = pd.to_datetime(df['date'] + ' ' + df['minute'])
+                df.drop(columns='minute', inplace=True)
+                df = self.standardize_ohlc(symbol, df)
+                yield self.reader.data_in_timeframe(
+                    df, C.TIME, timeframe
+                )
+
+        return self.try_again(func=_get_intraday, **kwargs)
 
 
 class Polygon(MarketData):
@@ -418,15 +487,8 @@ class Polygon(MarketData):
 
     def get_ohlc(self, **kwargs):
         def _get_ohlc(symbol, timeframe='max'):
-            end = datetime.now(timezone('US/Eastern')) - \
-                self.reader.convert_delta('1d')
-            delta = self.reader.convert_delta(
-                timeframe) - self.reader.convert_delta('1d')
-            start = end - delta
-
-            formatted_start = start.strftime('%Y-%m-%d')
-            formatted_end = end.strftime('%Y-%m-%d')
-
+            formatted_start, formatted_end = self.traveller.convert_dates(
+                timeframe)
             response = self.client.stocks_equities_aggregates(
                 symbol, 1, 'day',
                 from_=formatted_start, to=formatted_end, unadjusted=False
@@ -434,20 +496,51 @@ class Polygon(MarketData):
             columns = {'t': 'date', 'o': 'open', 'h': 'high',
                        'l': 'low', 'c': 'close', 'v': 'volume',
                        'vw': 'average', 'n': 'trades'}
-            #    add n here (num of trades)
 
             df = pd.DataFrame(response).rename(columns=columns)
-
-            df['date'] = df['date'].apply(
-                lambda x: datetime.fromtimestamp(int(x)/1000))
+            df['date'] = pd.to_datetime(
+                df['date'], unit='ms').dt.tz_localize(
+                'UTC').dt.tz_convert(
+                C.TZ).dt.tz_localize(None)
             df = self.standardize_ohlc(symbol, df)
             return self.reader.data_in_timeframe(df, C.TIME, timeframe)
 
         return self.try_again(func=_get_ohlc, **kwargs)
 
-    def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=True):
-        # pass min directly into stock_aggs function as multiplier
-        pass
+    def get_intraday(self, **kwargs):
+        def _get_intraday(symbol, min=1, timeframe='max', extra_hrs=True):
+            # pass min directly into stock_aggs function as multiplier
+            dates = self.traveller.dates_in_range(timeframe)
+            if dates == []:
+                raise Exception(f'No dates in timeframe: {timeframe}.')
+
+            for date in dates:
+                response = self.client.stocks_equities_aggregates(
+                    symbol, min, 'minute', from_=date, to=date,
+                    unadjusted=False
+                )
+
+                if hasattr(response, 'results'):
+                    response = response.results
+                else:
+                    continue
+
+                columns = {'t': 'date', 'o': 'open', 'h': 'high',
+                           'l': 'low', 'c': 'close', 'v': 'volume',
+                           'vw': 'average', 'n': 'trades'}
+                df = pd.DataFrame(response).rename(columns=columns)
+                df['date'] = pd.to_datetime(
+                    df['date'], unit='ms').dt.tz_localize(
+                    'UTC').dt.tz_convert(
+                        C.TZ).dt.tz_localize(None)
+                df = self.standardize_ohlc(symbol, df)
+                yield self.reader.data_in_timeframe(
+                    df, C.TIME, timeframe
+                )
+
+        return self.try_again(func=_get_intraday, **kwargs)
+
+
 # newShares = oldShares / ratio
 
 

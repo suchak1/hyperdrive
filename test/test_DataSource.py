@@ -260,8 +260,8 @@ class TestMarketData:
     #             break
 
     #     assert md.reader.check_file_exists(intra_path)
-    #     assert md.reader.store.modified_delta(
-    # intra_path).total_seconds() < 60
+    #     assert md.reader.store.modified_delta(intra_path).total_seconds(
+    # ) < 60
     #     df = md.reader.load_csv(intra_path)
     #     assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
     #             C.CLOSE, C.VOL}.issubset(df.columns)
@@ -269,13 +269,21 @@ class TestMarketData:
 
     #     if os.path.exists(temp_path):
     #         os.rename(temp_path, intra_path)
+    # test if sun or mon and skip
+    # get yesterday function
+    # get last weekday function
 
-    def test_standardize_intraday(self):
-        # may not be necessary - just use standardize_ohlc
-        pass
+    def test_get_ohlc(self):
+        df = md.get_ohlc('TSLA', '2m')
+        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+                C.CLOSE, C.VOL}.issubset(df.columns)
+        assert len(df) > 0
 
     def test_get_intraday(self):
-        pass
+        df = pd.concat(md.get_intraday(symbol='TSLA', timeframe='2m'))
+        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+                C.CLOSE, C.VOL}.issubset(df.columns)
+        assert len(df) > 0
 
 
 class TestIEXCloud:
@@ -336,11 +344,11 @@ class TestIEXCloud:
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 10
 
-    # def test_get_intraday(self):
-    #     df = iex.get_intraday('AAPL', 1, '7d')
-    #     assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
-    #             C.CLOSE, C.VOL}.issubset(df.columns)
-    #     assert len(df) > 1000
+    def test_get_intraday(self):
+        df = pd.concat(iex.get_intraday(symbol='AAPL', timeframe='1w'))
+        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+                C.CLOSE, C.VOL}.issubset(df.columns)
+        assert len(df) > 1000
 
 
 class TestPolygon:
@@ -365,11 +373,11 @@ class TestPolygon:
                 C.CLOSE, C.VOL, C.AVG}.issubset(df.columns)
         assert len(df) > 10
 
-    # def test_get_intraday(self):
-    #     df = poly.get_intraday('AAPL', 1, '7d')
-    #     assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
-    #             C.CLOSE, C.VOL}.issubset(df.columns)
-    #     assert len(df) > 1000
+    def test_get_intraday(self):
+        df = pd.concat(poly.get_intraday(symbol='AAPL', timeframe='1w'))
+        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+                C.CLOSE, C.VOL}.issubset(df.columns)
+        assert len(df) > 1000
 
 
 class TestStockTwits:

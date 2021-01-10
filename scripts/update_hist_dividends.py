@@ -19,9 +19,7 @@ symbols = symbols[250:]
 def update_iex_dividends():
     for symbol in symbols:
         filename = PathFinder().get_dividends_path(
-                symbol=symbol, provider=iex.provider)
-        if os.path.exists(filename):
-            os.remove(filename)
+            symbol=symbol, provider=iex.provider)
         try:
             iex.save_dividends(symbol=symbol, timeframe='5y')
         except Exception as e:
@@ -36,9 +34,7 @@ def update_iex_dividends():
 def update_poly_dividends():
     for symbol in symbols:
         filename = PathFinder().get_dividends_path(
-                symbol=symbol, provider=poly.provider)
-        if os.path.exists(filename):
-            os.remove(filename)
+            symbol=symbol, provider=poly.provider)
         try:
             poly.save_dividends(symbol=symbol, timeframe='max')
         except Exception as e:
