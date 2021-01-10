@@ -49,14 +49,15 @@ class FileReader:
         # return whether the csv needs to be updated
         return len(df) >= len(self.load_csv(filename))
 
-    def update_df(self, filename, new, column, fmt=DATE_FMT):
+    def update_df(self, filename, new, column, save_fmt=None):
         old = self.load_csv(filename)
         if not old.empty:
             old[column] = pd.to_datetime(old[column])
             new[column] = pd.to_datetime(new[column])
             old = old[~old[column].isin(new[column])]
             new = old.append(new, ignore_index=True)
-        new[column] = new[column].dt.strftime(fmt)
+        if save_fmt:
+            new[column] = pd.to_datetime(new[column]).dt.strftime(save_fmt)
         return new
 
     def check_file_exists(self, filename):

@@ -89,7 +89,7 @@ class MarketData:
         if os.path.exists(filename):
             os.remove(filename)
         df = self.reader.update_df(
-            filename, self.get_dividends(**kwargs), C.EX)
+            filename, self.get_dividends(**kwargs), C.EX, C.DATE_FMT)
         self.writer.update_csv(filename, df)
 
     def get_splits(self, symbol, timeframe='max'):
@@ -121,7 +121,8 @@ class MarketData:
         filename = self.finder.get_splits_path(symbol, self.provider)
         if os.path.exists(filename):
             os.remove(filename)
-        df = self.reader.update_df(filename, self.get_splits(**kwargs), C.EX)
+        df = self.reader.update_df(
+            filename, self.get_splits(**kwargs), C.EX, C.DATE_FMT)
         self.writer.update_csv(filename, df)
 
     def standardize_ohlc(self, symbol, df):
@@ -160,7 +161,8 @@ class MarketData:
         filename = self.finder.get_ohlc_path(symbol, self.provider)
         if os.path.exists(filename):
             os.remove(filename)
-        df = self.reader.update_df(filename, self.get_ohlc(**kwargs), C.TIME)
+        df = self.reader.update_df(
+            filename, self.get_ohlc(**kwargs), C.TIME, C.DATE_FMT)
         self.writer.update_csv(filename, df)
 
     def get_social_sentiment(self, symbol, timeframe='max'):
@@ -260,9 +262,9 @@ class MarketData:
                 symbol, date, self.provider)
             if os.path.exists(filename):
                 os.remove(filename)
-            fmt = f'{C.DATE_FMT} {C.TIME_FMT}'
+            save_fmt = f'{C.DATE_FMT} {C.TIME_FMT}'
             df = self.reader.update_df(
-                filename, df, C.TIME, fmt)
+                filename, df, C.TIME, save_fmt)
             self.writer.update_csv(filename, df)
     # def handle_request(self, url, err_msg):
 
