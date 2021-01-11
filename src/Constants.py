@@ -65,6 +65,7 @@ TRADES = 'Trades'
 # Time
 TZ = timezone('US/Eastern')
 DATE_FMT = '%Y-%m-%d'
+TIME_FMT = '%H:%M'
 
 # Sentiment
 POS = 'Pos'

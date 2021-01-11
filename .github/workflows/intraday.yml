@@ -5,8 +5,8 @@ name: Intraday
 
 on:
   schedule:
-    - cron: "0 16 * * 2-6"
-    # 12pm EST Tues-Sat
+    - cron: "0 16 * * *"
+    # 12pm EST every day (for crypto)
 
 jobs:
   build:
