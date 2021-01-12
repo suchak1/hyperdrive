@@ -36,7 +36,7 @@ def update_iex_ohlc():
 def update_poly_stocks_ohlc():
     for symbol in stock_symbols:
         try:
-            poly_stocks.save_ohlc(symbol=symbol, timeframe='1d',
+            poly_stocks.save_ohlc(symbol=symbol, timeframe='3d',
                                   retries=1 if C.TEST else C.DEFAULT_RETRIES)
         except Exception as e:
             print(f'Polygon.io OHLC update failed for {symbol}.')
@@ -53,7 +53,7 @@ def update_poly_crypto_ohlc():
     calls_per_min = 5
     for idx, symbol in enumerate(crypto_symbols):
         try:
-            poly_crypto.save_ohlc(symbol=symbol, timeframe='1d',
+            poly_crypto.save_ohlc(symbol=symbol, timeframe='3d',
                                   retries=1 if C.TEST else C.DEFAULT_RETRIES)
         except Exception as e:
             print(f'Polygon.io OHLC update failed for {symbol}.')
