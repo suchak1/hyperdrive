@@ -60,7 +60,7 @@ def update_poly_crypto_intraday():
     for idx, symbol in enumerate(crypto_symbols):
         try:
             poly_crypto.save_intraday(
-                symbol=symbol, timeframe='1d',
+                symbol=symbol, timeframe='3d',
                 retries=1 if C.TEST else C.DEFAULT_RETRIES)
         except Exception as e:
             print(f'Polygon.io intraday update failed for {symbol}.')
