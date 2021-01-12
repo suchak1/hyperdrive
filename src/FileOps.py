@@ -54,6 +54,7 @@ class FileReader:
         if not old.empty:
             old[column] = pd.to_datetime(old[column])
             new[column] = pd.to_datetime(new[column])
+            # preference to new entries over old
             old = old[~old[column].isin(new[column])]
             new = old.append(new, ignore_index=True)
         if save_fmt:

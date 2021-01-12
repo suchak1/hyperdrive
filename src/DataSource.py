@@ -501,10 +501,14 @@ class Polygon(MarketData):
                        'vw': 'average', 'n': 'trades'}
 
             df = pd.DataFrame(response).rename(columns=columns)
-            df['date'] = pd.to_datetime(
-                df['date'], unit='ms').dt.tz_localize(
-                'UTC').dt.tz_convert(
-                C.TZ).dt.tz_localize(None)
+            if symbol.find('X%3A') == 0:
+                df['date'] = pd.to_datetime(
+                    df['date'], unit='ms')
+            else:
+                df['date'] = pd.to_datetime(
+                    df['date'], unit='ms').dt.tz_localize(
+                    'UTC').dt.tz_convert(
+                    C.TZ).dt.tz_localize(None)
             df = self.standardize_ohlc(symbol, df)
             return self.reader.data_in_timeframe(df, C.TIME, timeframe)
 
@@ -517,7 +521,7 @@ class Polygon(MarketData):
             if dates == []:
                 raise Exception(f'No dates in timeframe: {timeframe}.')
 
-            for date in dates:
+            for idx, date in enumerate(dates):
                 response = self.client.stocks_equities_aggregates(
                     symbol, min, 'minute', from_=date, to=date,
                     unadjusted=False
@@ -532,11 +536,18 @@ class Polygon(MarketData):
                            'l': 'low', 'c': 'close', 'v': 'volume',
                            'vw': 'average', 'n': 'trades'}
                 df = pd.DataFrame(response).rename(columns=columns)
-                df['date'] = pd.to_datetime(
-                    df['date'], unit='ms').dt.tz_localize(
-                    'UTC').dt.tz_convert(
+                if symbol.find('X%3A') == 0:
+                    df['date'] = pd.to_datetime(
+                        df['date'], unit='ms')
+                    if idx != len(dates) - 1:
+                        sleep(15)
+                else:
+                    df['date'] = pd.to_datetime(
+                        df['date'], unit='ms').dt.tz_localize(
+                        'UTC').dt.tz_convert(
                         C.TZ).dt.tz_localize(None)
                 df = self.standardize_ohlc(symbol, df)
+                df = df[df[C.TIME].dt.strftime(C.DATE_FMT) == date]
                 yield self.reader.data_in_timeframe(
                     df, C.TIME, timeframe
                 )
