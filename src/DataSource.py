@@ -91,6 +91,8 @@ class MarketData:
         df = self.reader.update_df(
             filename, self.get_dividends(**kwargs), C.EX, C.DATE_FMT)
         self.writer.update_csv(filename, df)
+        if os.path.exists(filename):
+            return filename
 
     def get_splits(self, symbol, timeframe='max'):
         # given a symbol, return a cached dataframe
@@ -124,6 +126,8 @@ class MarketData:
         df = self.reader.update_df(
             filename, self.get_splits(**kwargs), C.EX, C.DATE_FMT)
         self.writer.update_csv(filename, df)
+        if os.path.exists(filename):
+            return filename
 
     def standardize_ohlc(self, symbol, df):
         full_mapping = dict(
@@ -164,6 +168,8 @@ class MarketData:
         df = self.reader.update_df(
             filename, self.get_ohlc(**kwargs), C.TIME, C.DATE_FMT)
         self.writer.update_csv(filename, df)
+        if os.path.exists(filename):
+            return filename
 
     def get_social_sentiment(self, symbol, timeframe='max'):
         # given a symbol, return a cached dataframe
@@ -206,6 +212,8 @@ class MarketData:
         else:
             return
         self.writer.update_csv(filename, df)
+        if os.path.exists(filename):
+            return filename
 
     def standardize_sentiment(self, symbol, df):
         full_mapping = dict(
@@ -255,6 +263,7 @@ class MarketData:
     def save_intraday(self, **kwargs):
         symbol = kwargs['symbol']
         dfs = self.get_intraday(**kwargs)
+        filenames = []
 
         for df in dfs:
             date = df[C.TIME].iloc[0].strftime(C.DATE_FMT)
@@ -266,6 +275,9 @@ class MarketData:
             df = self.reader.update_df(
                 filename, df, C.TIME, save_fmt)
             self.writer.update_csv(filename, df)
+            if os.path.exists(filename):
+                filenames.append(filename)
+        return filenames
     # def handle_request(self, url, err_msg):
 
 
@@ -490,6 +502,7 @@ class Polygon(MarketData):
 
     def get_ohlc(self, **kwargs):
         def _get_ohlc(symbol, timeframe='max'):
+            is_crypto = symbol.find('X%3A') == 0
             formatted_start, formatted_end = self.traveller.convert_dates(
                 timeframe)
             response = self.client.stocks_equities_aggregates(
@@ -501,7 +514,7 @@ class Polygon(MarketData):
                        'vw': 'average', 'n': 'trades'}
 
             df = pd.DataFrame(response).rename(columns=columns)
-            if symbol.find('X%3A') == 0:
+            if is_crypto:
                 df['date'] = pd.to_datetime(
                     df['date'], unit='ms')
             else:
@@ -517,6 +530,7 @@ class Polygon(MarketData):
     def get_intraday(self, **kwargs):
         def _get_intraday(symbol, min=1, timeframe='max', extra_hrs=True):
             # pass min directly into stock_aggs function as multiplier
+            is_crypto = symbol.find('X%3A') == 0
             dates = self.traveller.dates_in_range(timeframe)
             if dates == []:
                 raise Exception(f'No dates in timeframe: {timeframe}.')
@@ -530,6 +544,8 @@ class Polygon(MarketData):
                 if hasattr(response, 'results'):
                     response = response.results
                 else:
+                    if is_crypto and idx != len(dates) - 1:
+                        sleep(C.POLY_CRYPTO_DELAY)
                     continue
 
                 columns = {'t': 'date', 'o': 'open', 'h': 'high',
@@ -540,7 +556,7 @@ class Polygon(MarketData):
                     df['date'] = pd.to_datetime(
                         df['date'], unit='ms')
                     if idx != len(dates) - 1:
-                        sleep(15)
+                        sleep(C.POLY_CRYPTO_DELAY)
                 else:
                     df['date'] = pd.to_datetime(
                         df['date'], unit='ms').dt.tz_localize(
