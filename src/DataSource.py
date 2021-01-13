@@ -474,9 +474,7 @@ class IEXCloud(MarketData):
                 filename = self.finder.get_intraday_path(
                     symbol, date, self.provider)
                 df = self.standardize_ohlc(symbol, df, filename)
-                yield self.reader.data_in_timeframe(
-                    df, C.TIME, timeframe
-                )
+                yield df
 
         return self.try_again(func=_get_intraday, **kwargs)
 
