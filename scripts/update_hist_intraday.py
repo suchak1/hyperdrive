@@ -12,7 +12,7 @@ poly_crypto = Polygon(os.environ['POLYGON'])
 stock_symbols = poly_stocks.get_symbols()
 stock_symbols = stock_symbols[stock_symbols.index('DIS')+1:]
 # [250:]
-crypto_symbols = [POLY_CRYPTO_SYMBOLS[0]]
+crypto_symbols = POLY_CRYPTO_SYMBOLS
 
 
 def update_poly_stocks_intraday():
@@ -38,7 +38,7 @@ def update_poly_crypto_intraday():
         filenames = []
         try:
             filenames = poly_crypto.save_intraday(
-                symbol=symbol, timeframe='674d',
+                symbol=symbol, timeframe='675d',
                 delay=POLY_CRYPTO_DELAY, retries=2)
         except Exception as e:
             print(f'Polygon.io intraday update failed for {symbol}.')
