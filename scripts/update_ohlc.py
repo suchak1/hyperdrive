@@ -4,7 +4,7 @@ from time import sleep
 from multiprocessing import Process
 sys.path.append('src')
 from DataSource import IEXCloud, Polygon  # noqa autopep8
-from Constants import PathFinder  # noqa autopep8
+from Constants import PathFinder, POLY_CRYPTO_DELAY  # noqa autopep8
 import Constants as C  # noqa autopep8
 
 iex = IEXCloud()
@@ -12,6 +12,8 @@ poly_stocks = Polygon()
 poly_crypto = Polygon(os.environ['POLYGON'])
 stock_symbols = iex.get_symbols()
 crypto_symbols = C.POLY_CRYPTO_SYMBOLS
+few_days = '3d'
+
 # Double redundancy
 
 # 1st pass
@@ -36,7 +38,7 @@ def update_iex_ohlc():
 def update_poly_stocks_ohlc():
     for symbol in stock_symbols:
         try:
-            poly_stocks.save_ohlc(symbol=symbol, timeframe='1d',
+            poly_stocks.save_ohlc(symbol=symbol, timeframe=few_days,
                                   retries=1 if C.TEST else C.DEFAULT_RETRIES)
         except Exception as e:
             print(f'Polygon.io OHLC update failed for {symbol}.')
@@ -50,10 +52,10 @@ def update_poly_stocks_ohlc():
 
 
 def update_poly_crypto_ohlc():
-    calls_per_min = 5
+
     for idx, symbol in enumerate(crypto_symbols):
         try:
-            poly_crypto.save_ohlc(symbol=symbol, timeframe='1d',
+            poly_crypto.save_ohlc(symbol=symbol, timeframe=few_days,
                                   retries=1 if C.TEST else C.DEFAULT_RETRIES)
         except Exception as e:
             print(f'Polygon.io OHLC update failed for {symbol}.')
@@ -65,7 +67,7 @@ def update_poly_crypto_ohlc():
                 os.remove(filename)
 
             if idx != len(crypto_symbols) - 1:
-                sleep(60 // calls_per_min + 5)
+                sleep(POLY_CRYPTO_DELAY)
 
 
 p1 = Process(target=update_iex_ohlc)

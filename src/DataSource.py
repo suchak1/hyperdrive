@@ -48,11 +48,11 @@ class MarketData:
         filtered = self.reader.data_in_timeframe(df, C.EX, timeframe)
         return filtered
 
-    def standardize(self, symbol, df, full_mapping, fx, columns, default):
+    def standardize(self, df, full_mapping,
+                    filename, columns, default):
         mapping = {k: v for k, v in full_mapping.items() if k in df}
 
         df = df[list(mapping)].rename(columns=mapping)
-        filename = fx(symbol, self.provider)
         time_col, val_cols = columns[0], columns[1:]
 
         if time_col in df and set(val_cols).issubset(df.columns):
@@ -73,11 +73,11 @@ class MarketData:
                 [C.EX, C.PAY, C.DEC, C.DIV]
             )
         )
+        filename = self.finder.get_dividends_path(symbol, self.provider)
         return self.standardize(
-            symbol,
             df,
             full_mapping,
-            self.finder.get_dividends_path,
+            filename
             [C.EX, C.DIV],
             0
         )
@@ -91,6 +91,8 @@ class MarketData:
         df = self.reader.update_df(
             filename, self.get_dividends(**kwargs), C.EX, C.DATE_FMT)
         self.writer.update_csv(filename, df)
+        if os.path.exists(filename):
+            return filename
 
     def get_splits(self, symbol, timeframe='max'):
         # given a symbol, return a cached dataframe
@@ -106,11 +108,11 @@ class MarketData:
                 [C.EX, C.PAY, C.DEC, C.RATIO]
             )
         )
+        filename = self.finder.get_splits_path(symbol, self.provider)
         return self.standardize(
-            symbol,
             df,
             full_mapping,
-            self.finder.get_splits_path,
+            filename,
             [C.EX, C.RATIO],
             1
         )
@@ -124,8 +126,10 @@ class MarketData:
         df = self.reader.update_df(
             filename, self.get_splits(**kwargs), C.EX, C.DATE_FMT)
         self.writer.update_csv(filename, df)
+        if os.path.exists(filename):
+            return filename
 
-    def standardize_ohlc(self, symbol, df):
+    def standardize_ohlc(self, symbol, df, filename=None):
         full_mapping = dict(
             zip(
                 ['date', 'open', 'high', 'low', 'close',
@@ -134,11 +138,13 @@ class MarketData:
                  C.VOL, C.AVG, C.TRADES]
             )
         )
+
+        filename = filename or self.finder.get_ohlc_path(symbol, self.provider)
+
         df = self.standardize(
-            symbol,
             df,
             full_mapping,
-            self.finder.get_ohlc_path,
+            filename,
             [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE],
             0
         )
@@ -164,6 +170,8 @@ class MarketData:
         df = self.reader.update_df(
             filename, self.get_ohlc(**kwargs), C.TIME, C.DATE_FMT)
         self.writer.update_csv(filename, df)
+        if os.path.exists(filename):
+            return filename
 
     def get_social_sentiment(self, symbol, timeframe='max'):
         # given a symbol, return a cached dataframe
@@ -206,6 +214,8 @@ class MarketData:
         else:
             return
         self.writer.update_csv(filename, df)
+        if os.path.exists(filename):
+            return filename
 
     def standardize_sentiment(self, symbol, df):
         full_mapping = dict(
@@ -214,11 +224,11 @@ class MarketData:
                 [C.TIME, C.POS, C.NEG]
             )
         )
+        filename = self.finder.get_sentiment_path(symbol, self.provider)
         df = self.standardize(
-            symbol,
             df,
             full_mapping,
-            self.finder.get_sentiment_path,
+            filename,
             [C.TIME, C.POS, C.NEG],
             0
         )
@@ -231,11 +241,11 @@ class MarketData:
                 [C.TIME, C.VOL, C.DELTA]
             )
         )
+        filename = self.finder.get_sentiment_path(symbol, self.provider)
         df = self.standardize(
-            symbol,
             df,
             full_mapping,
-            self.finder.get_sentiment_path,
+            filename,
             [C.TIME, C.VOL, C.DELTA],
             0
         )
@@ -255,6 +265,7 @@ class MarketData:
     def save_intraday(self, **kwargs):
         symbol = kwargs['symbol']
         dfs = self.get_intraday(**kwargs)
+        filenames = []
 
         for df in dfs:
             date = df[C.TIME].iloc[0].strftime(C.DATE_FMT)
@@ -266,6 +277,9 @@ class MarketData:
             df = self.reader.update_df(
                 filename, df, C.TIME, save_fmt)
             self.writer.update_csv(filename, df)
+            if os.path.exists(filename):
+                filenames.append(filename)
+        return filenames
     # def handle_request(self, url, err_msg):
 
 
@@ -457,7 +471,9 @@ class IEXCloud(MarketData):
                 df = pd.DataFrame(data)[res_cols].rename(columns=columns)
                 df['date'] = pd.to_datetime(df['date'] + ' ' + df['minute'])
                 df.drop(columns='minute', inplace=True)
-                df = self.standardize_ohlc(symbol, df)
+                filename = self.finder.get_intraday_path(
+                    symbol, date, self.provider)
+                df = self.standardize_ohlc(symbol, df, filename)
                 yield self.reader.data_in_timeframe(
                     df, C.TIME, timeframe
                 )
@@ -490,6 +506,7 @@ class Polygon(MarketData):
 
     def get_ohlc(self, **kwargs):
         def _get_ohlc(symbol, timeframe='max'):
+            is_crypto = symbol.find('X%3A') == 0
             formatted_start, formatted_end = self.traveller.convert_dates(
                 timeframe)
             response = self.client.stocks_equities_aggregates(
@@ -501,7 +518,7 @@ class Polygon(MarketData):
                        'vw': 'average', 'n': 'trades'}
 
             df = pd.DataFrame(response).rename(columns=columns)
-            if symbol.find('X%3A') == 0:
+            if is_crypto:
                 df['date'] = pd.to_datetime(
                     df['date'], unit='ms')
             else:
@@ -517,6 +534,7 @@ class Polygon(MarketData):
     def get_intraday(self, **kwargs):
         def _get_intraday(symbol, min=1, timeframe='max', extra_hrs=True):
             # pass min directly into stock_aggs function as multiplier
+            is_crypto = symbol.find('X%3A') == 0
             dates = self.traveller.dates_in_range(timeframe)
             if dates == []:
                 raise Exception(f'No dates in timeframe: {timeframe}.')
@@ -530,6 +548,8 @@ class Polygon(MarketData):
                 if hasattr(response, 'results'):
                     response = response.results
                 else:
+                    if is_crypto and idx != len(dates) - 1:
+                        sleep(C.POLY_CRYPTO_DELAY)
                     continue
 
                 columns = {'t': 'date', 'o': 'open', 'h': 'high',
@@ -539,14 +559,17 @@ class Polygon(MarketData):
                 if symbol.find('X%3A') == 0:
                     df['date'] = pd.to_datetime(
                         df['date'], unit='ms')
+                    print(df)
                     if idx != len(dates) - 1:
-                        sleep(15)
+                        sleep(C.POLY_CRYPTO_DELAY)
                 else:
                     df['date'] = pd.to_datetime(
                         df['date'], unit='ms').dt.tz_localize(
                         'UTC').dt.tz_convert(
                         C.TZ).dt.tz_localize(None)
-                df = self.standardize_ohlc(symbol, df)
+                filename = self.finder.get_intraday_path(
+                    symbol, date, self.provider)
+                df = self.standardize_ohlc(symbol, df, filename)
                 df = df[df[C.TIME].dt.strftime(C.DATE_FMT) == date]
                 yield self.reader.data_in_timeframe(
                     df, C.TIME, timeframe
