@@ -10,7 +10,7 @@ from Constants import CI, PathFinder, POLY_CRYPTO_SYMBOLS, POLY_CRYPTO_DELAY  # 
 poly_stocks = Polygon()
 poly_crypto = Polygon(os.environ['POLYGON'])
 stock_symbols = poly_stocks.get_symbols()
-stock_symbols = stock_symbols[stock_symbols.find('DIS')+1:]
+stock_symbols = stock_symbols[stock_symbols.index('DIS')+1:]
 # [250:]
 crypto_symbols = POLY_CRYPTO_SYMBOLS
 
@@ -38,7 +38,8 @@ def update_poly_crypto_intraday():
         filenames = []
         try:
             filenames = poly_crypto.save_intraday(
-                symbol=symbol, timeframe='11y', delay=15, retries=2)
+                symbol=symbol, timeframe='2y',
+                delay=POLY_CRYPTO_DELAY, retries=1)
         except Exception as e:
             print(f'Polygon.io intraday update failed for {symbol}.')
             print(e)
@@ -52,7 +53,7 @@ def update_poly_crypto_intraday():
                 sleep(POLY_CRYPTO_DELAY)
 
 
-p2 = Process(target=update_poly_stocks_intraday)
+# p2 = Process(target=update_poly_stocks_intraday)
 p3 = Process(target=update_poly_crypto_intraday)
-p2.start()
+# p2.start()
 p3.start()
