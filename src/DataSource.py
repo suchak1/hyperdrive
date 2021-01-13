@@ -559,7 +559,6 @@ class Polygon(MarketData):
                 if symbol.find('X%3A') == 0:
                     df['date'] = pd.to_datetime(
                         df['date'], unit='ms')
-                    print(df)
                     if idx != len(dates) - 1:
                         sleep(C.POLY_CRYPTO_DELAY)
                 else:
