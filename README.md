@@ -67,17 +67,17 @@ Using Robinhood 2FA, we can simply provide our MFA one-time password in the `.en
 ### Data
 
 - [ ] Price and Volume
-  - [x] ![Symbols](https://github.com/suchak1/hyperdrive/workflows/Symbols/badge.svg)
-  - [x] ![OHLC](https://github.com/suchak1/hyperdrive/workflows/OHLC/badge.svg)
-  - [x] ![Intraday](https://github.com/suchak1/hyperdrive/workflows/Intraday/badge.svg)
+  - [x] [![Symbols](https://github.com/suchak1/hyperdrive/workflows/Symbols/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3ASymbols)
+  - [x] [![OHLC](https://github.com/suchak1/hyperdrive/workflows/OHLC/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3AOHLC)
+  - [x] [![Intraday](https://github.com/suchak1/hyperdrive/workflows/Intraday/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3AIntraday)
 - [x] Actions
-  - [x] ![Dividends](https://github.com/suchak1/hyperdrive/workflows/Dividends/badge.svg)
-  - [x] ![Splits](https://github.com/suchak1/hyperdrive/workflows/Splits/badge.svg)
+  - [x] [![Dividends](https://github.com/suchak1/hyperdrive/workflows/Dividends/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3ADividends)
+  - [x] [![Splits](https://github.com/suchak1/hyperdrive/workflows/Splits/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3ASplits)
   - [ ] Mergers
   - [ ] Buybacks
 - [ ] Sentiment
   - [ ] News Sentiment
-  - [x] ![Social Sentiment](<https://github.com/suchak1/hyperdrive/workflows/Social%20Sentiment%20(1)/badge.svg>)
+  - [x] [![Social Sentiment](<https://github.com/suchak1/hyperdrive/workflows/Social%20Sentiment%20(1)/badge.svg>)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3A%22Social+Sentiment+%281%29%22)
   - [ ] [Institutional Sentiment](http://www.aaii.com/files/surveys/sentiment.xls)
   - [ ] Analyst Recommendations
 - [ ] Company / Micro
