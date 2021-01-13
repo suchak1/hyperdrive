@@ -77,7 +77,7 @@ class MarketData:
         return self.standardize(
             df,
             full_mapping,
-            filename
+            filename,
             [C.EX, C.DIV],
             0
         )
