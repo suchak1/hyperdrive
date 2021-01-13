@@ -50,7 +50,6 @@ def update_poly_stocks_ohlc():
 
 
 def update_poly_crypto_ohlc():
-
     for idx, symbol in enumerate(crypto_symbols):
         filename = PathFinder().get_ohlc_path(
             symbol=symbol, provider=poly_crypto.provider)

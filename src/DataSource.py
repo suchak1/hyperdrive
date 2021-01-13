@@ -48,11 +48,11 @@ class MarketData:
         filtered = self.reader.data_in_timeframe(df, C.EX, timeframe)
         return filtered
 
-    def standardize(self, symbol, df, full_mapping, fx, columns, default):
+    def standardize(self, df, full_mapping,
+                    filename, columns, default):
         mapping = {k: v for k, v in full_mapping.items() if k in df}
 
         df = df[list(mapping)].rename(columns=mapping)
-        filename = fx(symbol, self.provider)
         time_col, val_cols = columns[0], columns[1:]
 
         if time_col in df and set(val_cols).issubset(df.columns):
@@ -73,11 +73,11 @@ class MarketData:
                 [C.EX, C.PAY, C.DEC, C.DIV]
             )
         )
+        filename = self.finder.get_dividends_path(symbol, self.provider)
         return self.standardize(
-            symbol,
             df,
             full_mapping,
-            self.finder.get_dividends_path,
+            filename,
             [C.EX, C.DIV],
             0
         )
@@ -108,11 +108,11 @@ class MarketData:
                 [C.EX, C.PAY, C.DEC, C.RATIO]
             )
         )
+        filename = self.finder.get_splits_path(symbol, self.provider)
         return self.standardize(
-            symbol,
             df,
             full_mapping,
-            self.finder.get_splits_path,
+            filename,
             [C.EX, C.RATIO],
             1
         )
@@ -129,7 +129,7 @@ class MarketData:
         if os.path.exists(filename):
             return filename
 
-    def standardize_ohlc(self, symbol, df):
+    def standardize_ohlc(self, symbol, df, filename=None):
         full_mapping = dict(
             zip(
                 ['date', 'open', 'high', 'low', 'close',
@@ -138,11 +138,13 @@ class MarketData:
                  C.VOL, C.AVG, C.TRADES]
             )
         )
+
+        filename = filename or self.finder.get_ohlc_path(symbol, self.provider)
+
         df = self.standardize(
-            symbol,
             df,
             full_mapping,
-            self.finder.get_ohlc_path,
+            filename,
             [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE],
             0
         )
@@ -222,11 +224,11 @@ class MarketData:
                 [C.TIME, C.POS, C.NEG]
             )
         )
+        filename = self.finder.get_sentiment_path(symbol, self.provider)
         df = self.standardize(
-            symbol,
             df,
             full_mapping,
-            self.finder.get_sentiment_path,
+            filename,
             [C.TIME, C.POS, C.NEG],
             0
         )
@@ -239,11 +241,11 @@ class MarketData:
                 [C.TIME, C.VOL, C.DELTA]
             )
         )
+        filename = self.finder.get_sentiment_path(symbol, self.provider)
         df = self.standardize(
-            symbol,
             df,
             full_mapping,
-            self.finder.get_sentiment_path,
+            filename,
             [C.TIME, C.VOL, C.DELTA],
             0
         )
@@ -469,7 +471,9 @@ class IEXCloud(MarketData):
                 df = pd.DataFrame(data)[res_cols].rename(columns=columns)
                 df['date'] = pd.to_datetime(df['date'] + ' ' + df['minute'])
                 df.drop(columns='minute', inplace=True)
-                df = self.standardize_ohlc(symbol, df)
+                filename = self.finder.get_intraday_path(
+                    symbol, date, self.provider)
+                df = self.standardize_ohlc(symbol, df, filename)
                 yield self.reader.data_in_timeframe(
                     df, C.TIME, timeframe
                 )
@@ -562,7 +566,9 @@ class Polygon(MarketData):
                         df['date'], unit='ms').dt.tz_localize(
                         'UTC').dt.tz_convert(
                         C.TZ).dt.tz_localize(None)
-                df = self.standardize_ohlc(symbol, df)
+                filename = self.finder.get_intraday_path(
+                    symbol, date, self.provider)
+                df = self.standardize_ohlc(symbol, df, filename)
                 df = df[df[C.TIME].dt.strftime(C.DATE_FMT) == date]
                 yield self.reader.data_in_timeframe(
                     df, C.TIME, timeframe
