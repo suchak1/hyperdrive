@@ -436,8 +436,6 @@ class IEXCloud(MarketData):
             if dates == []:
                 raise Exception(f'No dates in timeframe: {timeframe}.')
 
-            dates = [date.replace('-', '') for date in dates]
-
             for date in dates:
                 parts = [
                     self.base,
@@ -446,7 +444,7 @@ class IEXCloud(MarketData):
                     symbol.lower(),
                     dataset,
                     'date',
-                    date
+                    date.replace('-', '')
                 ]
 
                 endpoint = self.get_endpoint(parts)
