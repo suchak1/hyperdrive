@@ -4,14 +4,16 @@ from time import sleep
 from multiprocessing import Process
 sys.path.append('src')
 from DataSource import IEXCloud, Polygon  # noqa autopep8
-from Constants import CI, PathFinder, POLY_CRYPTO_SYMBOLS  # noqa autopep8
+from Constants import CI, PathFinder, POLY_CRYPTO_SYMBOLS, POLY_CRYPTO_DELAY  # noqa autopep8
 
 
 iex = IEXCloud()
 poly_stocks = Polygon()
 poly_crypto = Polygon(os.environ['POLYGON'])
-stock_symbols = iex.get_symbols()[250:]
+stock_symbols = iex.get_symbols()
+# [250:]
 crypto_symbols = POLY_CRYPTO_SYMBOLS
+timeframe = '2m'
 # Double redundancy
 
 # 1st pass
@@ -22,7 +24,7 @@ def update_iex_ohlc():
         filename = PathFinder().get_ohlc_path(
             symbol=symbol, provider=iex.provider)
         try:
-            iex.save_ohlc(symbol=symbol, timeframe='max')
+            iex.save_ohlc(symbol=symbol, timeframe=timeframe)
         except Exception as e:
             print(f'IEX Cloud OHLC update failed for {symbol}.')
             print(e)
@@ -37,7 +39,7 @@ def update_poly_stocks_ohlc():
         filename = PathFinder().get_ohlc_path(
             symbol=symbol, provider=poly_stocks.provider)
         try:
-            poly_stocks.save_ohlc(symbol=symbol, timeframe='max')
+            poly_stocks.save_ohlc(symbol=symbol, timeframe=timeframe)
         except Exception as e:
             print(f'Polygon.io OHLC update failed for {symbol}.')
             print(e)
@@ -48,12 +50,11 @@ def update_poly_stocks_ohlc():
 
 
 def update_poly_crypto_ohlc():
-    calls_per_min = 5
     for idx, symbol in enumerate(crypto_symbols):
         filename = PathFinder().get_ohlc_path(
             symbol=symbol, provider=poly_crypto.provider)
         try:
-            poly_crypto.save_ohlc(symbol=symbol, timeframe='max')
+            poly_crypto.save_ohlc(symbol=symbol, timeframe=timeframe)
         except Exception as e:
             print(f'Polygon.io OHLC update failed for {symbol}.')
             print(e)
@@ -62,7 +63,7 @@ def update_poly_crypto_ohlc():
                 os.remove(filename)
 
             if idx != len(crypto_symbols) - 1:
-                sleep(60 // calls_per_min + 5)
+                sleep(POLY_CRYPTO_DELAY)
 
 
 p1 = Process(target=update_iex_ohlc)
