@@ -2,7 +2,7 @@ import os
 import time
 import pyotp
 import robin_stocks as rh
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 import pandas as pd
 from Constants import PathFinder
 import Constants as C
@@ -15,7 +15,7 @@ class Robinhood:
     # broker operation
     def __init__(self, usr=None, pwd=None, mfa=None):
         # Authentication
-        load_dotenv()
+        load_dotenv(find_dotenv('config.env'))
 
         username = usr or os.environ['RH_USERNAME']
         password = pwd or os.environ['RH_PASSWORD']

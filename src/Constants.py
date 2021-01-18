@@ -1,9 +1,9 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from pytz import timezone
 
-load_dotenv()
+load_dotenv(find_dotenv('config.env'))
 
 
 def get_env_bool(var_name):

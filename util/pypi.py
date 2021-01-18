@@ -1,7 +1,7 @@
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
-load_dotenv()
+load_dotenv(find_dotenv('config.env'))
 home = os.path.expanduser("~")
 path = os.path.join(home, '.pypirc')
 token = os.environ.get('PYPI')

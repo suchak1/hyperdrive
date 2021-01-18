@@ -3,12 +3,12 @@ import shutil
 import sys
 import pytest
 from botocore.exceptions import ClientError
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 sys.path.append('src')
 from Storage import Store  # noqa autopep8
 import Constants as C  # noqa autopep8
 
-load_dotenv()
+load_dotenv(find_dotenv('config.env'))
 store = Store()
 
 run_id = ''
