@@ -25,7 +25,8 @@ class Store:
 
     def upload_file(self, path):
         bucket = self.get_bucket()
-        bucket.upload_file(path, path)
+        key = path.replace('\\', '/')
+        bucket.upload_file(path, key)
 
     def upload_dir(self, **kwargs):
         paths = self.finder.get_all_paths(**kwargs)
@@ -34,7 +35,8 @@ class Store:
 
     def delete_objects(self, keys):
         if keys:
-            objects = [{'Key': key.replace('\\', '/')} for key in keys]
+            #objects = [{'Key': key.replace('\\', '/')} for key in keys]
+            objects = [{'Key': key} for key in keys]
             bucket = self.get_bucket()
             bucket.delete_objects(Delete={'Objects': objects})
 
