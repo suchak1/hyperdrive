@@ -640,3 +640,14 @@ class StockTwits(MarketData):
                     std, C.TIME, timeframe)
             return filtered
         return self.try_again(func=_get_social_sentiment, **kwargs)
+
+
+class AAII(MarketData):
+    def __init__(self):
+        super().__init__()
+
+    def get_sentiment(self):
+        url = 'https://www.aaii.com/files/surveys/sentiment.xls'
+        response = requests.get(url)
+        if response.ok:
+            return response.text
