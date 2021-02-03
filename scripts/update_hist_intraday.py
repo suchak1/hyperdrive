@@ -65,5 +65,5 @@ def update_poly_crypto_intraday():
 p2 = Process(target=update_poly_stocks_intraday)
 # p3 = Process(target=update_poly_crypto_intraday)
 if __name__ == '__main__':
-	p2.start()
+    p2.start()
 # p3.start()
