@@ -243,35 +243,22 @@ class TestMarketData:
         if os.path.exists(temp_path):
             os.rename(temp_path, ohlc_path)
 
-    # def test_save_intraday(self):
-    #     symbol = 'NFLX'
-    #     intra_path = md.finder.get_intraday_path(symbol)
-    #     temp_path = f'{intra_path}_TEMP'
+    def test_save_intraday(self):
+        symbol = 'NFLX'
+        timeframe = '4d'
+        dates = md.traveller.dates_in_range(timeframe)
+        intra_paths = [md.finder.get_intraday_path(
+            symbol, date) for date in dates]
+        filenames = set(iex.save_intraday(symbol=symbol, timeframe=timeframe))
+        intersection = filenames.intersection(intra_paths)
+        assert intersection
 
-    #     if os.path.exists(intra_path):
-    #         os.rename(intra_path, temp_path)
-
-    #     for _ in range(retries):
-    #         iex.save_intraday(symbol=symbol, timeframe='1m')
-    #         if not md.reader.check_file_exists(intra_path):
-    #             delay = choice(range(5, 10))
-    #             sleep(delay)
-    #         else:
-    #             break
-
-    #     assert md.reader.check_file_exists(intra_path)
-    #     assert md.reader.store.modified_delta(intra_path).total_seconds(
-    # ) < 60
-    #     df = md.reader.load_csv(intra_path)
-    #     assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
-    #             C.CLOSE, C.VOL}.issubset(df.columns)
-    #     assert len(df) > 0
-
-    #     if os.path.exists(temp_path):
-    #         os.rename(temp_path, intra_path)
-    # test if sun or mon and skip
-    # get yesterday function
-    # get last weekday function
+        for path in intersection:
+            df = md.reader.load_csv(path)
+            assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+                    C.CLOSE, C.VOL}.issubset(df.columns)
+            assert len(df) > 0
+            os.remove(path)
 
     def test_get_ohlc(self):
         df = md.get_ohlc('TSLA', '2m')

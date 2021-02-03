@@ -3,7 +3,7 @@ import requests
 from time import sleep
 import pandas as pd
 from polygon import RESTClient
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from FileOps import FileReader, FileWriter
 from TimeMachine import TimeTraveller
 from Constants import PathFinder
@@ -285,7 +285,7 @@ class MarketData:
 
 class IEXCloud(MarketData):
     def __init__(self):
-        load_dotenv()
+        load_dotenv(find_dotenv('config.env'))
         super().__init__()
         self.base = 'https://cloud.iexapis.com'
         self.version = 'stable'
@@ -479,7 +479,7 @@ class IEXCloud(MarketData):
 
 class Polygon(MarketData):
     def __init__(self, token=os.environ.get('APCA_API_KEY_ID')):
-        load_dotenv()
+        load_dotenv(find_dotenv('config.env'))
         super().__init__()
         self.client = RESTClient(token)
         self.provider = 'polygon'
@@ -576,7 +576,7 @@ class Polygon(MarketData):
 
 class StockTwits(MarketData):
     def __init__(self):
-        load_dotenv()
+        load_dotenv(find_dotenv('config.env'))
         super().__init__()
         self.provider = 'stocktwits'
         self.token = os.environ.get('STOCKTWITS')

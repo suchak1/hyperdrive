@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 import boto3
 from botocore.exceptions import ClientError
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from multiprocessing import Pool
 from Constants import PathFinder
 import Constants as C
@@ -10,7 +10,7 @@ import Constants as C
 
 class Store:
     def __init__(self):
-        load_dotenv()
+        load_dotenv(find_dotenv('config.env'))
         self.bucket_name = self.get_bucket_name()
         self.finder = PathFinder()
 
@@ -25,7 +25,8 @@ class Store:
 
     def upload_file(self, path):
         bucket = self.get_bucket()
-        bucket.upload_file(path, path)
+        key = path.replace('\\', '/')
+        bucket.upload_file(path, key)
 
     def upload_dir(self, **kwargs):
         paths = self.finder.get_all_paths(**kwargs)
