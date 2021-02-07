@@ -1,4 +1,5 @@
 import os
+import json
 import requests
 from time import sleep
 import pandas as pd
@@ -640,3 +641,10 @@ class StockTwits(MarketData):
                     std, C.TIME, timeframe)
             return filtered
         return self.try_again(func=_get_social_sentiment, **kwargs)
+
+
+class BLS(MarketData):
+    def __init__(self):
+        load_dotenv(find_dotenv('config.env'))
+        super().__init__()
+        self.token = os.environ.get('BLS')
