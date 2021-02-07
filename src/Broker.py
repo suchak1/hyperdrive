@@ -1,5 +1,4 @@
 import os
-import time
 import pyotp
 import robin_stocks as rh
 from dotenv import load_dotenv, find_dotenv
@@ -26,12 +25,6 @@ class Robinhood:
         self.writer = FileWriter()
         self.reader = FileReader()
         self.finder = PathFinder()
-
-    # def get_symbols_from_instruments(self, instruments):
-    #     # given a list of instruments,
-    #     # return a list of corresponding symbols
-    #     return [self.api.get_symbol_by_url(instrument)
-    #             for instrument in instruments]
 
     def flatten(self, xxs):
         # flattens 2d list into 1d list
@@ -84,21 +77,3 @@ class Robinhood:
             self.get_holdings()
 
         return [symbol for symbol in self.holdings]
-    # def load_portfolio(self):
-    #     start = time.time()
-    #     # Data acquisition
-    #     self.positions = self.api.get_all_positions()
-    #     # holdings = self.get_holdings()
-    #     # print(self.holdings)
-
-    #     # Create lookup table instrument -> symbol and vice versa
-    #     instruments = [position['instrument'] for position in self.positions]
-    #     symbols = self.get_symbols_from_instruments(instruments)
-
-    #     self.instruments = dict(zip(instruments, symbols))
-    #     self.symbols = dict(map(reversed, self.instruments.items()))
-
-    #     # Get historical data for all instruments
-    #     # self.hist = self.get_hists(symbols)
-    #     end = time.time()
-    #     print(f'Successfully loaded portfolio in {round(end-start, 2)}s.')
