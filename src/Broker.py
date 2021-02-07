@@ -27,11 +27,11 @@ class Robinhood:
         self.reader = FileReader()
         self.finder = PathFinder()
 
-    def get_symbols_from_instruments(self, instruments):
-        # given a list of instruments,
-        # return a list of corresponding symbols
-        return [self.api.get_symbol_by_url(instrument)
-                for instrument in instruments]
+    # def get_symbols_from_instruments(self, instruments):
+    #     # given a list of instruments,
+    #     # return a list of corresponding symbols
+    #     return [self.api.get_symbol_by_url(instrument)
+    #             for instrument in instruments]
 
     def flatten(self, xxs):
         # flattens 2d list into 1d list
@@ -56,14 +56,17 @@ class Robinhood:
     def get_names(self, symbols):
         # given a list of stock symbols
         # return a list of company names
-        return [self.api.get_name_by_symbol(symbol)
-                for symbol in symbols]
+        names = []
+        for symbol in symbols:
+            if hasattr(self, 'holdings') and symbol in self.holdings:
+                names.append(self.holdings[symbol]['name'])
+            else:
+                names.append(self.api.get_name_by_symbol(symbol))
+        return names
 
     def save_symbols(self):
         # save all the portfolio symbols in a table
-        if not hasattr(self, 'symbols'):
-            self.load_portfolio()
-        symbols = list(self.symbols)
+        symbols = self.get_symbols()
         names = self.get_names(symbols)
         df = pd.DataFrame({
             C.SYMBOL: symbols,
@@ -71,21 +74,31 @@ class Robinhood:
         })
         self.writer.update_csv(self.finder.get_symbols_path(), df)
 
-    def load_portfolio(self):
-        start = time.time()
-        # Data acquisition
-        self.positions = self.api.get_all_positions()
-        self.holdings = self.api.build_holdings()
-        # print(self.holdings)
+    def get_holdings(self):
+        if not hasattr(self, 'holdings'):
+            self.holdings = self.api.build_holdings()
+        return self.holdings
 
-        # Create lookup table instrument -> symbol and vice versa
-        instruments = [position['instrument'] for position in self.positions]
-        symbols = self.get_symbols_from_instruments(instruments)
+    def get_symbols(self):
+        if not hasattr(self, 'holdings'):
+            self.get_holdings()
 
-        self.instruments = dict(zip(instruments, symbols))
-        self.symbols = dict(map(reversed, self.instruments.items()))
+        return [symbol for symbol in self.holdings]
+    # def load_portfolio(self):
+    #     start = time.time()
+    #     # Data acquisition
+    #     self.positions = self.api.get_all_positions()
+    #     # holdings = self.get_holdings()
+    #     # print(self.holdings)
 
-        # Get historical data for all instruments
-        self.hist = self.get_hists(symbols)
-        end = time.time()
-        print(f'Successfully loaded portfolio in {round(end-start, 2)}s.')
+    #     # Create lookup table instrument -> symbol and vice versa
+    #     instruments = [position['instrument'] for position in self.positions]
+    #     symbols = self.get_symbols_from_instruments(instruments)
+
+    #     self.instruments = dict(zip(instruments, symbols))
+    #     self.symbols = dict(map(reversed, self.instruments.items()))
+
+    #     # Get historical data for all instruments
+    #     # self.hist = self.get_hists(symbols)
+    #     end = time.time()
+    #     print(f'Successfully loaded portfolio in {round(end-start, 2)}s.')
