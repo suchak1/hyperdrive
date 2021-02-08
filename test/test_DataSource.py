@@ -290,7 +290,7 @@ class TestIEXCloud:
             'dividend'
             '5y'
         ]
-        endpoint = iex.get_endpoint(parts)
+        endpoint = iex.get_endpoint(parts, {'token': iex.token})
         assert len(endpoint.split('/')) == 7
         assert 'token' in endpoint
 

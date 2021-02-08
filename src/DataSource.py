@@ -282,6 +282,15 @@ class MarketData:
         return filenames
     # def handle_request(self, url, err_msg):
 
+    def get_endpoint(self, parts, raw_params=[]):
+        # given a url
+        # return an authenticated endpoint
+        url = '/'.join(parts)
+        params = [f'{key}={value}' for key, value in raw_params.items()]
+        params = '&'.join(params)
+        endpoint = f'{url}?{params}'
+        return endpoint
+
 
 class IEXCloud(MarketData):
     def __init__(self):
@@ -291,15 +300,6 @@ class IEXCloud(MarketData):
         self.version = 'stable'
         self.token = os.environ['IEXCLOUD']
         self.provider = 'iexcloud'
-
-    def get_endpoint(self, parts, raw_params=[]):
-        # given a url
-        # return an authenticated endpoint
-        url = '/'.join(parts)
-        auth_params = raw_params + [f'token={self.token}']
-        params = '&'.join(auth_params)
-        endpoint = f'{url}?{params}'
-        return endpoint
 
     def get_dividends(self, **kwargs):
         # given a symbol, return the dividend history
@@ -314,7 +314,7 @@ class IEXCloud(MarketData):
                 dataset,
                 timeframe
             ]
-            endpoint = self.get_endpoint(parts)
+            endpoint = self.get_endpoint(parts, {'token': self.token})
             response = requests.get(endpoint)
             empty = pd.DataFrame()
 
@@ -346,7 +346,7 @@ class IEXCloud(MarketData):
                 dataset,
                 timeframe
             ]
-            endpoint = self.get_endpoint(parts)
+            endpoint = self.get_endpoint(parts, {'token': self.token})
             response = requests.get(endpoint)
             empty = pd.DataFrame()
 
@@ -375,7 +375,7 @@ class IEXCloud(MarketData):
                 symbol.lower(),
                 dataset
             ]
-            endpoint = self.get_endpoint(parts)
+            endpoint = self.get_endpoint(parts, {'token': self.token})
             response = requests.get(endpoint)
             empty = pd.DataFrame()
 
@@ -405,7 +405,7 @@ class IEXCloud(MarketData):
                 dataset,
                 timeframe
             ]
-            endpoint = self.get_endpoint(parts)
+            endpoint = self.get_endpoint(parts, {'token': self.token})
             response = requests.get(endpoint)
             empty = pd.DataFrame()
 
@@ -447,7 +447,7 @@ class IEXCloud(MarketData):
                     date.replace('-', '')
                 ]
 
-                endpoint = self.get_endpoint(parts)
+                endpoint = self.get_endpoint(parts, {'token': self.token})
                 response = requests.get(endpoint)
 
                 if response.ok:
@@ -578,15 +578,23 @@ class StockTwits(MarketData):
     def __init__(self):
         load_dotenv(find_dotenv('config.env'))
         super().__init__()
-        self.provider = 'stocktwits'
+        self.base = 'https://api.stocktwits.com'
+        self.version = '2'
         self.token = os.environ.get('STOCKTWITS')
+        self.provider = 'stocktwits'
 
     def get_social_volume(self, **kwargs):
         def _get_social_volume(symbol, timeframe='max'):
-            vol_res = requests.get((
-                f'https://api.stocktwits.com/api/2/symbols/{symbol}'
-                f'/volume.json?access_token={self.token}'
-            ))
+            parts = [
+                self.base,
+                'api',
+                self.version,
+                'symbols',
+                symbol,
+                'volume.json'
+            ]
+            endpoint = self.get_endpoint(parts, {'access_token': self.token})
+            vol_res = requests.get(endpoint)
             empty = pd.DataFrame()
 
             if vol_res.ok:
@@ -614,10 +622,16 @@ class StockTwits(MarketData):
 
     def get_social_sentiment(self, **kwargs):
         def _get_social_sentiment(symbol, timeframe='max'):
-            sen_res = requests.get((
-                f'https://api.stocktwits.com/api/2/symbols/{symbol}'
-                f'/sentiment.json?access_token={self.token}'
-            ))
+            parts = [
+                self.base,
+                'api',
+                self.version,
+                'symbols',
+                symbol,
+                'sentiment.json'
+            ]
+            endpoint = self.get_endpoint(parts, {'access_token': self.token})
+            sen_res = requests.get(endpoint)
             empty = pd.DataFrame()
 
             if sen_res.ok:
