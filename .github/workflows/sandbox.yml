@@ -17,6 +17,7 @@ env:
   S3_BUCKET: ${{ secrets.S3_DEV_BUCKET }}
   APCA_API_KEY_ID: ${{ secrets.APCA_API_KEY_ID }}
   POLYGON: ${{ secrets.POLYGON }}
+  BLS: ${{ secrets.BLS }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
@@ -79,6 +80,9 @@ jobs:
       
       - name: Update intraday
         run: python scripts/update_intraday.py
+
+      - name: Update unemployment
+        run: python scripts/update_unrate.py
 
       - name: Upload repo to S3
         run: python scripts/update_repo.py
