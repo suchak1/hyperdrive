@@ -282,15 +282,6 @@ class MarketData:
         return filenames
     # def handle_request(self, url, err_msg):
 
-    def get_endpoint(self, parts, raw_params=[]):
-        # given a url
-        # return an authenticated endpoint
-        url = '/'.join(parts)
-        params = [f'{key}={value}' for key, value in raw_params.items()]
-        params = '&'.join(params)
-        endpoint = f'{url}?{params}'
-        return endpoint
-
 
 class IEXCloud(MarketData):
     def __init__(self):
@@ -314,8 +305,9 @@ class IEXCloud(MarketData):
                 dataset,
                 timeframe
             ]
-            endpoint = self.get_endpoint(parts, {'token': self.token})
-            response = requests.get(endpoint)
+            url = '/'.join(parts)
+            params = {'token': self.token}
+            response = requests.get(url, params=params)
             empty = pd.DataFrame()
 
             if response.ok:
@@ -346,8 +338,9 @@ class IEXCloud(MarketData):
                 dataset,
                 timeframe
             ]
-            endpoint = self.get_endpoint(parts, {'token': self.token})
-            response = requests.get(endpoint)
+            url = '/'.join(parts)
+            params = {'token': self.token}
+            response = requests.get(url, params=params)
             empty = pd.DataFrame()
 
             if response.ok:
@@ -375,8 +368,9 @@ class IEXCloud(MarketData):
                 symbol.lower(),
                 dataset
             ]
-            endpoint = self.get_endpoint(parts, {'token': self.token})
-            response = requests.get(endpoint)
+            url = '/'.join(parts)
+            params = {'token': self.token}
+            response = requests.get(url, params=params)
             empty = pd.DataFrame()
 
             if response.ok:
@@ -405,8 +399,9 @@ class IEXCloud(MarketData):
                 dataset,
                 timeframe
             ]
-            endpoint = self.get_endpoint(parts, {'token': self.token})
-            response = requests.get(endpoint)
+            url = '/'.join(parts)
+            params = {'token': self.token}
+            response = requests.get(url, params=params)
             empty = pd.DataFrame()
 
             if response.ok:
@@ -447,8 +442,9 @@ class IEXCloud(MarketData):
                     date.replace('-', '')
                 ]
 
-                endpoint = self.get_endpoint(parts, {'token': self.token})
-                response = requests.get(endpoint)
+                url = '/'.join(parts)
+                params = {'token': self.token}
+                response = requests.get(url, params=params)
 
                 if response.ok:
                     data = response.json()
@@ -593,8 +589,9 @@ class StockTwits(MarketData):
                 symbol,
                 'volume.json'
             ]
-            endpoint = self.get_endpoint(parts, {'access_token': self.token})
-            vol_res = requests.get(endpoint)
+            url = '/'.join(parts)
+            params = {'access_token': self.token}
+            vol_res = requests.get(url, params=params)
             empty = pd.DataFrame()
 
             if vol_res.ok:
@@ -630,8 +627,9 @@ class StockTwits(MarketData):
                 symbol,
                 'sentiment.json'
             ]
-            endpoint = self.get_endpoint(parts, {'access_token': self.token})
-            sen_res = requests.get(endpoint)
+            url = '/'.join(parts)
+            params = {'access_token': self.token}
+            sen_res = requests.get(url, params=params)
             empty = pd.DataFrame()
 
             if sen_res.ok:

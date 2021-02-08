@@ -281,19 +281,6 @@ class TestIEXCloud:
         assert hasattr(iex, 'token')
         assert hasattr(iex, 'provider')
 
-    def test_get_endpoint(self):
-        parts = [
-            iex.base,
-            iex.version,
-            'stock',
-            'aapl',
-            'dividend'
-            '5y'
-        ]
-        endpoint = iex.get_endpoint(parts, {'token': iex.token})
-        assert len(endpoint.split('/')) == 7
-        assert 'token' in endpoint
-
     def test_get_dividends(self):
         df = []
 
