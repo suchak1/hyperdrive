@@ -85,12 +85,10 @@ Using Robinhood 2FA, we can simply provide our MFA one-time password in the `.en
   - [ ] Earnings
   - [ ] Cash Flow
   - [ ] CEO Compensation
-- [ ] Government / Macro
-
-  - [ ] Unemployment Rate
-  - [ ] Real GDP
-  - [ ] US Recession Probabilities
-
+- [ ] Government / Macro           <!-- this stuff prob won't be v useful -->  
+  - [x] [![Unemployment Rate](<https://github.com/suchak1/hyperdrive/workflows/Unemployment%20Rate/badge.svg>)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3A%22Unemployment+Rate%22)          <!-- BLS -->
+  - [ ] Real GDP                   <!-- BEA -->
+  - [ ] US Recession Probabilities <!-- FRED -->
 - [ ] Market
   - [ ] General Volatility (VIX)
   - [ ] Sector Performance
