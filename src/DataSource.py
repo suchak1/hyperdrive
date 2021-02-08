@@ -1,5 +1,4 @@
 import os
-import json
 import requests
 from time import sleep
 import pandas as pd
@@ -714,13 +713,19 @@ class LaborStats(MarketData):
 
             response = requests.post(url, data=params)
 
-            if response.ok and response.json()['status'] == 'REQUEST_SUCCEEDED':
+            if (
+                    response.ok and
+                    response.json()['status'] == 'REQUEST_SUCCEEDED'
+            ):
+
                 payload = response.json()
                 if payload['status'] == 'REQUEST_SUCCEEDED':
                     data = payload['Results']['series'][0]['data']
                 else:
                     raise Exception(
-                        f"Invalid response from BLS because {data['message'][0]}"
+                        f'''
+                        Invalid response from BLS because {data["message"][0]}
+                        '''
                     )
             else:
                 raise Exception(
