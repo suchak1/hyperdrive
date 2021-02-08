@@ -400,7 +400,7 @@ class TestStockTwits:
 
 class TestLaborStats:
     def test_init(self):
-        assert type(iex).__name__ == 'LaborStats'
+        assert type(bls).__name__ == 'LaborStats'
         assert hasattr(iex, 'base')
         assert hasattr(iex, 'version')
         assert hasattr(iex, 'token')
