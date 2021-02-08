@@ -29,20 +29,6 @@ class TestRobinhood:
         # outer list length 2
         assert rh.flatten([[1, 2], [3, 4]]) == [1, 2, 3, 4]
 
-    def test_load_portfolio(self):
-        rh.load_portfolio()
-        assert hasattr(rh, 'positions')
-        assert hasattr(rh, 'holdings')
-        assert hasattr(rh, 'instruments')
-        assert hasattr(rh, 'symbols')
-        assert hasattr(rh, 'hist')
-
-    def test_get_symbols_from_instruments(self):
-        instruments = list(rh.instruments)
-        symbols = set(rh.get_symbols_from_instruments(instruments))
-        for symbol in exp_symbols:
-            assert symbol in symbols
-
     def test_get_hists(self):
         df = rh.get_hists(exp_symbols, span='5year', interval='week')
         curr_year = datetime.today().year - 3
@@ -66,3 +52,14 @@ class TestRobinhood:
         assert os.path.exists(symbols_path)
         df = rh.reader.load_csv(symbols_path)
         assert 'AAPL' in list(df[C.SYMBOL])
+
+    def get_holdings(self):
+        holdings = rh.get_holdings()
+        for symbol in exp_symbols:
+            assert symbol in holdings
+            assert 'name' in holdings[symbol]
+
+    def test_get_symbols(self):
+        symbols = set(rh.get_symbols())
+        for symbol in exp_symbols:
+            assert symbol in symbols

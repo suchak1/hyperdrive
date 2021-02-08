@@ -4,13 +4,14 @@ from time import sleep
 from random import choice
 import pandas as pd
 sys.path.append('src')
-from DataSource import MarketData, IEXCloud, Polygon, StockTwits  # noqa autopep8
+from DataSource import MarketData, IEXCloud, Polygon, StockTwits, LaborStats  # noqa autopep8
 import Constants as C  # noqa autopep8
 
 md = MarketData()
 iex = IEXCloud()
 poly = Polygon()
 twit = StockTwits()
+bls = LaborStats()
 
 if not C.CI:
     iex.token = os.environ['IEXCLOUD_SANDBOX']
@@ -22,6 +23,8 @@ if not C.CI:
     poly.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
     twit.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
     twit.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    bls.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    bls.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
     # consider function that takes in
     # list of datasource objs and returns clean ones
     # or simply make DevStore class that has s3 dev bucket name
@@ -272,6 +275,30 @@ class TestMarketData:
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 0
 
+    def test_get_unemployment_rate(self):
+        df = md.get_unemployment_rate()
+        assert {C.TIME, C.UN_RATE}.issubset(df.columns)
+        assert len(df) > 100
+
+    def test_standardize_unemployment(self):
+        columns = ['time', 'value']
+        new_cols = [C.TIME, C.UN_RATE]
+        sel_idx = 1
+        selected = columns[:sel_idx]
+        df = pd.DataFrame({column: [0] for column in columns})
+        standardized = md.standardize_unemployment(df)
+        for column in new_cols:
+            assert column in standardized
+
+        df.drop(columns=selected, inplace=True)
+        standardized = md.standardize_unemployment(df)
+        for curr_idx, column in enumerate(new_cols):
+            col_in_df = column in standardized
+            assert col_in_df if curr_idx >= sel_idx else not col_in_df
+
+    def test_save_unemployment_rate(self):
+        assert 'unemployment.csv' in md.save_unemployment_rate(timeframe='2y')
+
 
 class TestIEXCloud:
     def test_init(self):
@@ -280,19 +307,6 @@ class TestIEXCloud:
         assert hasattr(iex, 'version')
         assert hasattr(iex, 'token')
         assert hasattr(iex, 'provider')
-
-    def test_get_endpoint(self):
-        parts = [
-            iex.base,
-            iex.version,
-            'stock',
-            'aapl',
-            'dividend'
-            '5y'
-        ]
-        endpoint = iex.get_endpoint(parts)
-        assert len(endpoint.split('/')) == 7
-        assert 'token' in endpoint
 
     def test_get_dividends(self):
         df = []
@@ -382,3 +396,17 @@ class TestStockTwits:
         df = twit.get_social_sentiment(symbol='TSLA')
         assert len(df) > 30
         assert {C.TIME, C.POS, C.NEG}.issubset(df.columns)
+
+
+class TestLaborStats:
+    def test_init(self):
+        assert type(iex).__name__ == 'LaborStats'
+        assert hasattr(iex, 'base')
+        assert hasattr(iex, 'version')
+        assert hasattr(iex, 'token')
+        assert hasattr(iex, 'provider')
+
+    def test_get_unemployment_rate(self):
+        df = bls.get_unemployment_rate(timeframe='2y')
+        assert {C.TIME, C.UN_RATE}.issubset(df.columns)
+        assert len(df) > 12
