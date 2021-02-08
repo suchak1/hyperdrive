@@ -28,22 +28,22 @@ class TimeTraveller:
 
         return delta
 
-    def convert_dates(self, timeframe, formatted=True):
+    def convert_dates(self, timeframe, format=DATE_FMT):
         # if timeframe='max': timeframe = '25y'
         end = datetime.now(TZ) - self.convert_delta('1d')
         delta = self.convert_delta(timeframe) - self.convert_delta('1d')
         start = end - delta
-        if formatted:
-            start = start.strftime(DATE_FMT)
-            end = end.strftime(DATE_FMT)
+        if format:
+            start = start.strftime(format)
+            end = end.strftime(format)
         return start, end
 
-    def dates_in_range(self, timeframe, formatted=True):
-        start, end = self.convert_dates(timeframe, False)
+    def dates_in_range(self, timeframe, format=DATE_FMT):
+        start, end = self.convert_dates(timeframe, None)
         dates = [start + timedelta(days=x)
                  for x in range(0, (end - start).days + 1)]
-        if formatted:
-            dates = [date.strftime(DATE_FMT) for date in dates]
+        if format:
+            dates = [date.strftime(format) for date in dates]
         return dates
 
     def combine_date_time(self, date, time):

@@ -8,8 +8,7 @@ store = Store()
 poly = Polygon()
 
 
-# to_download = ['BOX', 'CAT', 'CL', 'DAL',
-#                'DBX', 'DDOG', 'DELL', 'DFS',
+# to_download = ['DBX', 'DDOG', 'DELL', 'DFS',
 #                'DIV', 'DOW', 'DUK', 'FOX',
 #                'GD', 'GE', 'GILD', 'GLD', 'GM']
 to_download = ['HD', 'INSG']

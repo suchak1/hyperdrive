@@ -12,6 +12,7 @@ import Constants as C
 
 class MarketData:
     def __init__(self):
+        load_dotenv(find_dotenv('config.env'))
         self.writer = FileWriter()
         self.reader = FileReader()
         self.finder = PathFinder()
@@ -285,7 +286,6 @@ class MarketData:
 
 class IEXCloud(MarketData):
     def __init__(self):
-        load_dotenv(find_dotenv('config.env'))
         super().__init__()
         self.base = 'https://cloud.iexapis.com'
         self.version = 'stable'
@@ -475,7 +475,6 @@ class IEXCloud(MarketData):
 
 class Polygon(MarketData):
     def __init__(self, token=os.environ.get('APCA_API_KEY_ID')):
-        load_dotenv(find_dotenv('config.env'))
         super().__init__()
         self.client = RESTClient(token)
         self.provider = 'polygon'
@@ -572,7 +571,6 @@ class Polygon(MarketData):
 
 class StockTwits(MarketData):
     def __init__(self):
-        load_dotenv(find_dotenv('config.env'))
         super().__init__()
         self.base = 'https://api.stocktwits.com'
         self.version = '2'
@@ -652,3 +650,43 @@ class StockTwits(MarketData):
                     std, C.TIME, timeframe)
             return filtered
         return self.try_again(func=_get_social_sentiment, **kwargs)
+
+
+class BLS(MarketData):
+    def __init__(self):
+        super().__init__()
+        self.base = 'https://api.bls.gov'
+        self.version = 'v2'
+        self.token = os.environ.get('BLS')
+        self.provider = 'bls'
+
+    def get_unemployment_rate(self, timeframe):
+        start, end = self.traveller.convert_dates(timeframe, '%Y')
+
+        parts = [
+            self.base,
+            'publicAPI',
+            self.version,
+            'timeseries',
+            'data'
+        ]
+        url = '/'.join(parts)
+        params = {'registrationkey': self.token,
+                  'startyear': start, 'endyear': end,
+                  'seriesid': 'LNS14000000'}
+
+        response = requests.post(url, data=params)
+
+        if response.ok and response.json()['status'] == 'REQUEST_SUCCEEDED':
+            payload = response.json()
+            if payload['status'] == 'REQUEST_SUCCEEDED':
+                data = payload['Results']['series'][0]['data']
+                df = pd.DataFrame(data)
+                return df
+            else:
+                raise Exception(
+                    f"Invalid response from BLS because {data['message'][0]}"
+                )
+        else:
+            raise Exception(
+                'Invalid response from BLS for unemployment rate')
