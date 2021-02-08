@@ -73,6 +73,9 @@ NEG = 'Neg'
 DELTA = 'Delta'
 TWIT_RATE = 175
 
+# Unemployment
+UN_RATE = 'UnRate'
+
 # Misc
 POLY_CRYPTO_SYMBOLS = [
     'X%3ABTCUSD', 'X%3AETHUSD',
@@ -151,6 +154,12 @@ class PathFinder:
             folders[provider],
             symbol.upper(),
             f'{date}.csv'
+        )
+
+    def get_unemployment_path(self):
+        return os.path.join(
+            DATA_DIR,
+            'unemployment.csv'
         )
 
     def get_all_paths(self, path, truncate=False):
