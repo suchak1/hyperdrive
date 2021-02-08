@@ -12,6 +12,7 @@ import Constants as C
 
 class MarketData:
     def __init__(self):
+        load_dotenv(find_dotenv('config.env'))
         self.writer = FileWriter()
         self.reader = FileReader()
         self.finder = PathFinder()
@@ -280,26 +281,51 @@ class MarketData:
             if os.path.exists(filename):
                 filenames.append(filename)
         return filenames
+
+    def get_unemployment_rate(self, timeframe='max'):
+        # given a timeframe, return a cached dataframe
+        df = self.reader.load_csv(
+            self.finder.get_unemployment_path())
+        filtered = self.reader.data_in_timeframe(df, C.TIME, timeframe)
+        return filtered
+
+    def standardize_unemployment(self,  df):
+        full_mapping = dict(
+            zip(
+                ['time', 'value'],
+                [C.TIME, C.UN_RATE]
+            )
+        )
+        filename = self.finder.get_unemployment_path()
+        return self.standardize(
+            df,
+            full_mapping,
+            filename,
+            [C.TIME, C.UN_RATE],
+            0
+        )
+
+    def save_unemployment_rate(self, **kwargs):
+        # given a symbol, save its dividend history
+        filename = self.finder.get_unemployment_path()
+        if os.path.exists(filename):
+            os.remove(filename)
+        df = self.reader.update_df(
+            filename, self.get_unemployment_rate(**kwargs), C.TIME, '%Y-%m')
+        self.writer.update_csv(filename, df)
+        if os.path.exists(filename):
+            return filename
+
     # def handle_request(self, url, err_msg):
 
 
 class IEXCloud(MarketData):
     def __init__(self):
-        load_dotenv(find_dotenv('config.env'))
         super().__init__()
         self.base = 'https://cloud.iexapis.com'
         self.version = 'stable'
         self.token = os.environ['IEXCLOUD']
         self.provider = 'iexcloud'
-
-    def get_endpoint(self, parts, raw_params=[]):
-        # given a url
-        # return an authenticated endpoint
-        url = '/'.join(parts)
-        auth_params = raw_params + [f'token={self.token}']
-        params = '&'.join(auth_params)
-        endpoint = f'{url}?{params}'
-        return endpoint
 
     def get_dividends(self, **kwargs):
         # given a symbol, return the dividend history
@@ -314,8 +340,9 @@ class IEXCloud(MarketData):
                 dataset,
                 timeframe
             ]
-            endpoint = self.get_endpoint(parts)
-            response = requests.get(endpoint)
+            url = '/'.join(parts)
+            params = {'token': self.token}
+            response = requests.get(url, params=params)
             empty = pd.DataFrame()
 
             if response.ok:
@@ -346,8 +373,9 @@ class IEXCloud(MarketData):
                 dataset,
                 timeframe
             ]
-            endpoint = self.get_endpoint(parts)
-            response = requests.get(endpoint)
+            url = '/'.join(parts)
+            params = {'token': self.token}
+            response = requests.get(url, params=params)
             empty = pd.DataFrame()
 
             if response.ok:
@@ -375,8 +403,9 @@ class IEXCloud(MarketData):
                 symbol.lower(),
                 dataset
             ]
-            endpoint = self.get_endpoint(parts)
-            response = requests.get(endpoint)
+            url = '/'.join(parts)
+            params = {'token': self.token}
+            response = requests.get(url, params=params)
             empty = pd.DataFrame()
 
             if response.ok:
@@ -405,8 +434,9 @@ class IEXCloud(MarketData):
                 dataset,
                 timeframe
             ]
-            endpoint = self.get_endpoint(parts)
-            response = requests.get(endpoint)
+            url = '/'.join(parts)
+            params = {'token': self.token}
+            response = requests.get(url, params=params)
             empty = pd.DataFrame()
 
             if response.ok:
@@ -447,8 +477,9 @@ class IEXCloud(MarketData):
                     date.replace('-', '')
                 ]
 
-                endpoint = self.get_endpoint(parts)
-                response = requests.get(endpoint)
+                url = '/'.join(parts)
+                params = {'token': self.token}
+                response = requests.get(url, params=params)
 
                 if response.ok:
                     data = response.json()
@@ -479,7 +510,6 @@ class IEXCloud(MarketData):
 
 class Polygon(MarketData):
     def __init__(self, token=os.environ.get('APCA_API_KEY_ID')):
-        load_dotenv(find_dotenv('config.env'))
         super().__init__()
         self.client = RESTClient(token)
         self.provider = 'polygon'
@@ -576,17 +606,25 @@ class Polygon(MarketData):
 
 class StockTwits(MarketData):
     def __init__(self):
-        load_dotenv(find_dotenv('config.env'))
         super().__init__()
-        self.provider = 'stocktwits'
+        self.base = 'https://api.stocktwits.com'
+        self.version = '2'
         self.token = os.environ.get('STOCKTWITS')
+        self.provider = 'stocktwits'
 
     def get_social_volume(self, **kwargs):
         def _get_social_volume(symbol, timeframe='max'):
-            vol_res = requests.get((
-                f'https://api.stocktwits.com/api/2/symbols/{symbol}'
-                f'/volume.json?access_token={self.token}'
-            ))
+            parts = [
+                self.base,
+                'api',
+                self.version,
+                'symbols',
+                symbol,
+                'volume.json'
+            ]
+            url = '/'.join(parts)
+            params = {'access_token': self.token}
+            vol_res = requests.get(url, params=params)
             empty = pd.DataFrame()
 
             if vol_res.ok:
@@ -614,10 +652,17 @@ class StockTwits(MarketData):
 
     def get_social_sentiment(self, **kwargs):
         def _get_social_sentiment(symbol, timeframe='max'):
-            sen_res = requests.get((
-                f'https://api.stocktwits.com/api/2/symbols/{symbol}'
-                f'/sentiment.json?access_token={self.token}'
-            ))
+            parts = [
+                self.base,
+                'api',
+                self.version,
+                'symbols',
+                symbol,
+                'sentiment.json'
+            ]
+            url = '/'.join(parts)
+            params = {'access_token': self.token}
+            sen_res = requests.get(url, params=params)
             empty = pd.DataFrame()
 
             if sen_res.ok:
@@ -640,3 +685,57 @@ class StockTwits(MarketData):
                     std, C.TIME, timeframe)
             return filtered
         return self.try_again(func=_get_social_sentiment, **kwargs)
+
+
+class LaborStats(MarketData):
+    def __init__(self):
+        super().__init__()
+        self.base = 'https://api.bls.gov'
+        self.version = 'v2'
+        self.token = os.environ.get('BLS')
+        self.provider = 'bls'
+
+    def get_unemployment_rate(self, **kwargs):
+        def _get_unemployment_rate(timeframe):
+            start, end = self.traveller.convert_dates(timeframe, '%Y')
+
+            parts = [
+                self.base,
+                'publicAPI',
+                self.version,
+                'timeseries',
+                'data'
+            ]
+            url = '/'.join(parts)
+            params = {'registrationkey': self.token,
+                      'startyear': start, 'endyear': end,
+                      'seriesid': 'LNS14000000'}
+
+            response = requests.post(url, data=params)
+
+            if (
+                    response.ok and
+                    response.json()['status'] == 'REQUEST_SUCCEEDED'
+            ):
+
+                payload = response.json()
+                if payload['status'] == 'REQUEST_SUCCEEDED':
+                    data = payload['Results']['series'][0]['data']
+                else:
+                    raise Exception(
+                        f'''
+                        Invalid response from BLS because {data["message"][0]}
+                        '''
+                    )
+            else:
+                raise Exception(
+                    'Invalid response from BLS for unemployment rate')
+
+            df = pd.DataFrame(data)
+            df['time'] = df['year'] + '-' + \
+                df['period'].str.slice(start=1)
+
+            df = self.standardize_unemployment(df)
+            return self.reader.data_in_timeframe(df, C.TIME, timeframe)
+
+        return self.try_again(func=_get_unemployment_rate, **kwargs)
