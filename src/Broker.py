@@ -1,6 +1,6 @@
 import os
 import pyotp
-import robin_stocks as rh
+import robin_stocks.robinhood as rh
 from dotenv import load_dotenv, find_dotenv
 import pandas as pd
 from Constants import PathFinder
