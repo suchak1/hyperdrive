@@ -48,4 +48,4 @@ class Flow:
     def is_any_workflow_running(self):
         workflows = ['ohlc', 'intraday', 'dividends', 'splits']
         return any(
-            [self.is_any_workflow_running(workflow) for workflow in workflows])
+            [self.is_workflow_running(workflow) for workflow in workflows])
