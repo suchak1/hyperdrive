@@ -1,6 +1,6 @@
 import os
 import requests
-from time import sleep
+from time import sleep, time
 import pandas as pd
 from polygon import RESTClient
 from dotenv import load_dotenv, find_dotenv
@@ -323,7 +323,7 @@ class IEXCloud(MarketData):
     def __init__(self):
         super().__init__()
         self.base = 'https://cloud.iexapis.com'
-        self.version = 'stable'
+        self.version = 'v1'
         self.token = os.environ['IEXCLOUD']
         self.provider = 'iexcloud'
 
@@ -509,14 +509,26 @@ class IEXCloud(MarketData):
 
 
 class Polygon(MarketData):
-    def __init__(self, token=os.environ.get('APCA_API_KEY_ID')):
+    def __init__(self, token=os.environ.get('POLYGON'), free=True):
         super().__init__()
         self.client = RESTClient(token)
         self.provider = 'polygon'
+        self.free = free
+
+    def obey_free_limit(self):
+        if self.free and hasattr(self, 'last_api_call_time'):
+            time_since_last_call = time() - self.last_api_call_time
+            sleep(C.POLY_FREE_DELAY - time_since_last_call)
+
+    def log_api_call_time(self):
+        self.last_api_call_time = time()
+        print(time())
 
     def get_dividends(self, **kwargs):
         def _get_dividends(symbol, timeframe='max'):
+            self.obey_free_limit()
             response = self.client.reference_stock_dividends(symbol)
+            self.log_api_call_time()
             raw = pd.DataFrame(response.results)
             df = self.standardize_dividends(symbol, raw)
             return self.reader.data_in_timeframe(df, C.EX, timeframe)
@@ -524,7 +536,9 @@ class Polygon(MarketData):
 
     def get_splits(self, **kwargs):
         def _get_splits(symbol, timeframe='max'):
+            self.obey_free_limit()
             response = self.client.reference_stock_splits(symbol)
+            self.log_api_call_time()
             raw = pd.DataFrame(response.results)
             df = self.standardize_splits(symbol, raw)
             return self.reader.data_in_timeframe(df, C.EX, timeframe)
@@ -535,15 +549,18 @@ class Polygon(MarketData):
             is_crypto = symbol.find('X%3A') == 0
             formatted_start, formatted_end = self.traveller.convert_dates(
                 timeframe)
+            self.obey_free_limit()
             response = self.client.stocks_equities_aggregates(
                 symbol, 1, 'day',
                 from_=formatted_start, to=formatted_end, unadjusted=False
-            ).results
+            )
+            self.log_api_call_time()
+            raw = response.results
             columns = {'t': 'date', 'o': 'open', 'h': 'high',
                        'l': 'low', 'c': 'close', 'v': 'volume',
                        'vw': 'average', 'n': 'trades'}
 
-            df = pd.DataFrame(response).rename(columns=columns)
+            df = pd.DataFrame(raw).rename(columns=columns)
             if is_crypto:
                 df['date'] = pd.to_datetime(
                     df['date'], unit='ms')
@@ -566,27 +583,25 @@ class Polygon(MarketData):
                 raise Exception(f'No dates in timeframe: {timeframe}.')
 
             for idx, date in enumerate(dates):
+                self.obey_free_limit()
                 response = self.client.stocks_equities_aggregates(
                     symbol, min, 'minute', from_=date, to=date,
                     unadjusted=False
                 )
+                self.log_api_call_time()
 
                 if hasattr(response, 'results'):
                     response = response.results
                 else:
-                    if is_crypto and idx != len(dates) - 1:
-                        sleep(C.POLY_CRYPTO_DELAY)
                     continue
 
                 columns = {'t': 'date', 'o': 'open', 'h': 'high',
                            'l': 'low', 'c': 'close', 'v': 'volume',
                            'vw': 'average', 'n': 'trades'}
                 df = pd.DataFrame(response).rename(columns=columns)
-                if symbol.find('X%3A') == 0:
+                if is_crypto:
                     df['date'] = pd.to_datetime(
                         df['date'], unit='ms')
-                    if idx != len(dates) - 1:
-                        sleep(C.POLY_CRYPTO_DELAY)
                 else:
                     df['date'] = pd.to_datetime(
                         df['date'], unit='ms').dt.tz_localize(

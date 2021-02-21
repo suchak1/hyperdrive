@@ -15,7 +15,7 @@ env:
   IEXCLOUD: ${{ secrets.IEXCLOUD_SANDBOX }}
   STOCKTWITS: ${{ secrets.STOCKTWITS }}
   BLS: ${{ secrets.BLS }}
-  APCA_API_KEY_ID: ${{ secrets.APCA_API_KEY_ID }}
+  POLYGON: ${{ secrets.POLYGON }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}

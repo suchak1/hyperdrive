@@ -1,17 +1,20 @@
 import os
 import sys
-from time import sleep
+from time import sleep, time
 from random import choice
 import pandas as pd
 sys.path.append('src')
 from DataSource import MarketData, IEXCloud, Polygon, StockTwits, LaborStats  # noqa autopep8
 import Constants as C  # noqa autopep8
+from Workflow import Flow  # noqa autopep8
+
 
 md = MarketData()
 iex = IEXCloud()
 poly = Polygon()
 twit = StockTwits()
 bls = LaborStats()
+flow = Flow()
 
 if not C.CI:
     iex.token = os.environ['IEXCLOUD_SANDBOX']
@@ -359,26 +362,55 @@ class TestPolygon:
         assert hasattr(poly, 'provider')
 
     def test_get_dividends(self):
-        df = poly.get_dividends(symbol='AAPL', timeframe='5y')
-        assert {C.EX, C.PAY, C.DEC, C.DIV}.issubset(df.columns)
-        assert len(df) > 0
+        if not flow.is_any_workflow_running():
+            df = poly.get_dividends(symbol='AAPL', timeframe='5y')
+            assert {C.EX, C.PAY, C.DEC, C.DIV}.issubset(df.columns)
+            assert len(df) > 0
+        else:
+            print('Skipping Polygon.io dividends test because update in progress')
 
     def test_get_splits(self):
-        df = poly.get_splits(symbol='AAPL')
-        assert {C.EX, C.DEC, C.RATIO}.issubset(df.columns)
-        assert len(df) > 0
+        if not flow.is_any_workflow_running():
+            df = poly.get_splits(symbol='AAPL')
+            assert {C.EX, C.DEC, C.RATIO}.issubset(df.columns)
+            assert len(df) > 0
+        else:
+            print('Skipping Polygon.io splits test because update in progress')
 
     def test_get_ohlc(self):
-        df = poly.get_ohlc(symbol='AAPL', timeframe='1m')
-        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
-                C.CLOSE, C.VOL, C.AVG}.issubset(df.columns)
-        assert len(df) > 10
+        if not flow.is_any_workflow_running():
+            df = poly.get_ohlc(symbol='AAPL', timeframe='1m')
+            assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+                    C.CLOSE, C.VOL, C.AVG}.issubset(df.columns)
+            assert len(df) > 10
+        else:
+            print('Skipping Polygon.io OHLC test because update in progress')
 
     def test_get_intraday(self):
-        df = pd.concat(poly.get_intraday(symbol='AAPL', timeframe='1w'))
-        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
-                C.CLOSE, C.VOL}.issubset(df.columns)
-        assert len(df) > 1000
+        if not flow.is_any_workflow_running():
+            df = pd.concat(poly.get_intraday(symbol='AAPL', timeframe='1w'))
+            assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+                    C.CLOSE, C.VOL}.issubset(df.columns)
+            assert len(df) > 1000
+        else:
+            print(
+                'Skipping Polygon.io intraday test because update in progress')
+
+    def test_log_api_call_time(self):
+        if hasattr(poly, 'last_api_call_time'):
+            delattr(poly, 'last_api_call_time')
+        poly.log_api_call_time()
+        assert hasattr(poly, 'last_api_call_time')
+
+    def test_obey_free_limit(self):
+        if hasattr(poly, 'last_api_call_time'):
+            delattr(poly, 'last_api_call_time')
+
+        then = time()
+        poly.log_api_call_time()
+        poly.obey_free_limit()
+        now = time()
+        assert now - then > C.POLY_FREE_DELAY
 
 
 class TestStockTwits:

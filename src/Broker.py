@@ -1,6 +1,6 @@
 import os
 import pyotp
-import robin_stocks as rh
+import robin_stocks.robinhood as rh
 from dotenv import load_dotenv, find_dotenv
 import pandas as pd
 from Constants import PathFinder
@@ -65,7 +65,7 @@ class Robinhood:
             C.SYMBOL: symbols,
             C.NAME: names
         })
-        self.writer.update_csv(self.finder.get_symbols_path(), df)
+        self.writer.save_csv(self.finder.get_symbols_path(), df)
 
     def get_holdings(self):
         if not hasattr(self, 'holdings'):
