@@ -366,12 +366,16 @@ class TestPolygon:
             df = poly.get_dividends(symbol='AAPL', timeframe='5y')
             assert {C.EX, C.PAY, C.DEC, C.DIV}.issubset(df.columns)
             assert len(df) > 0
+        else:
+            print('Skipping Polygon.io dividends test because update in progress')
 
     def test_get_splits(self):
         if not flow.is_any_workflow_running():
             df = poly.get_splits(symbol='AAPL')
             assert {C.EX, C.DEC, C.RATIO}.issubset(df.columns)
             assert len(df) > 0
+        else:
+            print('Skipping Polygon.io splits test because update in progress')
 
     def test_get_ohlc(self):
         if not flow.is_any_workflow_running():
@@ -379,6 +383,8 @@ class TestPolygon:
             assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                     C.CLOSE, C.VOL, C.AVG}.issubset(df.columns)
             assert len(df) > 10
+        else:
+            print('Skipping Polygon.io OHLC test because update in progress')
 
     def test_get_intraday(self):
         if not flow.is_any_workflow_running():
@@ -386,6 +392,9 @@ class TestPolygon:
             assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                     C.CLOSE, C.VOL}.issubset(df.columns)
             assert len(df) > 1000
+        else:
+            print(
+                'Skipping Polygon.io intraday test because update in progress')
 
     def test_log_api_call_time(self):
         if hasattr(poly, 'last_api_call_time'):
