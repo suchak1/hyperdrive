@@ -5,7 +5,7 @@ name: OHLC
 
 on:
   schedule:
-    - cron: "0 15 * * *"
+    - cron: "0 16 * * *"
     # 11am EST every day (for crypto)
 
 jobs:
@@ -43,6 +43,5 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
-          APCA_API_KEY_ID: ${{ secrets.APCA_API_KEY_ID }}
           POLYGON: ${{ secrets.POLYGON }}
         run: python scripts/update_ohlc.py

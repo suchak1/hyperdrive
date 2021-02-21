@@ -85,13 +85,14 @@ POLY_CRYPTO_SYMBOLS = [
 SENTIMENT_SYMBOLS_IGNORE = {
     'SPYD', 'VWDRY', 'BPMP',
     'FOX', 'YYY', 'SDIV',
-    'DIV', 'SHECY', 'PALL',
-    'DWDP', 'TFCF', 'SPAR',
-    'TMUSR', 'OXY+', 'BNTX^'}
+    'DIV', 'SHECY', 'PALL'
+}
 
-DEFAULT_RETRIES = 3
+DEFAULT_RETRIES = 2
 DEFAULT_DELAY = 2
-POLY_CRYPTO_DELAY = 15
+POLY_FREE_DELAY = 13
+FEW = 3
+FEW_DAYS = str(FEW) + 'd'
 
 
 class PathFinder:

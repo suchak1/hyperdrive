@@ -65,7 +65,7 @@ class Robinhood:
             C.SYMBOL: symbols,
             C.NAME: names
         })
-        self.writer.update_csv(self.finder.get_symbols_path(), df)
+        self.writer.save_csv(self.finder.get_symbols_path(), df)
 
     def get_holdings(self):
         if not hasattr(self, 'holdings'):

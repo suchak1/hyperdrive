@@ -7,13 +7,14 @@ from DataSource import Polygon  # noqa autopep8
 store = Store()
 poly = Polygon()
 
-
-to_download = ['DUK', 'FOX', 'GD', 'GE', 'GILD', 'GLD', 'GM', 'HD', 'INSG']
+# stocks to download all 15+ years of data
+to_download = []
 
 # s3://hyperdrive.pro/data/intraday/polygon/
-symbols = ['IBM', 'ICLN', 'INO', 'INTC',
-           'IPO', 'IQ', 'ISRG']
-# F, G, H, I
+
+# stocks to update (last month of data)
+symbols = []
+
 if __name__ == '__main__':
     for symbol in symbols:
         store.upload_dir(path=f'data/intraday/polygon/{symbol}')
@@ -25,6 +26,6 @@ if __name__ == '__main__':
     for symbol in to_download:
         poly.save_intraday(
             symbol=symbol,
-            timeframe='6250d',
+            timeframe='6300d',
             retries=1
         )

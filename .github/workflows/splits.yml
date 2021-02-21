@@ -5,8 +5,8 @@ name: Splits
 
 on:
   schedule:
-    - cron: "30 12 1 * *"
-    # 8:30am EST
+    - cron: "30 13 1 * *"
+    # 9:30am EST
 
 jobs:
   build:
@@ -43,5 +43,5 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
-          APCA_API_KEY_ID: ${{ secrets.APCA_API_KEY_ID }}
+          POLYGON: ${{ secrets.POLYGON }}
         run: python scripts/update_splits.py
