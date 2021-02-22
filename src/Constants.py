@@ -35,7 +35,6 @@ folders = {
     'polygon': POLY_DIR,
     'stocktwits': TWIT_DIR
 }
-# PLYGN
 
 # Column Names
 # Symbols / Generic
@@ -175,6 +174,5 @@ class PathFinder:
                 keep = [skip not in curr_path for skip in to_skip]
                 # remove caches but keep workflows
                 if all(keep) or '.github' in curr_path:
-                    # print(curr_path)
                     paths.append(curr_path)
         return paths

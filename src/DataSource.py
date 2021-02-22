@@ -522,7 +522,6 @@ class Polygon(MarketData):
 
     def log_api_call_time(self):
         self.last_api_call_time = time()
-        print(time())
 
     def get_dividends(self, **kwargs):
         def _get_dividends(symbol, timeframe='max'):
