@@ -35,7 +35,6 @@ folders = {
     'polygon': POLY_DIR,
     'stocktwits': TWIT_DIR
 }
-# PLYGN
 
 # Column Names
 # Symbols / Generic
