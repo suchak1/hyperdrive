@@ -16,20 +16,20 @@ twit = StockTwits()
 bls = LaborStats()
 flow = Flow()
 
+
+def use_dev_bucket(data_src_obj):
+    data_src_obj.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    data_src_obj.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    return data_src_obj
+
+
 if not C.CI:
     iex.token = os.environ['IEXCLOUD_SANDBOX']
-    iex.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    iex.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    md.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    md.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    poly.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    poly.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    twit.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    twit.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    bls.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    bls.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    # consider function that takes in
-    # list of datasource objs and returns clean ones
+    iex = use_dev_bucket(iex)
+    md = use_dev_bucket(md)
+    poly = use_dev_bucket(poly)
+    twit = use_dev_bucket(twit)
+    bls = use_dev_bucket(bls)
     # or simply make DevStore class that has s3 dev bucket name
 
 iex.base = 'https://sandbox.iexapis.com'
