@@ -14,7 +14,7 @@ class Flow:
         try:
             cron_line = re.search(line_pattern, workflow_content).group(1)
         except AttributeError:
-            raise Exception(
+            raise AttributeError(
                 f"{workflow_name}.yml doesn't have a scheduled cron job")
 
         now = datetime.utcnow()
