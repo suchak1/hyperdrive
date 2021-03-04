@@ -316,6 +316,30 @@ class MarketData:
         if os.path.exists(filename):
             return filename
 
+    def standardize_s2f_ratio(self, df):
+        full_mapping = dict(
+            zip(
+                ['t', 'o.daysTillHalving', 'o.ratio'],
+                [C.TIME, C.HALVING, C.RATIO]
+            )
+        )
+        filename = self.finder.get_s2f_path()
+        df = self.standardize(
+            df,
+            full_mapping,
+            filename,
+            [C.TIME, C.HALVING, C.RATIO],
+            0
+        )
+        return df[{C.TIME, C.HALVING, C.RATIO}.intersection(df.columns)]
+
+        def get_s2f_ratio(self, timeframe='max'):
+            # given a symbol, return a cached dataframe
+            df = self.reader.load_csv(
+                self.finder.get_s2f_path())
+            filtered = self.reader.data_in_timeframe(df, C.TIME, timeframe)[
+                [C.TIME, C.HALVING, C.RATIO]]
+            return filtered
     # def handle_request(self, url, err_msg):
 
 
@@ -753,3 +777,42 @@ class LaborStats(MarketData):
             return self.reader.data_in_timeframe(df, C.TIME, timeframe)
 
         return self.try_again(func=_get_unemployment_rate, **kwargs)
+
+
+class Glassnode(MarketData):
+    def __init__(self):
+        super().__init__()
+        self.base = 'https://api.glassnode.com'
+        self.version = 'v1'
+        self.token = os.environ.get('GLASSNODE')
+        self.provider = 'glassnode'
+
+    def get_s2f_ratio(self, **kwargs):
+        def _get_s2f_ratio(timeframe):
+            parts = [
+                self.base,
+                self.version,
+                'metrics',
+                'indicators',
+                'stock_to_flow_ratio'
+            ]
+            url = '/'.join(parts)
+            empty = pd.DataFrame()
+            response = requests.get(
+                url, params={'a': 'BTC', 'api_key': self.token})
+
+            if response.ok:
+                data = response.json()
+            else:
+                raise Exception(
+                    'Invalid response from Glassnode for S2F Ratio')
+
+            if data == []:
+                return empty
+
+            df = pd.json_normalize(data)
+            df['t'] = pd.to_datetime(df['t'], units='s')
+            df = self.standardize_s2f_ratio(df)
+            return self.reader.data_in_timeframe(df, C.TIME, timeframe)
+
+        return self.try_again(func=_get_s2f_ratio, **kwargs)
