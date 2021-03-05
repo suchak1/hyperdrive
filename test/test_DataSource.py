@@ -454,11 +454,11 @@ class TestLaborStats:
 
 class TestGlassnode:
     def test_init(self):
-        assert type(bls).__name__ == 'Glassnode'
-        assert hasattr(iex, 'base')
-        assert hasattr(iex, 'version')
-        assert hasattr(iex, 'token')
-        assert hasattr(iex, 'provider')
+        assert type(glass).__name__ == 'Glassnode'
+        assert hasattr(glass, 'base')
+        assert hasattr(glass, 'version')
+        assert hasattr(glass, 'token')
+        assert hasattr(glass, 'provider')
 
     def test_get_s2f_ratio(self):
         df = glass.get_s2f_ratio()
