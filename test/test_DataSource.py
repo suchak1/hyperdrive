@@ -4,7 +4,8 @@ from time import sleep, time
 from random import choice
 import pandas as pd
 sys.path.append('src')
-from DataSource import MarketData, IEXCloud, Polygon, StockTwits, LaborStats  # noqa autopep8
+from DataSource import MarketData, IEXCloud, Polygon, \
+                        StockTwits, LaborStats, Glassnode  # noqa autopep8
 import Constants as C  # noqa autopep8
 from Workflow import Flow  # noqa autopep8
 
@@ -14,6 +15,7 @@ iex = IEXCloud()
 poly = Polygon()
 twit = StockTwits()
 bls = LaborStats()
+glass = Glassnode()
 flow = Flow()
 
 
@@ -30,6 +32,7 @@ if not C.CI:
     poly = use_dev_bucket(poly)
     twit = use_dev_bucket(twit)
     bls = use_dev_bucket(bls)
+    glass = use_dev_bucket(glass)
     # or simply make DevStore class that has s3 dev bucket name
 
 iex.base = 'https://sandbox.iexapis.com'
@@ -302,6 +305,9 @@ class TestMarketData:
     def test_save_unemployment_rate(self):
         assert 'unemployment.csv' in md.save_unemployment_rate(timeframe='2y')
 
+    def test_save_s2f(self):
+        assert 's2f.csv' in md.save_s2f()
+
 
 class TestIEXCloud:
     def test_init(self):
@@ -444,3 +450,22 @@ class TestLaborStats:
         df = bls.get_unemployment_rate(timeframe='2y')
         assert {C.TIME, C.UN_RATE}.issubset(df.columns)
         assert len(df) > 12
+
+
+class TestGlassnode:
+    def test_init(self):
+        assert type(bls).__name__ == 'Glassnode'
+        assert hasattr(iex, 'base')
+        assert hasattr(iex, 'version')
+        assert hasattr(iex, 'token')
+        assert hasattr(iex, 'provider')
+
+    def test_get_s2f_ratio(self):
+        df = glass.get_s2f_ratio()
+        assert len(df) > 30
+        assert {C.TIME, C.HALVING, C.RATIO}.issubset(df.columns)
+
+    def test_get_s2f_deflection(self):
+        df = glass.get_s2f_deflection()
+        assert len(df) > 30
+        assert {C.TIME, C.VAL}.issubset(df.columns)
