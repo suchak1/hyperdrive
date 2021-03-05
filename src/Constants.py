@@ -77,6 +77,7 @@ UN_RATE = 'UnRate'
 
 # S2F
 HALVING = 'Halving'
+VAL = 'Val'
 
 # Misc
 POLY_CRYPTO_SYMBOLS = [

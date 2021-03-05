@@ -367,7 +367,9 @@ class TestPolygon:
             assert {C.EX, C.PAY, C.DEC, C.DIV}.issubset(df.columns)
             assert len(df) > 0
         else:
-            print('Skipping Polygon.io dividends test because update in progress')
+            print(
+                'Skipping Polygon.io dividends test because update in progress'
+            )
 
     def test_get_splits(self):
         if not flow.is_any_workflow_running():
