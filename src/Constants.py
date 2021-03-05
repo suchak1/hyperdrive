@@ -75,6 +75,10 @@ TWIT_RATE = 175
 # Unemployment
 UN_RATE = 'UnRate'
 
+# S2F
+HALVING = 'Halving'
+VAL = 'Val'
+
 # Misc
 POLY_CRYPTO_SYMBOLS = [
     'X%3ABTCUSD', 'X%3AETHUSD',
@@ -160,6 +164,12 @@ class PathFinder:
         return os.path.join(
             DATA_DIR,
             'unemployment.csv'
+        )
+
+    def get_s2f_path(self):
+        return os.path.join(
+            DATA_DIR,
+            's2f.csv'
         )
 
     def get_all_paths(self, path, truncate=False):
