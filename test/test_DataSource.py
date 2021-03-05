@@ -461,11 +461,11 @@ class TestGlassnode:
         assert hasattr(glass, 'provider')
 
     def test_get_s2f_ratio(self):
-        df = glass.get_s2f_ratio()
-        assert len(df) > 30
+        df = glass.get_s2f_ratio(timeframe='max')
+        assert len(df) > 3000
         assert {C.TIME, C.HALVING, C.RATIO}.issubset(df.columns)
 
     def test_get_s2f_deflection(self):
-        df = glass.get_s2f_deflection()
-        assert len(df) > 30
+        df = glass.get_s2f_deflection(timeframe='max')
+        assert len(df) > 3000
         assert {C.TIME, C.VAL}.issubset(df.columns)
