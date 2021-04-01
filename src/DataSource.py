@@ -595,7 +595,9 @@ class Polygon(MarketData):
     def obey_free_limit(self):
         if self.free and hasattr(self, 'last_api_call_time'):
             time_since_last_call = time() - self.last_api_call_time
-            sleep(C.POLY_FREE_DELAY - time_since_last_call)
+            delay = C.POLY_FREE_DELAY - time_since_last_call
+            if delay > 0:
+                sleep(delay)
 
     def log_api_call_time(self):
         self.last_api_call_time = time()
