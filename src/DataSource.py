@@ -595,7 +595,9 @@ class Polygon(MarketData):
     def obey_free_limit(self):
         if self.free and hasattr(self, 'last_api_call_time'):
             time_since_last_call = time() - self.last_api_call_time
-            sleep(C.POLY_FREE_DELAY - time_since_last_call)
+            delay = C.POLY_FREE_DELAY - time_since_last_call
+            if delay > 0:
+                sleep(delay)
 
     def log_api_call_time(self):
         self.last_api_call_time = time()
@@ -603,8 +605,12 @@ class Polygon(MarketData):
     def get_dividends(self, **kwargs):
         def _get_dividends(symbol, timeframe='max'):
             self.obey_free_limit()
-            response = self.client.reference_stock_dividends(symbol)
-            self.log_api_call_time()
+            try:
+                response = self.client.reference_stock_dividends(symbol)
+            except Exception as e:
+                raise e
+            finally:
+                self.log_api_call_time()
             raw = pd.DataFrame(response.results)
             df = self.standardize_dividends(symbol, raw)
             return self.reader.data_in_timeframe(df, C.EX, timeframe)
@@ -613,8 +619,12 @@ class Polygon(MarketData):
     def get_splits(self, **kwargs):
         def _get_splits(symbol, timeframe='max'):
             self.obey_free_limit()
-            response = self.client.reference_stock_splits(symbol)
-            self.log_api_call_time()
+            try:
+                response = self.client.reference_stock_splits(symbol)
+            except Exception as e:
+                raise e
+            finally:
+                self.log_api_call_time()
             raw = pd.DataFrame(response.results)
             df = self.standardize_splits(symbol, raw)
             return self.reader.data_in_timeframe(df, C.EX, timeframe)
@@ -626,11 +636,15 @@ class Polygon(MarketData):
             formatted_start, formatted_end = self.traveller.convert_dates(
                 timeframe)
             self.obey_free_limit()
-            response = self.client.stocks_equities_aggregates(
-                symbol, 1, 'day',
-                from_=formatted_start, to=formatted_end, unadjusted=False
-            )
-            self.log_api_call_time()
+            try:
+                response = self.client.stocks_equities_aggregates(
+                    symbol, 1, 'day',
+                    from_=formatted_start, to=formatted_end, unadjusted=False
+                )
+            except Exception as e:
+                raise e
+            finally:
+                self.log_api_call_time()
             raw = response.results
             columns = {'t': 'date', 'o': 'open', 'h': 'high',
                        'l': 'low', 'c': 'close', 'v': 'volume',
@@ -660,11 +674,15 @@ class Polygon(MarketData):
 
             for idx, date in enumerate(dates):
                 self.obey_free_limit()
-                response = self.client.stocks_equities_aggregates(
-                    symbol, min, 'minute', from_=date, to=date,
-                    unadjusted=False
-                )
-                self.log_api_call_time()
+                try:
+                    response = self.client.stocks_equities_aggregates(
+                        symbol, min, 'minute', from_=date, to=date,
+                        unadjusted=False
+                    )
+                except Exception as e:
+                    raise e
+                finally:
+                    self.log_api_call_time()
 
                 if hasattr(response, 'results'):
                     response = response.results
