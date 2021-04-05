@@ -34,7 +34,7 @@ def update_iex_ohlc():
 
 
 def update_poly_ohlc():
-    for symbol in stock_symbols:
+    for symbol in all_symbols:
         try:
             poly.save_ohlc(symbol=symbol, timeframe=FEW_DAYS, retries=1)
         except Exception as e:
