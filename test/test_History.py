@@ -8,5 +8,5 @@ hist = Historian()
 
 class TestHistorian:
     def test_buy_and_hold(self):
-        stats = hist.buy_and_hold(symbol='X%3ABTCUSD', timeframe='1y')
+        stats = hist.buy_and_hold('X%3ABTCUSD', '1y')
         assert 'Sortino Ratio' in stats

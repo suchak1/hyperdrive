@@ -47,12 +47,12 @@ drive = HyperDrive()
 ## Features:
 
 - [x] Broker authentication
-- [ ] Automated data storage
-- [ ] Backtesting engine
+- [x] Automated data storage
+- [x] Backtesting engine
 - [ ] Monte Carlo simulations
 - [ ] Plotting and technical analysis
 - [ ] Model training
-- [ ] Strategy definition (start with buy and hold)
+- [x] Strategy definition (start with buy and hold)
 - [ ] Buy and sell functionality
 - [ ] Live trading
 - [ ] Documentation
@@ -90,5 +90,11 @@ Using Robinhood 2FA, we can simply provide our MFA one-time password in the `.en
 - [ ] Market
   - [ ] General Volatility (VIX)
   - [ ] Sector Performance
+
+### Strategy
+
+- [x] Buy and Hold
+- [ ] Indicator/TA based
+- [ ] Portfolio Optimization
 
 ---
