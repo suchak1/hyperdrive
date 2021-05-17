@@ -1,11 +1,12 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+# This workflow will update Python dependencies
+# For more information see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#scheduled-events-schedule
 
-name: Build Pipeline
+name: Dependency Update
 
 on:
-  push:
-    branches: [master]
+  schedule:
+    - cron: "0 4 1 * *"
+    # 12am EST
 
 env:
   RUN_ID: ${{ github.run_id }}
@@ -28,6 +29,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
 
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
@@ -45,8 +48,10 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 pytest coverage
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Update dependencies
+        run: python util/update.py
 
       - name: Lint with flake8
         run: |
@@ -63,7 +68,27 @@ jobs:
       - name: Generate test coverage report
         run: coverage report -m --fail-under=90
 
-      - name: Upload repo to S3
+      - name: Commit new file(s)
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          file_pattern: requirements.txt
+          commit_message: "[AUTO] dep update #patch"
+          commit_user_name: suchak1
+          commit_user_email: suchak.krish@gmail.com
+          commit_author: Krish Suchak
+          push_options: "--force"
+
+      - name: Bump version and push tag
+        id: bumpVersion
+        uses: anothrNick/github-tag-action@1.35.0
         env:
-          S3_BUCKET: ${{ secrets.S3_BUCKET }}
-        run: python scripts/update_repo.py
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          INITIAL_VERSION: true
+
+      - name: Create release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.bumpVersion.outputs.new_tag }}
