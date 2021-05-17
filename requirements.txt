@@ -4,10 +4,4 @@ robin-stocks == 2.0.3
 boto3 == 1.17.43
 polygon-api-client == 0.1.9
 pytz == 2021.1
-vectorbt == 0.17.7python-dotenv == 0.17.1
-pandas == 1.2.4
-robin-stocks == 2.0.4
-boto3 == 1.17.73
-polygon-api-client == 0.1.11
-pytz == 2021.1
-vectorbt == 0.18.1
+vectorbt == 0.17.7

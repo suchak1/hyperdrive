@@ -6,7 +6,7 @@ import subprocess
 filename = 'requirements.txt'
 new_packages = []
 
-with open(filename, 'r+') as file:
+with open(filename, 'r') as file:
     pattern = '(.*) == (.*)'
     packages = re.findall(pattern, file.read())
     for package, version in packages:
@@ -31,5 +31,6 @@ with open(filename, 'r+') as file:
 
         new_packages.append((package, version))
 
+with open(filename, 'w') as file:
     for package, version in new_packages:
         file.write(f'{package} == {version}\n')

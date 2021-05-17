@@ -8,6 +8,20 @@ on:
     - cron: "0 4 1 * *"
     # 12am EST
 
+env:
+  RUN_ID: ${{ github.run_id }}
+  RH_USERNAME: ${{ secrets.RH_USERNAME }}
+  RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
+  RH_2FA: ${{ secrets.RH_2FA }}
+  IEXCLOUD: ${{ secrets.IEXCLOUD_SANDBOX }}
+  STOCKTWITS: ${{ secrets.STOCKTWITS }}
+  GLASSNODE: ${{ secrets.GLASSNODE }}
+  BLS: ${{ secrets.BLS }}
+  POLYGON: ${{ secrets.POLYGON }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -38,6 +52,21 @@ jobs:
 
       - name: Update dependencies
         run: python util/update.py
+
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Run all unit tests
+        env:
+          S3_BUCKET: ${{ secrets.S3_DEV_BUCKET }}
+        run: coverage run -m pytest -vv
+
+      - name: Generate test coverage report
+        run: coverage report -m --fail-under=90
 
       - name: Commit new file(s)
         uses: stefanzweifel/git-auto-commit-action@v4
