@@ -48,6 +48,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install flake8 pytest coverage
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Update dependencies
@@ -72,7 +73,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           file_pattern: requirements.txt
-          commit_message: "[AUTO] dep update #patch"
+          commit_message: "[auto] dep update #patch"
           commit_user_name: suchak1
           commit_user_email: suchak.krish@gmail.com
           commit_author: Krish Suchak
