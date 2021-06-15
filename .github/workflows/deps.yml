@@ -5,7 +5,7 @@ name: Dependency Update
 
 on:
   schedule:
-    - cron: "55 1 * * *"
+    - cron: "*/5 * * * *"
     # 12am EST
 
 env:
