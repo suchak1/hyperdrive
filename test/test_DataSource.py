@@ -1,5 +1,6 @@
 import os
 import sys
+import pytest
 from time import sleep, time
 from random import choice
 import pandas as pd
@@ -47,6 +48,11 @@ class TestMarketData:
         assert hasattr(md, 'reader')
         assert hasattr(md, 'finder')
         assert hasattr(md, 'provider')
+
+    def test_try_again(self):
+        assert md.try_again(lambda: 0) == 0
+        with pytest.raises(ZeroDivisionError):
+            md.try_again(lambda: 0 / 0)
 
     def test_get_symbols(self):
         symbols = set(md.get_symbols())
