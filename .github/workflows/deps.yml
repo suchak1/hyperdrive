@@ -7,6 +7,7 @@ on:
   schedule:
     - cron: "0 4 1 * *"
     # 12am EST
+  workflow_dispatch:
 
 env:
   RUN_ID: ${{ github.run_id }}
