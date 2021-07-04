@@ -11,13 +11,12 @@ with open(filename, 'r') as file:
     packages = re.findall(pattern, file.read())
     for package, version in packages:
         response = requests.get(f'https://pypi.org/pypi/{package}/json')
-        releases = response.json()['releases'].keys()
+        keys = response.json()['releases'].keys()
+        releases = [key for key in keys if key.replace('.', '').isdigit()]
         latest = sorted(
             releases,
             key=lambda release: [
-                int(
-                    number
-                ) for number in release.split('.') if number.isdigit()
+                int(number) for number in release.split('.')
             ]).pop()
         if latest != version:
             print(f'Upgrading {package} ({version} => {latest})')
