@@ -1,29 +1,39 @@
 import os
 import sys
-from time import sleep
+import pytest
+from time import sleep, time
 from random import choice
 import pandas as pd
 sys.path.append('src')
-from DataSource import MarketData, IEXCloud, Polygon, StockTwits  # noqa autopep8
+from DataSource import MarketData, IEXCloud, Polygon, \
+                        StockTwits, LaborStats, Glassnode  # noqa autopep8
 import Constants as C  # noqa autopep8
+from Workflow import Flow  # noqa autopep8
+
 
 md = MarketData()
 iex = IEXCloud()
 poly = Polygon()
 twit = StockTwits()
+bls = LaborStats()
+glass = Glassnode()
+flow = Flow()
+
+
+def use_dev_bucket(data_src_obj):
+    data_src_obj.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    data_src_obj.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
+    return data_src_obj
+
 
 if not C.CI:
     iex.token = os.environ['IEXCLOUD_SANDBOX']
-    iex.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    iex.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    md.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    md.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    poly.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    poly.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    twit.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    twit.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    # consider function that takes in
-    # list of datasource objs and returns clean ones
+    iex = use_dev_bucket(iex)
+    md = use_dev_bucket(md)
+    poly = use_dev_bucket(poly)
+    twit = use_dev_bucket(twit)
+    bls = use_dev_bucket(bls)
+    glass = use_dev_bucket(glass)
     # or simply make DevStore class that has s3 dev bucket name
 
 iex.base = 'https://sandbox.iexapis.com'
@@ -38,6 +48,11 @@ class TestMarketData:
         assert hasattr(md, 'reader')
         assert hasattr(md, 'finder')
         assert hasattr(md, 'provider')
+
+    def test_try_again(self):
+        assert md.try_again(lambda: 0) == 0
+        with pytest.raises(ZeroDivisionError):
+            md.try_again(lambda: 0 / 0)
 
     def test_get_symbols(self):
         symbols = set(md.get_symbols())
@@ -243,35 +258,22 @@ class TestMarketData:
         if os.path.exists(temp_path):
             os.rename(temp_path, ohlc_path)
 
-    # def test_save_intraday(self):
-    #     symbol = 'NFLX'
-    #     intra_path = md.finder.get_intraday_path(symbol)
-    #     temp_path = f'{intra_path}_TEMP'
+    def test_save_intraday(self):
+        symbol = 'NFLX'
+        timeframe = '4d'
+        dates = md.traveller.dates_in_range(timeframe)
+        intra_paths = [md.finder.get_intraday_path(
+            symbol, date) for date in dates]
+        filenames = set(iex.save_intraday(symbol=symbol, timeframe=timeframe))
+        intersection = filenames.intersection(intra_paths)
+        assert intersection
 
-    #     if os.path.exists(intra_path):
-    #         os.rename(intra_path, temp_path)
-
-    #     for _ in range(retries):
-    #         iex.save_intraday(symbol=symbol, timeframe='1m')
-    #         if not md.reader.check_file_exists(intra_path):
-    #             delay = choice(range(5, 10))
-    #             sleep(delay)
-    #         else:
-    #             break
-
-    #     assert md.reader.check_file_exists(intra_path)
-    #     assert md.reader.store.modified_delta(intra_path).total_seconds(
-    # ) < 60
-    #     df = md.reader.load_csv(intra_path)
-    #     assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
-    #             C.CLOSE, C.VOL}.issubset(df.columns)
-    #     assert len(df) > 0
-
-    #     if os.path.exists(temp_path):
-    #         os.rename(temp_path, intra_path)
-    # test if sun or mon and skip
-    # get yesterday function
-    # get last weekday function
+        for path in intersection:
+            df = md.reader.load_csv(path)
+            assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+                    C.CLOSE, C.VOL}.issubset(df.columns)
+            assert len(df) > 0
+            os.remove(path)
 
     def test_get_ohlc(self):
         df = md.get_ohlc('TSLA', '2m')
@@ -285,6 +287,33 @@ class TestMarketData:
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 0
 
+    def test_get_unemployment_rate(self):
+        df = md.get_unemployment_rate()
+        assert {C.TIME, C.UN_RATE}.issubset(df.columns)
+        assert len(df) > 100
+
+    def test_standardize_unemployment(self):
+        columns = ['time', 'value']
+        new_cols = [C.TIME, C.UN_RATE]
+        sel_idx = 1
+        selected = columns[:sel_idx]
+        df = pd.DataFrame({column: [0] for column in columns})
+        standardized = md.standardize_unemployment(df)
+        for column in new_cols:
+            assert column in standardized
+
+        df.drop(columns=selected, inplace=True)
+        standardized = md.standardize_unemployment(df)
+        for curr_idx, column in enumerate(new_cols):
+            col_in_df = column in standardized
+            assert col_in_df if curr_idx >= sel_idx else not col_in_df
+
+    def test_save_unemployment_rate(self):
+        assert 'unemployment.csv' in md.save_unemployment_rate(timeframe='2y')
+
+    def test_save_s2f(self):
+        assert 's2f.csv' in md.save_s2f()
+
 
 class TestIEXCloud:
     def test_init(self):
@@ -293,19 +322,6 @@ class TestIEXCloud:
         assert hasattr(iex, 'version')
         assert hasattr(iex, 'token')
         assert hasattr(iex, 'provider')
-
-    def test_get_endpoint(self):
-        parts = [
-            iex.base,
-            iex.version,
-            'stock',
-            'aapl',
-            'dividend'
-            '5y'
-        ]
-        endpoint = iex.get_endpoint(parts)
-        assert len(endpoint.split('/')) == 7
-        assert 'token' in endpoint
 
     def test_get_dividends(self):
         df = []
@@ -358,26 +374,57 @@ class TestPolygon:
         assert hasattr(poly, 'provider')
 
     def test_get_dividends(self):
-        df = poly.get_dividends(symbol='AAPL', timeframe='5y')
-        assert {C.EX, C.PAY, C.DEC, C.DIV}.issubset(df.columns)
-        assert len(df) > 0
+        if not flow.is_any_workflow_running():
+            df = poly.get_dividends(symbol='AAPL', timeframe='5y')
+            assert {C.EX, C.PAY, C.DEC, C.DIV}.issubset(df.columns)
+            assert len(df) > 0
+        else:
+            print(
+                'Skipping Polygon.io dividends test because update in progress'
+            )
 
     def test_get_splits(self):
-        df = poly.get_splits(symbol='AAPL')
-        assert {C.EX, C.DEC, C.RATIO}.issubset(df.columns)
-        assert len(df) > 0
+        if not flow.is_any_workflow_running():
+            df = poly.get_splits(symbol='AAPL')
+            assert {C.EX, C.DEC, C.RATIO}.issubset(df.columns)
+            assert len(df) > 0
+        else:
+            print('Skipping Polygon.io splits test because update in progress')
 
     def test_get_ohlc(self):
-        df = poly.get_ohlc(symbol='AAPL', timeframe='1m')
-        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
-                C.CLOSE, C.VOL, C.AVG}.issubset(df.columns)
-        assert len(df) > 10
+        if not flow.is_any_workflow_running():
+            df = poly.get_ohlc(symbol='AAPL', timeframe='1m')
+            assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+                    C.CLOSE, C.VOL, C.AVG}.issubset(df.columns)
+            assert len(df) > 10
+        else:
+            print('Skipping Polygon.io OHLC test because update in progress')
 
     def test_get_intraday(self):
-        df = pd.concat(poly.get_intraday(symbol='AAPL', timeframe='1w'))
-        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
-                C.CLOSE, C.VOL}.issubset(df.columns)
-        assert len(df) > 1000
+        if not flow.is_any_workflow_running():
+            df = pd.concat(poly.get_intraday(symbol='AAPL', timeframe='1w'))
+            assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+                    C.CLOSE, C.VOL}.issubset(df.columns)
+            assert len(df) > 1000
+        else:
+            print(
+                'Skipping Polygon.io intraday test because update in progress')
+
+    def test_log_api_call_time(self):
+        if hasattr(poly, 'last_api_call_time'):
+            delattr(poly, 'last_api_call_time')
+        poly.log_api_call_time()
+        assert hasattr(poly, 'last_api_call_time')
+
+    def test_obey_free_limit(self):
+        if hasattr(poly, 'last_api_call_time'):
+            delattr(poly, 'last_api_call_time')
+
+        then = time()
+        poly.log_api_call_time()
+        poly.obey_free_limit()
+        now = time()
+        assert now - then > C.POLY_FREE_DELAY
 
 
 class TestStockTwits:
@@ -395,3 +442,36 @@ class TestStockTwits:
         df = twit.get_social_sentiment(symbol='TSLA')
         assert len(df) > 30
         assert {C.TIME, C.POS, C.NEG}.issubset(df.columns)
+
+
+class TestLaborStats:
+    def test_init(self):
+        assert type(bls).__name__ == 'LaborStats'
+        assert hasattr(iex, 'base')
+        assert hasattr(iex, 'version')
+        assert hasattr(iex, 'token')
+        assert hasattr(iex, 'provider')
+
+    def test_get_unemployment_rate(self):
+        df = bls.get_unemployment_rate(timeframe='2y')
+        assert {C.TIME, C.UN_RATE}.issubset(df.columns)
+        assert len(df) > 12
+
+
+class TestGlassnode:
+    def test_init(self):
+        assert type(glass).__name__ == 'Glassnode'
+        assert hasattr(glass, 'base')
+        assert hasattr(glass, 'version')
+        assert hasattr(glass, 'token')
+        assert hasattr(glass, 'provider')
+
+    def test_get_s2f_ratio(self):
+        df = glass.get_s2f_ratio(timeframe='max')
+        assert len(df) > 3000
+        assert {C.TIME, C.HALVING, C.RATIO}.issubset(df.columns)
+
+    def test_get_s2f_deflection(self):
+        df = glass.get_s2f_deflection(timeframe='max')
+        assert len(df) > 3000
+        assert {C.TIME, C.VAL}.issubset(df.columns)

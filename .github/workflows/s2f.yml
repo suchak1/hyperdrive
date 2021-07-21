@@ -1,12 +1,14 @@
 # This workflow will automatically update data files
 # For more information see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#scheduled-events-schedule
 
-name: OHLC
+name: S2F
 
 on:
   schedule:
-    - cron: "0 16 * * *"
-    # 11am EST every day (for crypto)
+    - cron: "0 9 * * *"
+    # 5am EST
+    # - cron: "30 10 * * *"
+    # # 6:30am EST
   workflow_dispatch:
 
 jobs:
@@ -37,12 +39,11 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Update OHLC
+      - name: Update S2F
         env:
-          IEXCLOUD: ${{ secrets.IEXCLOUD }}
+          GLASSNODE: ${{ secrets.GLASSNODE }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
-          POLYGON: ${{ secrets.POLYGON }}
-        run: python scripts/update_ohlc.py
+        run: python scripts/update_s2f.py

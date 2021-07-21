@@ -14,9 +14,10 @@ env:
   RH_2FA: ${{ secrets.RH_2FA }}
   IEXCLOUD: ${{ secrets.IEXCLOUD_SANDBOX }}
   STOCKTWITS: ${{ secrets.STOCKTWITS }}
+  GLASSNODE: ${{ secrets.GLASSNODE }}
   S3_BUCKET: ${{ secrets.S3_DEV_BUCKET }}
-  APCA_API_KEY_ID: ${{ secrets.APCA_API_KEY_ID }}
   POLYGON: ${{ secrets.POLYGON }}
+  BLS: ${{ secrets.BLS }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
@@ -65,20 +66,23 @@ jobs:
       - name: Update symbols
         run: python scripts/update_symbols.py
 
-      - name: Update dividends
-        run: python scripts/update_dividends.py
+      # - name: Update dividends
+      #   run: python scripts/update_dividends.py
 
-      - name: Update splits
-        run: python scripts/update_splits.py
+      # - name: Update splits
+      #   run: python scripts/update_splits.py
 
-      - name: Update OHLC
-        run: python scripts/update_ohlc.py
+      # - name: Update OHLC
+      #   run: python scripts/update_ohlc.py
 
       - name: Update social sentiment
         run: python scripts/update_sentiment.py
       
-      - name: Update intraday
-        run: python scripts/update_intraday.py
+      # - name: Update intraday
+      #   run: python scripts/update_intraday.py
+
+      - name: Update unemployment
+        run: python scripts/update_unrate.py
 
       - name: Upload repo to S3
         run: python scripts/update_repo.py

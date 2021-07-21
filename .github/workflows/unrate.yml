@@ -1,12 +1,12 @@
 # This workflow will automatically update data files
 # For more information see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#scheduled-events-schedule
 
-name: OHLC
+name: Unemployment
 
 on:
   schedule:
-    - cron: "0 16 * * *"
-    # 11am EST every day (for crypto)
+    - cron: "0 8 15 * *"
+    # 3:00am EST
   workflow_dispatch:
 
 jobs:
@@ -37,12 +37,11 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Update OHLC
+      - name: Update unemployment
         env:
-          IEXCLOUD: ${{ secrets.IEXCLOUD }}
+          BLS: ${{ secrets.BLS }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
-          POLYGON: ${{ secrets.POLYGON }}
-        run: python scripts/update_ohlc.py
+        run: python scripts/update_unrate.py

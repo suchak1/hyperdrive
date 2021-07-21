@@ -5,8 +5,9 @@ name: Intraday
 
 on:
   schedule:
-    - cron: "0 16 * * *"
-    # 12pm EST every day (for crypto)
+    - cron: "30 19 * * *"
+    # 2:30pm EST every day (for crypto)
+  workflow_dispatch:
 
 jobs:
   build:
@@ -43,6 +44,5 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
-          APCA_API_KEY_ID: ${{ secrets.APCA_API_KEY_ID }}
           POLYGON: ${{ secrets.POLYGON }}
         run: python scripts/update_intraday.py

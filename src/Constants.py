@@ -35,7 +35,6 @@ folders = {
     'polygon': POLY_DIR,
     'stocktwits': TWIT_DIR
 }
-# PLYGN
 
 # Column Names
 # Symbols / Generic
@@ -73,6 +72,13 @@ NEG = 'Neg'
 DELTA = 'Delta'
 TWIT_RATE = 175
 
+# Unemployment
+UN_RATE = 'UnRate'
+
+# S2F
+HALVING = 'Halving'
+VAL = 'Val'
+
 # Misc
 POLY_CRYPTO_SYMBOLS = [
     'X%3ABTCUSD', 'X%3AETHUSD',
@@ -82,13 +88,14 @@ POLY_CRYPTO_SYMBOLS = [
 SENTIMENT_SYMBOLS_IGNORE = {
     'SPYD', 'VWDRY', 'BPMP',
     'FOX', 'YYY', 'SDIV',
-    'DIV', 'SHECY', 'PALL',
-    'DWDP', 'TFCF', 'SPAR',
-    'TMUSR', 'OXY+', 'BNTX^'}
+    'DIV', 'SHECY', 'PALL'
+}
 
-DEFAULT_RETRIES = 3
+DEFAULT_RETRIES = 2
 DEFAULT_DELAY = 2
-POLY_CRYPTO_DELAY = 15
+POLY_FREE_DELAY = 13
+FEW = 3
+FEW_DAYS = str(FEW) + 'd'
 
 
 class PathFinder:
@@ -153,6 +160,18 @@ class PathFinder:
             f'{date}.csv'
         )
 
+    def get_unemployment_path(self):
+        return os.path.join(
+            DATA_DIR,
+            'unemployment.csv'
+        )
+
+    def get_s2f_path(self):
+        return os.path.join(
+            DATA_DIR,
+            's2f.csv'
+        )
+
     def get_all_paths(self, path, truncate=False):
         # given a path, get all sub paths
         paths = []
@@ -165,6 +184,5 @@ class PathFinder:
                 keep = [skip not in curr_path for skip in to_skip]
                 # remove caches but keep workflows
                 if all(keep) or '.github' in curr_path:
-                    # print(curr_path)
                     paths.append(curr_path)
         return paths
