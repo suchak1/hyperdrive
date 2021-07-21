@@ -35,8 +35,7 @@ class Store:
 
     def delete_objects(self, keys):
         if keys:
-            #objects = [{'Key': key.replace('\\', '/')} for key in keys]
-            objects = [{'Key': key} for key in keys]
+            objects = [{'Key': key.replace('\\', '/')} for key in keys]
             bucket = self.get_bucket()
             bucket.delete_objects(Delete={'Objects': objects})
 
