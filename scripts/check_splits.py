@@ -1,37 +1,17 @@
 import sys
-import pandas as pd
 sys.path.append('src')
-from DataSource import MarketData  # noqa autopep8
+from Adjustment import SplitWorker  # noqa autopep8
 import Constants as C  # noqa autopep8
 
-md = MarketData()
-# symbols = md.get_symbols()
 provider = 'polygon'
-md.provider = provider
 symbols = ['TSLA', 'AAPL', 'VWDRY', 'NEE', 'CP']
 # if provider == 'polygon':
 #     symbols.remove('VWDRY')
 timeframe = '1y'
 # timeframe = '18m'
+worker = SplitWorker()
+worker.process(symbols, timeframe, provider)
 
-
-def avg(xs):
-    return sum(xs) / len(xs)
-
-
-splits = {}
-ohlc = {}
-intra = {}
-div = {}
-
-for symbol in symbols:
-    try:
-        recent = md.get_splits(symbol, timeframe)
-    except:
-        print(f'{symbol} split fetch failed')
-        # raise
-    if len(recent):
-        splits[symbol] = recent
 
 for symbol in splits:
     print(symbol)
