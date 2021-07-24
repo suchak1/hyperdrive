@@ -257,7 +257,7 @@ class MarketData:
         #  or 30 or 60 should be flexible soln
         # implement way to only get market hours
         # given a symbol, return a cached dataframe
-        dates = self.traveller.dates_in_range(timeframe)
+        dates = self.traveller.get_dates_in_timeframe(timeframe)
         for date in dates:
             df = self.reader.load_csv(
                 self.finder.get_intraday_path(symbol, date, self.provider))
@@ -539,7 +539,7 @@ class IEXCloud(MarketData):
             category = 'stock'
             dataset = 'chart'
 
-            dates = self.traveller.dates_in_range(timeframe)
+            dates = self.traveller.get_dates_in_timeframe(timeframe)
             if dates == []:
                 raise Exception(f'No dates in timeframe: {timeframe}.')
 
@@ -633,7 +633,7 @@ class Polygon(MarketData):
     def get_ohlc(self, **kwargs):
         def _get_ohlc(symbol, timeframe='max'):
             is_crypto = symbol.find('X%3A') == 0
-            formatted_start, formatted_end = self.traveller.convert_dates(
+            formatted_start, formatted_end = self.traveller.get_start_and_end(
                 timeframe)
             self.obey_free_limit()
             try:
@@ -668,7 +668,7 @@ class Polygon(MarketData):
         def _get_intraday(symbol, min=1, timeframe='max', extra_hrs=True):
             # pass min directly into stock_aggs function as multiplier
             is_crypto = symbol.find('X%3A') == 0
-            dates = self.traveller.dates_in_range(timeframe)
+            dates = self.traveller.get_dates_in_timeframe(timeframe)
             if dates == []:
                 raise Exception(f'No dates in timeframe: {timeframe}.')
 
@@ -806,7 +806,7 @@ class LaborStats(MarketData):
 
     def get_unemployment_rate(self, **kwargs):
         def _get_unemployment_rate(timeframe):
-            start, end = self.traveller.convert_dates(timeframe, '%Y')
+            start, end = self.traveller.get_start_and_end(timeframe, '%Y')
 
             parts = [
                 self.base,

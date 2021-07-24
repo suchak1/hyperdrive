@@ -3,7 +3,8 @@ from Constants import TZ, DATE_FMT
 
 
 class TimeTraveller:
-    def convert_delta(self, timeframe):
+    def convert_to_delta(self, timeframe):
+        # convert timeframe to timedelta
         if timeframe == 'max':
             return timedelta(days=36500)
 
@@ -28,18 +29,30 @@ class TimeTraveller:
 
         return delta
 
-    def convert_dates(self, timeframe, format=DATE_FMT):
+    def convert_to_timeframe(self, delta):
+        # convert timedelta to timeframe
+        days = int(delta.total_seconds() / timedelta(days=1).total_seconds())
+        return f'{days}d'
+
+    def add_timeframes(self, timeframes):
+        delta = timedelta(days=0)
+        for timeframe in timeframes:
+            delta += self.convert_to_delta(timeframe)
+
+        return self.convert_to_timeframe(delta)
+
+    def get_start_and_end(self, timeframe, format=DATE_FMT):
         # if timeframe='max': timeframe = '25y'
-        end = datetime.now(TZ) - self.convert_delta('1d')
-        delta = self.convert_delta(timeframe) - self.convert_delta('1d')
+        end = datetime.now(TZ) - self.convert_to_delta('1d')
+        delta = self.convert_to_delta(timeframe) - self.convert_to_delta('1d')
         start = end - delta
         if format:
             start = start.strftime(format)
             end = end.strftime(format)
         return start, end
 
-    def dates_in_range(self, timeframe, format=DATE_FMT):
-        start, end = self.convert_dates(timeframe, None)
+    def get_dates_in_timeframe(self, timeframe, format=DATE_FMT):
+        start, end = self.get_start_and_end(timeframe, None)
         dates = [start + timedelta(days=x)
                  for x in range(0, (end - start).days + 1)]
         if format:

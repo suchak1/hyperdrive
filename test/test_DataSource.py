@@ -261,7 +261,7 @@ class TestMarketData:
     def test_save_intraday(self):
         symbol = 'NFLX'
         timeframe = '4d'
-        dates = md.traveller.dates_in_range(timeframe)
+        dates = md.traveller.get_dates_in_timeframe(timeframe)
         intra_paths = [md.finder.get_intraday_path(
             symbol, date) for date in dates]
         filenames = set(iex.save_intraday(symbol=symbol, timeframe=timeframe))

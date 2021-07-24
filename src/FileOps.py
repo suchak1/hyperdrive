@@ -67,8 +67,8 @@ class FileReader:
     def data_in_timeframe(self, df, col, timeframe='max'):  # noqa , tolerance='0d'):
         if col not in df:
             return df
-        delta = self.traveller.convert_delta(timeframe)
-        # tol = self.traveller.convert_delta(tolerance)
+        delta = self.traveller.convert_to_delta(timeframe)
+        # tol = self.traveller.convert_to_delta(tolerance)
         df[col] = pd.to_datetime(df[col]).dt.tz_localize(TZ)
         today = datetime.now(TZ)
         filtered = df[df[col].apply(

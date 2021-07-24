@@ -95,7 +95,7 @@ DEFAULT_RETRIES = 2
 DEFAULT_DELAY = 2
 POLY_FREE_DELAY = 13
 FEW = 3
-FEW_DAYS = str(FEW) + 'd'
+FEW_DAYS = f'{FEW}d'
 
 
 class PathFinder:

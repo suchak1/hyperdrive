@@ -23,6 +23,19 @@ class SplitWorker:
                 splits[symbol] = recent
         return splits
 
+    def find_split_row(self, df, ex, ratio):
+        new_df = df.drop([C.TIME], axis=1)
+        # for compare all fields approach
+        # ratio_df = new_df / new_df.shift()
+        # for open/close ratio approach
+        # (check 1.0 ratio for surrounding days as well)
+        ratio_df = new_df[C.OPEN] / new_df[C.CLOSE].shift()
+        # check if trades col, assign inverse
+        # find split row (majority columns fit in ratio threshold)
+        # see if row is within few days of ex-date
+        # return row or None
+        pass
+
     def process(self, symbols=MarketData().get_symbols(),
                 timeframe='3m', provider='iexcloud'):
         self.md.provider = provider
@@ -31,19 +44,24 @@ class SplitWorker:
         intra = {}
         div = {}
         splits = self.get_recent_splits(symbols, timeframe)
+        liberal_timeframe = C.FEW_DAYS
         for symbol in splits:
             print(symbol)
             # print(splits[symbol])
-            ohlc[symbol] = self.md.get_ohlc(symbol, timeframe)
+            liberal_timeframe = self.md.traveller.add_timeframes(
+                [timeframe, C.FEW_DAYS, '1d'])
+            ohlc[symbol] = self.md.get_ohlc(symbol, liberal_timeframe)
             intra[symbol] = pd.concat(
-                self.md.get_intraday(symbol, timeframe=timeframe))
-            div[symbol] = self.md.get_dividends(symbol, timeframe)
+                self.md.get_intraday(symbol, timeframe=liberal_timeframe))
+            div[symbol] = self.md.get_dividends(symbol, liberal_timeframe)
 
             last_split = splits[symbol].tail(1)
             ex = last_split[C.EX].iloc[0]
             ratio = last_split[C.RATIO].iloc[0]
 
             # OHLC
+            split_row = self.find_split_row(ohlc[symbol], ex, ratio)
+
             row_before_ex_date = ohlc[symbol][ohlc[symbol]
                                               [C.TIME] < ex].tail(1)
             row_on_ex_date = ohlc[symbol][ohlc[symbol]
@@ -84,6 +102,12 @@ class SplitWorker:
 
             # Dividends
             # dividend logic here
+            # this is a hard problem?
+            # fetch dividends for last 5 years and check ratio
+            # use dividends fetched from data broker as truth
+            # if we have any dividends older than that,
+            # check ratio between what we have and broker data
+            # and then apply ratio to older data that broker won't give
 
         # implement few days smart check
         # implement split update
