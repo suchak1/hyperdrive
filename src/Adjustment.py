@@ -25,27 +25,30 @@ class SplitWorker:
         return splits
 
     def find_split_row(self, df, ex, ratio):
-        # for open/close ratio approach
-        # (check 1 +/- buffer ratio for surrounding days as well)
+        finalists = []
         ratios = df[C.OPEN] / df[C.CLOSE].shift()
-        # try 0.2 or 0.5 buffer
         buffer = 0.1
         candidates = (ratios > ratio * (1 - buffer)
                       ) & (ratios < ratio * (1 + buffer))
-        # (idx is iloc of df)
-        candidate_index = list(candidates).index(True)
-        # in case there are multiple split candidates
+
         candidate_indices = [idx for idx, candidate in enumerate(
             list(candidates)) if candidate]
 
         for idx in candidate_indices:
-            # candidate_date = pd.to_datetime(df.iloc[idx][C.TIME])
             candidate_date = pd.to_datetime(df[C.TIME][idx]).date()
             ex_date = datetime.strptime(ex, C.DATE_FMT).date()
-            if candidate_date <= ex_date and candidate_date >= (ex_date - timedelta(days=C.FEW)):
-                return df[C.TIME][idx]
-                # check if trades col, assign inverse
-                # find split row (majority columns fit in ratio threshold)
+            if (
+                    candidate_date <= ex_date and
+                    candidate_date >= (ex_date - timedelta(days=C.FEW))
+            ):
+                finalists.append(df[C.TIME][idx])
+
+        num_finalists = len(finalists)
+        if num_finalists:
+            if num_finalists == 1:
+                return finalists[0]
+            else:
+                raise Exception('Too many candidates for split row selection.')
 
     def process(self, symbols=MarketData().get_symbols(),
                 timeframe='3m', provider='iexcloud'):
