@@ -1,4 +1,5 @@
 import pandas as pd
+from datetime import datetime, timedelta
 from DataSource import MarketData  # noqa autopep8
 import Constants as C  # noqa autopep8
 
@@ -37,13 +38,14 @@ class SplitWorker:
         candidate_indices = [idx for idx, candidate in enumerate(
             list(candidates)) if candidate]
 
-        # get iloc of
-
-        # check if trades col, assign inverse
-        # find split row (majority columns fit in ratio threshold)
-        # see if row is within few days of ex-date
-        # return row or None
-        pass
+        for idx in candidate_indices:
+            # candidate_date = pd.to_datetime(df.iloc[idx][C.TIME])
+            candidate_date = pd.to_datetime(df[C.TIME][idx]).date()
+            ex_date = datetime.strptime(ex, C.DATE_FMT).date()
+            if candidate_date <= ex_date and candidate_date >= (ex_date - timedelta(days=C.FEW)):
+                return df[C.TIME][idx]
+                # check if trades col, assign inverse
+                # find split row (majority columns fit in ratio threshold)
 
     def process(self, symbols=MarketData().get_symbols(),
                 timeframe='3m', provider='iexcloud'):
