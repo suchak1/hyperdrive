@@ -16,20 +16,29 @@ class SplitWorker:
         for symbol in symbols:
             try:
                 recent = self.md.get_splits(symbol, timeframe)
-            except:
-                print(f'{symbol} split fetch failed')
-                # raise
+            except Exception as e:
+                print(f'{symbol} recent split fetch failed')
+                raise e
             if len(recent):
                 splits[symbol] = recent
         return splits
 
     def find_split_row(self, df, ex, ratio):
-        new_df = df.drop([C.TIME], axis=1)
-        # for compare all fields approach
-        # ratio_df = new_df / new_df.shift()
         # for open/close ratio approach
-        # (check 1.0 ratio for surrounding days as well)
-        ratio_df = new_df[C.OPEN] / new_df[C.CLOSE].shift()
+        # (check 1 +/- buffer ratio for surrounding days as well)
+        ratios = df[C.OPEN] / df[C.CLOSE].shift()
+        # try 0.2 or 0.5 buffer
+        buffer = 0.1
+        candidates = (ratios > ratio * (1 - buffer)
+                      ) & (ratios < ratio * (1 + buffer))
+        # (idx is iloc of df)
+        candidate_index = list(candidates).index(True)
+        # in case there are multiple split candidates
+        candidate_indices = [idx for idx, candidate in enumerate(
+            list(candidates)) if candidate]
+
+        # get iloc of
+
         # check if trades col, assign inverse
         # find split row (majority columns fit in ratio threshold)
         # see if row is within few days of ex-date
