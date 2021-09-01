@@ -4,4 +4,4 @@ robin-stocks == 2.0.4
 boto3 == 1.18.11
 polygon-api-client == 0.2.11
 pytz == 2021.1
-vectorbt == 0.19.2
+vectorbt == 0.21.0
