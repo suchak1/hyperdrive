@@ -58,7 +58,7 @@ jobs:
           flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
 
       - name: Run all unit tests
-        run: coverage run -m pytest -vv
+        run: coverage run -m pytest -vv -s
 
       - name: Generate test coverage report
         run: coverage report -m --fail-under=90
@@ -77,7 +77,7 @@ jobs:
 
       - name: Update social sentiment
         run: python scripts/update_sentiment.py
-      
+
       # - name: Update intraday
       #   run: python scripts/update_intraday.py
 
