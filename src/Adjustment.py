@@ -74,6 +74,7 @@ class SplitWorker:
             ratio = last_split[C.RATIO].iloc[0]
 
             # OHLC
+            # split row is the C.TIME in df for the first row that has post-split data
             split_row = self.find_split_row(ohlc[symbol], ex, ratio)
 
             row_before_ex_date = ohlc[symbol][ohlc[symbol]
