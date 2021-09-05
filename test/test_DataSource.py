@@ -15,6 +15,7 @@ md = MarketData()
 iex = IEXCloud()
 poly = Polygon()
 twit = StockTwits()
+twit.token = ''
 bls = LaborStats()
 glass = Glassnode()
 flow = Flow()
