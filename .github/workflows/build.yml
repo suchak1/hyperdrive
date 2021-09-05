@@ -58,7 +58,7 @@ jobs:
       - name: Run all unit tests
         env:
           S3_BUCKET: ${{ secrets.S3_DEV_BUCKET }}
-        run: coverage run -m pytest -vv
+        run: coverage run -m pytest -vv -s
 
       - name: Generate test coverage report
         run: coverage report -m --fail-under=90

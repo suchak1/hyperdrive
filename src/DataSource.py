@@ -734,13 +734,17 @@ class StockTwits(MarketData):
             url = '/'.join(parts)
             params = {'access_token': self.token}
             vol_res = requests.get(url, params=params)
+            json_res = vol_res.json()
             empty = pd.DataFrame()
 
             if vol_res.ok:
-                vol_data = vol_res.json()['data']
+                vol_data = json_res['data']
             else:
+                if 'errors' in json_res:
+                    errors = '\n'.join([error['message']
+                                        for error in json_res['errors']])
                 raise Exception(
-                    f'Invalid response from Stocktwits for {symbol}')
+                    f'Invalid response from Stocktwits for {symbol}\n{errors}')
 
             if vol_data == []:
                 return empty
@@ -772,13 +776,17 @@ class StockTwits(MarketData):
             url = '/'.join(parts)
             params = {'access_token': self.token}
             sen_res = requests.get(url, params=params)
+            json_res = sen_res.json()
             empty = pd.DataFrame()
 
             if sen_res.ok:
-                sen_data = sen_res.json()['data']
+                sen_data = json_res['data']
             else:
+                if 'errors' in json_res:
+                    errors = '\n'.join([error['message']
+                                        for error in json_res['errors']])
                 raise Exception(
-                    f'Invalid response from Stocktwits for {symbol}.')
+                    f'Invalid response from Stocktwits for {symbol}\n{errors}')
 
             if sen_data == []:
                 return empty
