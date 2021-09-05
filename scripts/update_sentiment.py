@@ -7,6 +7,8 @@ import Constants as C  # noqa autopep8
 
 
 twit = StockTwits()
+no_auth_twit = StockTwits()
+no_auth_twit.token = ''
 symbols = twit.get_symbols()
 crypto_symbols = ['BTC-X', 'ETH-X', 'LTC-X', 'XMR-X', 'IOT-X']
 if C.TEST:
@@ -22,13 +24,22 @@ for symbol in symbols[C.TWIT_RATE*(BATCH-1):C.TWIT_RATE*BATCH]:
     if symbol in C.SENTIMENT_SYMBOLS_IGNORE:
         continue
     try:
-        twit.save_social_sentiment(symbol=symbol, timeframe='1d',
-                                   retries=1 if C.TEST else 2)
+        twit.save_social_sentiment(symbol=symbol, timeframe='30d',
+                                   retries=1)
     except Exception as e:
         print(f'Stocktwits sentiment update failed for {symbol}.')
+        try:
+            no_auth_twit.save_social_sentiment(symbol=symbol, timeframe='30d',
+                                               retries=1)
+        except Exception as e2:
+            print(e2)
         print(e)
     finally:
         filename = PathFinder().get_sentiment_path(
             symbol=symbol, provider=twit.provider)
         if C.CI and os.path.exists(filename):
             os.remove(filename)
+
+# if stocktwits update fails, don't use token
+# if more than half fail, then fail whole step (exit 1 or throw exception - majority failure)
+# ^ do this for all scripts
