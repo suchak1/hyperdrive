@@ -20,26 +20,30 @@ BATCH = int(os.environ.get('BATCH')) if os.environ.get('BATCH') else 1
 # better solution is to dynamically choose 175 most outdated symbols
 
 # First batch
-for symbol in symbols[C.TWIT_RATE*(BATCH-1):C.TWIT_RATE*BATCH]:
+
+current_batch = symbols[C.TWIT_RATE*(BATCH-1):C.TWIT_RATE*BATCH]
+num_failed = 0
+
+for symbol in current_batch:
     if symbol in C.SENTIMENT_SYMBOLS_IGNORE:
         continue
     try:
         twit.save_social_sentiment(symbol=symbol, timeframe='30d',
                                    retries=1)
     except Exception as e:
-        print(f'Stocktwits sentiment update failed for {symbol}.')
         try:
             no_auth_twit.save_social_sentiment(symbol=symbol, timeframe='30d',
                                                retries=1)
         except Exception as e2:
+            num_failed += 1
+            print(f'Stocktwits sentiment update failed for {symbol}.')
+            print(e)
             print(e2)
-        print(e)
     finally:
         filename = PathFinder().get_sentiment_path(
             symbol=symbol, provider=twit.provider)
         if C.CI and os.path.exists(filename):
             os.remove(filename)
 
-# if stocktwits update fails, don't use token
-# if more than half fail, then fail whole step (exit 1 or throw exception - majority failure)
-# ^ do this for all scripts
+if num_failed / len(current_batch) > 0.5:
+    raise Exception('Majority failure.')
