@@ -276,13 +276,13 @@ class TestMarketData:
             os.remove(path)
 
     def test_get_ohlc(self):
-        df = md.get_ohlc('TSLA', '2m')
+        df = md.get_ohlc('NFLX', '2m')
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 0
 
     def test_get_intraday(self):
-        df = pd.concat(md.get_intraday(symbol='TSLA', timeframe='2m'))
+        df = pd.concat(md.get_intraday(symbol='NFLX', timeframe='2m'))
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 0
