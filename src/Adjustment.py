@@ -25,6 +25,7 @@ class SplitWorker:
         return splits
 
     def find_split_row(self, df, ex, ratio):
+        # there's an off-by-one error here
         finalists = []
         ratios = df[C.OPEN] / df[C.CLOSE].shift()
         buffer = 0.1
@@ -34,14 +35,16 @@ class SplitWorker:
         candidate_indices = [idx for idx, candidate in enumerate(
             list(candidates)) if candidate]
 
+        times = list(df[C.TIME])
         for idx in candidate_indices:
-            candidate_date = pd.to_datetime(df[C.TIME][idx]).date()
-            ex_date = datetime.strptime(ex, C.DATE_FMT).date()
+            candidate_date = pd.to_datetime(times[idx]).date()
+            ex_date = ex.date()
             if (
                     candidate_date <= ex_date and
                     candidate_date >= (ex_date - timedelta(days=C.FEW))
             ):
-                finalists.append(df[C.TIME][idx])
+                print(times[idx])
+                finalists.append(times[idx])
 
         num_finalists = len(finalists)
         if num_finalists:
@@ -76,14 +79,14 @@ class SplitWorker:
             # OHLC
             # split row is the C.TIME in df for the first row that has post-split data
             split_row = self.find_split_row(ohlc[symbol], ex, ratio)
-
+            # replace ex in following rows with split row date/time
             row_before_ex_date = ohlc[symbol][ohlc[symbol]
-                                              [C.TIME] < ex].tail(1)
+                                              [C.TIME] < split_row].tail(1)
             row_on_ex_date = ohlc[symbol][ohlc[symbol]
-                                          [C.TIME] == ex]
+                                          [C.TIME] == split_row]
             if len(row_before_ex_date) and len(row_on_ex_date):
-                diff = row_on_ex_date.drop(
-                    [C.TIME], axis=1).iloc[0] / row_before_ex_date.drop([C.TIME], axis=1).iloc[0]
+                diff = (row_on_ex_date.drop([C.TIME], axis=1).iloc[0] /
+                        row_before_ex_date.drop([C.TIME], axis=1).iloc[0])
                 diff[C.VOL] = 1 / diff[C.VOL]
                 if C.TRADES in diff:
                     diff[C.TRADES] = 1 / diff[C.TRADES]
@@ -96,15 +99,15 @@ class SplitWorker:
             # Intraday
             # need check to see if ex date is even in df - otherwise error single positional indexer is out-of-bounds
             row_before_ex_date = intra[symbol][intra[symbol]
-                                               [C.TIME] < ex].tail(1)
+                                               [C.TIME] < split_row].tail(1)
             row_on_ex_date = intra[symbol][intra[symbol]
-                                           [C.TIME] >= ex].head(1)
+                                           [C.TIME] >= split_row].head(1)
 
             print(row_before_ex_date)
             print(row_on_ex_date)
             if len(row_before_ex_date) and len(row_on_ex_date):
-                diff = row_on_ex_date.drop(
-                    [C.TIME], axis=1).iloc[0] / row_before_ex_date.drop([C.TIME], axis=1).iloc[0]
+                diff = (row_on_ex_date.drop([C.TIME], axis=1).iloc[0] /
+                        row_before_ex_date.drop([C.TIME], axis=1).iloc[0])
                 diff[C.VOL] = 1 / diff[C.VOL]
                 if C.TRADES in diff:
                     diff[C.TRADES] = 1 / diff[C.TRADES]
@@ -135,6 +138,10 @@ class SplitWorker:
         # make sure trades number is as expected for iexcloud and polygon (verify ratio)
         # use intraday specific logic
         # create scheduled workflow and have try catches
+
+        # account for multiple splits that need to be applied
+        # implement dry run
+        # use current broken price data for unit tests
 
         # update dividend, ohlc (prices, volume, num trades), and intraday (prices, volume, num trades)
         # prices * ratio and vol or trades / ratio?
