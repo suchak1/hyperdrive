@@ -121,7 +121,21 @@ class SplitWorker:
             # need check to see if ex date is even in df - otherwise error single positional indexer is out-of-bounds
             # edit find_split_row to account for any NaN values in C.OPEN or C.CLOSE (remove those rows from consideration
             # re time + ratio)
-            print(f'{symbol} needs to have Intraday adjusted for splits')
+            split_row = self.find_split_row(intra[symbol], ex, ratio)
+            if split_row:
+                print(f'{symbol} needs to have Intraday adjusted for splits')
+                adj_intra = self.apply_split(intra[symbol], split_row, ratio)
+                # split df into dict dfs - each w different date
+                gb = adj_intra.groupby([adj_intra[C.TIME].dt.date])
+                dfs = {date.strftime(C.DATE_FMT): df for date, df in gb}
+
+                if not dry_run:
+                    for date, df in dfs.items():
+                        self.md.writer.update_csv(
+                            self.md.finder.get_intraday_path(
+                                symbol, date, provider),
+                            df
+                        )
 
             # Dividends
             # dividend logic here
