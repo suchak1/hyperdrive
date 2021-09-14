@@ -43,14 +43,16 @@ class TestSplitWorker:
         assert intra_date == pd.to_datetime('2021-07-20 09:30')
 
     def test_apply_split(self):
-        # print(ohlc_data[C.TIME])
+        ohlc_date = worker.find_split_row(
+            ohlc_df, pd.to_datetime('2021-07-20'), 0.25)
         split_df = worker.apply_split(ohlc_df, ohlc_date, 0.25)
         test_data = {C.TIME: ['2021-07-15', '2021-07-16',
                               '2021-07-19', '2021-07-20'],
                      C.OPEN: [198.1200, 190.3000, 179.1525, 187.3000],
                      C.CLOSE: [189.6600, 181.6100, 187.7975, 186.1200]}
         test_df = pd.DataFrame(test_data)
-        print(split_df)
+        test_df[C.TIME] = pd.to_datetime(test_df[C.TIME])
+
         assert split_df.equals(test_df)
 
     # REMEMBER that apply_split needs date from find_split_row!

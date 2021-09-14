@@ -70,8 +70,6 @@ class SplitWorker:
                 pre[col] = round(pre[col] * multiplier, 2)
 
         # finally, join and sort
-        print(pre)
-        print(post)
         df = pre.append(post, ignore_index=True).sort_values(C.TIME)
         return df
 
