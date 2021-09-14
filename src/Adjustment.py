@@ -73,17 +73,19 @@ class SplitWorker:
         return df
 
     def process(self, symbols=MarketData().get_symbols(),
-                timeframe='3m', provider='iexcloud'):
+                timeframe='3m', provider='iexcloud', dry_run=True):
         self.md.provider = provider
 
         ohlc = {}
         intra = {}
         div = {}
         splits = self.get_recent_splits(symbols, timeframe)
-        liberal_timeframe = C.FEW_DAYS
+        # new_ohlc = {}
+        # new_intra = {}
+        # new_div = {}
+
         for symbol in splits:
-            print(symbol)
-            # print(splits[symbol])
+            # get all dfs that need to be adjusted
             liberal_timeframe = self.md.traveller.add_timeframes(
                 [timeframe, C.FEW_DAYS, '1d'])
             ohlc[symbol] = self.md.get_ohlc(symbol, liberal_timeframe)
@@ -91,6 +93,7 @@ class SplitWorker:
                 self.md.get_intraday(symbol, timeframe=liberal_timeframe))
             div[symbol] = self.md.get_dividends(symbol, liberal_timeframe)
 
+            # do this for all splits (not just last one)
             last_split = splits[symbol].tail(1)
             ex = last_split[C.EX].iloc[0]
             ratio = last_split[C.RATIO].iloc[0]
@@ -98,49 +101,26 @@ class SplitWorker:
             # OHLC
             # split row is the C.TIME in df for the first row that has post-split data
             split_row = self.find_split_row(ohlc[symbol], ex, ratio)
-            # replace ex in following rows with split row date/time
-            # note that find split row calc is only valid for one data type (ohlc vs intra) and one provider
-            # ie a single symbol + provider + data type df
+            if split_row:
+                print(f'{symbol} needs to have OHLC adjusted for splits')
+                adj_ohlc = self.apply_split(ohlc[symbol], split_row, ratio)
+                if not dry_run:
+                    self.md.writer.update_csv(
+                        self.md.finder.get_ohlc_path(symbol, provider),
+                        adj_ohlc
+                    )
+                # replace ex in following rows with split row date/time
+                # note that find split row calc is only valid for one data type (ohlc vs intra) and one provider
+                # ie a single symbol + provider + data type df
 
-            # save df after applying split
-            # once ohlc is finished, optimize/generalize for intra, and then dividends (including find split row fx)
-            row_before_ex_date = ohlc[symbol][ohlc[symbol]
-                                              [C.TIME] < split_row].tail(1)
-            row_on_ex_date = ohlc[symbol][ohlc[symbol]
-                                          [C.TIME] == split_row]
-            if len(row_before_ex_date) and len(row_on_ex_date):
-                diff = (row_on_ex_date.drop([C.TIME], axis=1).iloc[0] /
-                        row_before_ex_date.drop([C.TIME], axis=1).iloc[0])
-                diff[C.VOL] = 1 / diff[C.VOL]
-                if C.TRADES in diff:
-                    diff[C.TRADES] = 1 / diff[C.TRADES]
-                certainty = avg(abs(diff - ratio) < (ratio*0.1)) > 0.5
-
-                if certainty:
-                    # update ohlc
-                    print(f'{symbol} needs to have OHLC adjusted for splits')
+                # save df after applying split
+                # once ohlc is finished, optimize/generalize for intra, and then dividends (including find split row fx)
 
             # Intraday
             # need check to see if ex date is even in df - otherwise error single positional indexer is out-of-bounds
-            row_before_ex_date = intra[symbol][intra[symbol]
-                                               [C.TIME] < split_row].tail(1)
-            row_on_ex_date = intra[symbol][intra[symbol]
-                                           [C.TIME] >= split_row].head(1)
-
-            print(row_before_ex_date)
-            print(row_on_ex_date)
-            if len(row_before_ex_date) and len(row_on_ex_date):
-                diff = (row_on_ex_date.drop([C.TIME], axis=1).iloc[0] /
-                        row_before_ex_date.drop([C.TIME], axis=1).iloc[0])
-                diff[C.VOL] = 1 / diff[C.VOL]
-                if C.TRADES in diff:
-                    diff[C.TRADES] = 1 / diff[C.TRADES]
-                # certainty = avg(abs(diff - ratio) < 0.02) > 0.5
-                certainty = avg(abs(diff - ratio) < (ratio*0.1)) > 0.5
-
-                if certainty:
-                    # update intraday
-                    print(f'{symbol} needs to have Intraday adjusted for splits')
+            # edit find_split_row to account for any NaN values in C.OPEN or C.CLOSE (remove those rows from consideration
+            # re time + ratio)
+            print(f'{symbol} needs to have Intraday adjusted for splits')
 
             # Dividends
             # dividend logic here
@@ -170,4 +150,4 @@ class SplitWorker:
         # update dividend, ohlc (prices, volume, num trades), and intraday (prices, volume, num trades)
         # prices * ratio and vol or trades / ratio?
 
-                pass
+            pass
