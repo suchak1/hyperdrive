@@ -25,7 +25,7 @@ class SplitWorker:
         return splits
 
     def find_split_row(self, df, ex, ratio):
-        # there's an off-by-one error here
+        # finds the first post-split row in a df
         finalists = []
         ratios = df[C.OPEN] / df[C.CLOSE].shift()
         buffer = 0.1
@@ -43,7 +43,6 @@ class SplitWorker:
                     candidate_date <= ex_date and
                     candidate_date >= (ex_date - timedelta(days=C.FEW))
             ):
-                print(times[idx])
                 finalists.append(times[idx])
 
         num_finalists = len(finalists)
@@ -52,6 +51,26 @@ class SplitWorker:
                 return finalists[0]
             else:
                 raise Exception('Too many candidates for split row selection.')
+
+    def apply_split(self, df, ex, ratio):
+        # first, separate based on split date
+        pre = df[df[C.TIME] < ex].copy(deep=True)
+        post = df[df[C.TIME] >= ex].copy(deep=True)
+        # alternatively,
+        # post = df[~df[C.TIME].isin(pre[C.TIME])].copy(deep=True)
+
+        # next, apply split
+        div_cols = {C.VOL, C.TRADES}
+        mult_cols = {C.OPEN, C.CLOSE, C.LOW, C.HIGH, C.AVG, C.DIV}
+        columns = mult_cols.union(div_cols)
+        for col in columns:
+            if col in df:
+                multiplier = ratio if col in mult_cols else 1 / ratio
+                pre[col] = round(pre[col] * multiplier, 2)
+
+        # finally, join and sort
+        df = pre.append(post, ignore_index=True).sort_values(C.TIME)
+        return df
 
     def process(self, symbols=MarketData().get_symbols(),
                 timeframe='3m', provider='iexcloud'):
@@ -80,6 +99,11 @@ class SplitWorker:
             # split row is the C.TIME in df for the first row that has post-split data
             split_row = self.find_split_row(ohlc[symbol], ex, ratio)
             # replace ex in following rows with split row date/time
+            # note that find split row calc is only valid for one data type (ohlc vs intra) and one provider
+            # ie a single symbol + provider + data type df
+
+            # save df after applying split
+            # once ohlc is finished, optimize/generalize for intra, and then dividends (including find split row fx)
             row_before_ex_date = ohlc[symbol][ohlc[symbol]
                                               [C.TIME] < split_row].tail(1)
             row_on_ex_date = ohlc[symbol][ohlc[symbol]
