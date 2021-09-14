@@ -27,6 +27,7 @@ class SplitWorker:
     def find_split_row(self, df, ex, ratio):
         # finds the first post-split row in a df
         finalists = []
+        df = df.dropna()
         ratios = df[C.OPEN] / df[C.CLOSE].shift()
         buffer = 0.1
         candidates = (ratios > ratio * (1 - buffer)
@@ -69,6 +70,8 @@ class SplitWorker:
                 pre[col] = round(pre[col] * multiplier, 2)
 
         # finally, join and sort
+        print(pre)
+        print(post)
         df = pre.append(post, ignore_index=True).sort_values(C.TIME)
         return df
 
