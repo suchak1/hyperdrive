@@ -28,11 +28,11 @@ for symbol in current_batch:
     if symbol in C.SENTIMENT_SYMBOLS_IGNORE:
         continue
     try:
-        twit.save_social_sentiment(symbol=symbol, timeframe='30d',
+        twit.save_social_sentiment(symbol=symbol, timeframe='1d',
                                    retries=1)
     except Exception as e:
         try:
-            no_auth_twit.save_social_sentiment(symbol=symbol, timeframe='30d',
+            no_auth_twit.save_social_sentiment(symbol=symbol, timeframe='1d',
                                                retries=1)
         except Exception as e2:
             num_failed += 1
