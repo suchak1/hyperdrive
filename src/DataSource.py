@@ -6,7 +6,7 @@ from polygon import RESTClient
 from dotenv import load_dotenv, find_dotenv
 from FileOps import FileReader, FileWriter
 from TimeMachine import TimeTraveller
-from Constants import MA14, PathFinder
+from Constants import PathFinder
 import Constants as C
 
 
