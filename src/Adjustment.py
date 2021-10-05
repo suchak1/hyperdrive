@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import timedelta
 from DataSource import MarketData  # noqa autopep8
 import Constants as C  # noqa autopep8
 

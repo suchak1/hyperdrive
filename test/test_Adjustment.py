@@ -1,6 +1,5 @@
 import sys
 import pandas as pd
-from datetime import datetime
 sys.path.append('src')
 from Adjustment import SplitWorker  # noqa autopep8
 import Constants as C  # noqa autopep8
