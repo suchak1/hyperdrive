@@ -341,58 +341,20 @@ class MarketData:
             [C.TIME, C.HALVING, C.RATIO]]
         return filtered
 
-    def standardize_s2f_deflection(self, df):
-        full_mapping = dict(
-            zip(
-                ['t', 'v'],
-                [C.TIME, C.VAL]
-            )
-        )
-        filename = self.finder.get_s2f_path()
-        df = self.standardize(
-            df,
-            full_mapping,
-            filename,
-            [C.TIME, C.VAL],
-            1
-        )
-        return df[{C.TIME, C.VAL}.intersection(df.columns)]
-
-    def get_s2f_deflection(self, timeframe='max'):
-        # given a symbol, return a cached dataframe
-        df = self.reader.load_csv(
-            self.finder.get_s2f_path())
-        filtered = self.reader.data_in_timeframe(df, C.TIME, timeframe)[
-            [C.TIME, C.VAL]]
-        return filtered
-
-    def save_s2f(self, **kwargs):
+    def save_s2f_ratio(self, **kwargs):
         # # given a symbol, save its s2f data
         filename = self.finder.get_s2f_path()
 
         if os.path.exists(filename):
             os.remove(filename)
 
-        rat_df = self.reader.update_df(
+        df = self.reader.update_df(
             filename, self.get_s2f_ratio(**kwargs), C.TIME, C.DATE_FMT)
-        rat_df = rat_df[{C.TIME, C.HALVING,
-                         C.RATIO}.intersection(rat_df.columns)]
 
-        def_df = self.reader.update_df(
-            filename, self.get_s2f_deflection(**kwargs), C.TIME, C.DATE_FMT)
-        def_df = def_df[{C.TIME, C.VAL}.intersection(def_df.columns)]
-
-        if rat_df.empty and not def_df.empty:
-            df = def_df
-        elif not rat_df.empty and def_df.empty:
-            df = rat_df
-        elif not rat_df.empty and not def_df.empty:
-            df = rat_df.merge(def_df, how="outer", on=C.TIME)
-        else:
-            return
         self.writer.update_csv(filename, df)
         if os.path.exists(filename):
             return filename
+
     # def handle_request(self, url, err_msg):
 
 
@@ -895,33 +857,3 @@ class Glassnode(MarketData):
             return self.reader.data_in_timeframe(df, C.TIME, timeframe)
 
         return self.try_again(func=_get_s2f_ratio, **kwargs)
-
-    def get_s2f_deflection(self, **kwargs):
-        def _get_s2f_deflection(timeframe):
-            parts = [
-                self.base,
-                self.version,
-                'metrics',
-                'indicators',
-                'stock_to_flow_deflection'
-            ]
-            url = '/'.join(parts)
-            empty = pd.DataFrame()
-            response = requests.get(
-                url, params={'a': 'BTC', 'api_key': self.token})
-
-            if response.ok:
-                data = response.json()
-            else:
-                raise Exception(
-                    'Invalid response from Glassnode for S2F Deflection')
-
-            if data == []:
-                return empty
-
-            df = pd.DataFrame(data)
-            df['t'] = pd.to_datetime(df['t'], unit='s')
-            df = self.standardize_s2f_deflection(df)
-            return self.reader.data_in_timeframe(df, C.TIME, timeframe)
-
-        return self.try_again(func=_get_s2f_deflection, **kwargs)

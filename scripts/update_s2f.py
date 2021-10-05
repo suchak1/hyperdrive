@@ -9,7 +9,7 @@ import Constants as C  # noqa autopep8
 glass = Glassnode()
 
 try:
-    glass.save_s2f(timeframe='max', retries=1 if C.TEST else 2)
+    glass.save_s2f_ratio(timeframe='max', retries=1 if C.TEST else 2)
 except Exception as e:
     print('Glassnode S2F update failed.')
     print(e)
