@@ -17,3 +17,13 @@ finally:
     filename = PathFinder().get_s2f_path()
     if C.CI and os.path.exists(filename):
         os.remove(filename)
+
+try:
+    glass.save_diff_ribbon(timeframe='max', retries=1 if C.TEST else 2)
+except Exception as e:
+    print('Glassnode Diff Ribbon update failed.')
+    print(e)
+finally:
+    filename = PathFinder().get_diff_ribbon_path()
+    if C.CI and os.path.exists(filename):
+        os.remove(filename)

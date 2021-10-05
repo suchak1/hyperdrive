@@ -6,7 +6,7 @@ from polygon import RESTClient
 from dotenv import load_dotenv, find_dotenv
 from FileOps import FileReader, FileWriter
 from TimeMachine import TimeTraveller
-from Constants import PathFinder
+from Constants import MA14, PathFinder
 import Constants as C
 
 
@@ -355,6 +355,49 @@ class MarketData:
         if os.path.exists(filename):
             return filename
 
+    def standardize_diff_ribbon(self, df):
+        full_mapping = dict(
+            zip(
+                ['t', 'o.ma9', 'o.ma14', 'o.ma25', 'o.ma40',
+                    'o.ma60', 'o.ma90', 'o.ma128', 'o.ma200'],
+                [C.TIME, C.MA9, C.MA14, C.MA25, C.MA40,
+                    C.MA60, C.MA90, C.MA128, C.MA200]
+            )
+        )
+        filename = self.finder.get_diff_ribbon_path()
+        df = self.standardize(
+            df,
+            full_mapping,
+            filename,
+            [C.TIME, C.MA9, C.MA14, C.MA25, C.MA40,
+             C.MA60, C.MA90, C.MA128, C.MA200],
+            0
+        )
+        return df[{C.TIME, C.MA9, C.MA14, C.MA25, C.MA40,
+                   C.MA60, C.MA90, C.MA128, C.MA200}.intersection(df.columns)]
+
+    def get_diff_ribbon(self, timeframe='max'):
+        # given a symbol, return a cached dataframe
+        df = self.reader.load_csv(
+            self.finder.get_diff_ribbon_path())
+        filtered = self.reader.data_in_timeframe(df, C.TIME, timeframe)[
+            [C.TIME, C.MA9, C.MA14, C.MA25, C.MA40,
+             C.MA60, C.MA90, C.MA128, C.MA200]]
+        return filtered
+
+    def save_diff_ribbon(self, **kwargs):
+        # # given a symbol, save its s2f data
+        filename = self.finder.get_diff_ribbon_path()
+
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        df = self.reader.update_df(
+            filename, self.get_diff_ribbon(**kwargs), C.TIME, C.DATE_FMT)
+
+        self.writer.update_csv(filename, df)
+        if os.path.exists(filename):
+            return filename
     # def handle_request(self, url, err_msg):
 
 
@@ -857,3 +900,33 @@ class Glassnode(MarketData):
             return self.reader.data_in_timeframe(df, C.TIME, timeframe)
 
         return self.try_again(func=_get_s2f_ratio, **kwargs)
+
+    def get_diff_ribbon(self, **kwargs):
+        def _get_diff_ribbon(timeframe):
+            parts = [
+                self.base,
+                self.version,
+                'metrics',
+                'indicators',
+                'difficulty_ribbon'
+            ]
+            url = '/'.join(parts)
+            empty = pd.DataFrame()
+            response = requests.get(
+                url, params={'a': 'BTC', 'api_key': self.token})
+
+            if response.ok:
+                data = response.json()
+            else:
+                raise Exception(
+                    'Invalid response from Glassnode for Difficulty Ribbon')
+
+            if data == []:
+                return empty
+
+            df = pd.json_normalize(data)
+            df['t'] = pd.to_datetime(df['t'], unit='s')
+            df = self.standardize_diff_ribbon(df)
+            return self.reader.data_in_timeframe(df, C.TIME, timeframe)
+
+        return self.try_again(func=_get_diff_ribbon, **kwargs)
