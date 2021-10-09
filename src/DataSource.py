@@ -360,8 +360,7 @@ class MarketData:
             zip(
                 ['t', 'o.ma9', 'o.ma14', 'o.ma25', 'o.ma40',
                     'o.ma60', 'o.ma90', 'o.ma128', 'o.ma200'],
-                [C.TIME, C.MA9, C.MA14, C.MA25, C.MA40,
-                    C.MA60, C.MA90, C.MA128, C.MA200]
+                [C.TIME] + C.MAs
             )
         )
         filename = self.finder.get_diff_ribbon_path()
@@ -369,20 +368,17 @@ class MarketData:
             df,
             full_mapping,
             filename,
-            [C.TIME, C.MA9, C.MA14, C.MA25, C.MA40,
-             C.MA60, C.MA90, C.MA128, C.MA200],
+            [C.TIME] + C.MAs,
             0
         )
-        return df[{C.TIME, C.MA9, C.MA14, C.MA25, C.MA40,
-                   C.MA60, C.MA90, C.MA128, C.MA200}.intersection(df.columns)]
+        return df[set([C.TIME] + C.MAs).intersection(df.columns)]
 
     def get_diff_ribbon(self, timeframe='max'):
         # given a symbol, return a cached dataframe
         df = self.reader.load_csv(
             self.finder.get_diff_ribbon_path())
         filtered = self.reader.data_in_timeframe(df, C.TIME, timeframe)[
-            [C.TIME, C.MA9, C.MA14, C.MA25, C.MA40,
-             C.MA60, C.MA90, C.MA128, C.MA200]]
+            [C.TIME] + C.MAs]
         return filtered
 
     def save_diff_ribbon(self, **kwargs):

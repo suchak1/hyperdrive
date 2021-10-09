@@ -478,5 +478,4 @@ class TestGlassnode:
     def test_get_diff_ribbon(self):
         df = glass.get_diff_ribbon(timeframe='max')
         assert len(df) > 3000
-        assert {C.TIME, C.MA9, C.MA14, C.MA25, C.MA40,
-                C.MA60, C.MA90, C.MA128, C.MA200}.issubset(df.columns)
+        assert set([C.TIME] + C.MAs).issubset(df.columns)

@@ -79,14 +79,7 @@ UN_RATE = 'UnRate'
 HALVING = 'Halving'
 
 # Difficulty Ribbon
-MA9 = 'MA9'
-MA14 = 'MA14'
-MA25 = 'MA25'
-MA40 = 'MA40'
-MA60 = 'MA60'
-MA90 = 'MA90'
-MA128 = 'MA128'
-MA200 = 'MA200'
+MAs = ['MA9', 'MA14', 'MA25', 'MA40', 'MA60', 'MA90', 'MA128', 'MA200']
 
 # Misc
 POLY_CRYPTO_SYMBOLS = [
