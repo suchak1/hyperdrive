@@ -1,7 +1,7 @@
 # This workflow will automatically update data files
 # For more information see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#scheduled-events-schedule
 
-name: S2F
+name: Indicators
 
 on:
   schedule:
@@ -39,11 +39,11 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Update S2F
+      - name: Update indicators
         env:
           GLASSNODE: ${{ secrets.GLASSNODE }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
-        run: python scripts/update_s2f.py
+        run: python scripts/update_indicators.py

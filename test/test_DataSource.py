@@ -312,8 +312,11 @@ class TestMarketData:
     def test_save_unemployment_rate(self):
         assert 'unemployment.csv' in md.save_unemployment_rate(timeframe='2y')
 
-    def test_save_s2f(self):
-        assert 's2f.csv' in md.save_s2f()
+    def test_save_s2f_ratio(self):
+        assert 's2f.csv' in md.save_s2f_ratio()
+
+    def test_save_diff_ribbon(self):
+        assert 'diff_ribbon.csv' in md.save_diff_ribbon()
 
 
 class TestIEXCloud:
@@ -472,7 +475,8 @@ class TestGlassnode:
         assert len(df) > 3000
         assert {C.TIME, C.HALVING, C.RATIO}.issubset(df.columns)
 
-    def test_get_s2f_deflection(self):
-        df = glass.get_s2f_deflection(timeframe='max')
+    def test_get_diff_ribbon(self):
+        df = glass.get_diff_ribbon(timeframe='max')
         assert len(df) > 3000
-        assert {C.TIME, C.VAL}.issubset(df.columns)
+        assert {C.TIME, C.MA9, C.MA14, C.MA25, C.MA40,
+                C.MA60, C.MA90, C.MA128, C.MA200}.issubset(df.columns)

@@ -77,7 +77,16 @@ UN_RATE = 'UnRate'
 
 # S2F
 HALVING = 'Halving'
-VAL = 'Val'
+
+# Difficulty Ribbon
+MA9 = 'MA9'
+MA14 = 'MA14'
+MA25 = 'MA25'
+MA40 = 'MA40'
+MA60 = 'MA60'
+MA90 = 'MA90'
+MA128 = 'MA128'
+MA200 = 'MA200'
 
 # Misc
 POLY_CRYPTO_SYMBOLS = [
@@ -170,6 +179,12 @@ class PathFinder:
         return os.path.join(
             DATA_DIR,
             's2f.csv'
+        )
+
+    def get_diff_ribbon_path(self):
+        return os.path.join(
+            DATA_DIR,
+            'diff_ribbon.csv'
         )
 
     def get_all_paths(self, path, truncate=False):
