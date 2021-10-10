@@ -5,15 +5,22 @@ import Constants as C
 from scipy.signal import argrelextrema
 from DataSource import MarketData
 from sklearn.model_selection import train_test_split
+# from sklearn.preprocessing import StandardScaler
+from sklearn.neural_network import MLPClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.gaussian_process import GaussianProcessClassifier
+from sklearn.gaussian_process.kernels import RBF
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+from sklearn.metrics import classification_report
 
 
 class Historian:
-    def buy_and_hold(self, symbol, timeframe, provider='polygon'):
+    def buy_and_hold(self, close):
         # returns a portfolio based on buy and hold strategy
-        md = MarketData()
-        md.provider = provider
-        ohlc = md.get_ohlc(symbol, timeframe)
-        close = ohlc[C.CLOSE]
         portfolio = vbt.Portfolio.from_holding(
             close, init_cash=1000, freq='D')
         return portfolio
@@ -86,8 +93,8 @@ class Historian:
         df = pd.DataFrame(X)
         df['y'] = y
         df = df.dropna()
-        y = df['y']
-        X = df.drop('y', axis=1)
+        y = df['y'].to_numpy()
+        X = df.drop('y', axis=1).to_numpy()
         X_train, X_test, y_train, y_test = \
             train_test_split(X, y, test_size=.2)
         train_true = 0
@@ -95,6 +102,7 @@ class Historian:
         X_train_new = []
         y_train_new = []
         train_num = len(y_train) - sum(y_train)
+
         for idx, y in enumerate(y_train):
             if y and train_true < train_num:
                 X_train_new.append(X_train[idx])
@@ -108,7 +116,48 @@ class Historian:
         y_train = y_train_new
 
         return X_train, X_test, y_train, y_test
-    # def run classifiers
+
+    def run_classifiers(self, X_train, X_test, y_train, y_test):
+        names = [
+            "Nearest Neighbors", "Linear SVM", "RBF SVM", "Gaussian Process",
+            "Decision Tree", "Random Forest", "Neural Net", "AdaBoost",
+            "Naive Bayes", "QDA"]
+        classifiers = [
+            KNeighborsClassifier(3),
+            SVC(kernel="linear", C=0.025),
+            SVC(gamma=2, C=1),
+            GaussianProcessClassifier(1.0 * RBF(1.0)),
+            DecisionTreeClassifier(max_depth=5),
+            RandomForestClassifier(
+                max_depth=5, n_estimators=10, max_features=1),
+            MLPClassifier(alpha=1, max_iter=1000),
+            AdaBoostClassifier(),
+            GaussianNB(),
+            QuadraticDiscriminantAnalysis()]
+
+        clfs = {}
+
+        for name, clf in zip(names, classifiers):
+            clf.fit(X_train, y_train)
+            score = clf.score(X_test, y_test)
+            report = classification_report(
+                y_test, clf.predict(X_test), output_dict=True)
+            clfs[name] = {'score': score, 'report': report,
+                          'ratio': clf.score(X_train, y_train)/score}
+        return clfs
+
+        # best_score = 0
+        # best_name = ''
+        # best_clf = None
+
+        # if score > best_score:
+        #     best_name = name
+        #     best_score = score
+        #     best_clf = clf
+        # best_names.append(best_name)
+        # clfs.append(best_clf)
+        # scores.append(best_score)
+        # print(f'{best_name}: {best_score}')
 
     # def plot_2d combos:
 

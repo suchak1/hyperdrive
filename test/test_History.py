@@ -1,5 +1,6 @@
 import sys
 import numpy as np
+import pandas as pd
 sys.path.append('src')
 from History import Historian  # noqa autopep8
 
@@ -15,10 +16,17 @@ test_nfill = np.array(ns)
 
 close = np.array([3, 2, 5, 1, 100, 75, 50, 25, 1])
 
+total = 100
+majority = 80
+minority = total - majority
+data = np.arange(total)
+X = pd.DataFrame({'i': data, 'j': data})
+y = np.array([True] * majority + [False] * minority)
+
 
 class TestHistorian:
     def test_buy_and_hold(self):
-        stats = hist.buy_and_hold('X%3ABTCUSD', '1y').stats()
+        stats = hist.buy_and_hold(close).stats()
         assert 'Sortino Ratio' in stats
 
     def test_create_portfolio(self):
@@ -38,5 +46,15 @@ class TestHistorian:
         assert np.array_equal(n_signals, test_nfill)
 
     def test_generate_random(self):
-        strats = hist.generate_random(close, num=10)
-        assert sum(strats) > 0 and len(strats)
+        strats = hist.generate_random(close, num=100)
+        assert 0 < len(strats) <= 25
+
+    def test_undersample(self):
+        _, _, y_train, _ = hist.undersample(X, y)
+        assert np.mean(y_train) == 0.5
+
+    def test_run_classifiers(self):
+        X_train, X_test, y_train, y_test = hist.undersample(X, y)
+        clfs = hist.run_classifiers(X_train, X_test, y_train, y_test)
+        for clf in clfs:
+            assert 'score' in clfs[clf]
