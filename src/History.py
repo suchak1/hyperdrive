@@ -81,13 +81,13 @@ class Historian:
             good_signals) if idx in top_idxs]
         return good_signals
 
-    def undersample(self, X, y, to_skip=13):
+    def undersample(self, X, y):
         # undersample and split train / test data
         df = pd.DataFrame(X)
-        df['y'] =
-        X = X.tail(len(X) - to_skip)
-        y = pd.DataFrame(y)
-        y = y.tail(len(y) - to_skip)
+        df['y'] = y
+        df = df.dropna()
+        y = df['y']
+        X = df.drop('y', axis=1)
         X_train, X_test, y_train, y_test = \
             train_test_split(X, y, test_size=.2)
         train_true = 0
