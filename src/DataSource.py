@@ -398,6 +398,45 @@ class MarketData:
         self.writer.update_csv(filename, df)
         if os.path.exists(filename):
             return filename
+
+    def standardize_sopr(self, df):
+        full_mapping = dict(
+            zip(
+                ['t', 'v'],
+                [C.TIME, C.SOPR]
+            )
+        )
+        filename = self.finder.get_diff_ribbon_path()
+        df = self.standardize(
+            df,
+            full_mapping,
+            filename,
+            [C.TIME, C.SOPR],
+            1
+        )
+        return df[{C.TIME, C.SOPR}.intersection(df.columns)]
+
+    def get_sopr(self, timeframe='max'):
+        # given a symbol, return a cached dataframe
+        df = self.reader.load_csv(
+            self.finder.get_sopr_path())
+        filtered = self.reader.data_in_timeframe(df, C.TIME, timeframe)[
+            [C.TIME, C.SOPR]]
+        return filtered
+
+    def save_sopr(self, **kwargs):
+        # # given a symbol, save its s2f data
+        filename = self.finder.get_sopr_path()
+
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        df = self.reader.update_df(
+            filename, self.get_sopr_ribbon(**kwargs), C.TIME, C.DATE_FMT)
+
+        self.writer.update_csv(filename, df)
+        if os.path.exists(filename):
+            return filename
     # def handle_request(self, url, err_msg):
 
 
@@ -930,3 +969,33 @@ class Glassnode(MarketData):
             return self.reader.data_in_timeframe(df, C.TIME, timeframe)
 
         return self.try_again(func=_get_diff_ribbon, **kwargs)
+
+    def get_sopr(self, **kwargs):
+        def _get_sopr(timeframe):
+            parts = [
+                self.base,
+                self.version,
+                'metrics',
+                'indicators',
+                'sopr'
+            ]
+            url = '/'.join(parts)
+            empty = pd.DataFrame()
+            response = requests.get(
+                url, params={'a': 'BTC', 'api_key': self.token})
+
+            if response.ok:
+                data = response.json()
+            else:
+                raise Exception(
+                    'Invalid response from Glassnode for SOPR')
+
+            if data == []:
+                return empty
+
+            df = pd.json_normalize(data)
+            df['t'] = pd.to_datetime(df['t'], unit='s')
+            df = self.standardize_sopr(df)
+            return self.reader.data_in_timeframe(df, C.TIME, timeframe)
+
+        return self.try_again(func=_get_sopr, **kwargs)
