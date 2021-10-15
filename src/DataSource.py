@@ -432,7 +432,7 @@ class MarketData:
             os.remove(filename)
 
         df = self.reader.update_df(
-            filename, self.get_sopr_ribbon(**kwargs), C.TIME, C.DATE_FMT)
+            filename, self.get_sopr(**kwargs), C.TIME, C.DATE_FMT)
 
         self.writer.update_csv(filename, df)
         if os.path.exists(filename):
