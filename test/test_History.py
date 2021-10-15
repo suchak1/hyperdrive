@@ -50,11 +50,11 @@ class TestHistorian:
         assert 0 < len(strats) <= 25
 
     def test_undersample(self):
-        _, _, y_train, _ = hist.undersample(X, y)
+        _, _, y_train, _ = hist.undersample(X, y)[:4]
         assert np.mean(y_train) == 0.5
 
     def test_run_classifiers(self):
-        X_train, X_test, y_train, y_test = hist.undersample(X, y)
+        X_train, X_test, y_train, y_test = hist.undersample(X, y)[:4]
         clfs = hist.run_classifiers(X_train, X_test, y_train, y_test)
-        for clf in clfs:
-            assert 'score' in clfs[clf]
+        for _, clf in clfs:
+            assert 'score' in clf

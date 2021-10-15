@@ -3,7 +3,8 @@ import pandas as pd
 import vectorbt as vbt
 from scipy.signal import argrelextrema
 from sklearn.model_selection import train_test_split
-# from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
@@ -86,8 +87,8 @@ class Historian:
             good_signals) if idx in top_idxs]
         return good_signals
 
-    def undersample(self, X, y):
-        # undersample and split train / test data
+    def undersample(self, X, y, n=2):
+        # undersample, split train / test data, and standardize
         df = pd.DataFrame(X)
         df['y'] = y
         df = df.dropna()
@@ -100,20 +101,42 @@ class Historian:
         X_train_new = []
         y_train_new = []
         train_num = len(y_train) - sum(y_train)
-
-        for idx, y in enumerate(y_train):
-            if y and train_true < train_num:
-                X_train_new.append(X_train[idx])
-                y_train_new.append(y_train[idx])
+        # use arr[mask]all[:num] instead to get
+        for idx, signal in enumerate(y_train):
+            if signal and train_true < train_num:
                 train_true += 1
-            elif not y and train_false < train_num:
-                X_train_new.append(X_train[idx])
-                y_train_new.append(y_train[idx])
+            elif not signal and train_false < train_num:
                 train_false += 1
-        X_train = X_train_new
-        y_train = y_train_new
+            else:
+                continue
+            X_train_new.append(X_train[idx])
+            y_train_new.append(y_train[idx])
+        X_train = np.array(X_train_new)
+        y_train = np.array(y_train_new)
 
-        return X_train, X_test, y_train, y_test
+        X_train, X_test = self.standardize(X_train, X_test)
+        X_train, X_test = self.pca(X_train, n, X_test)
+        X = self.pca(self.standardize(X), n)
+
+        return X_train, X_test, y_train, y_test, X, y
+
+    def standardize(self, X_train, X_test=None):
+        scaler = StandardScaler().fit(X_train)
+        X_train = scaler.transform(X_train)
+        if type(X_test) == np.ndarray:
+            X_test = scaler.transform(X_test)
+            return X_train, X_test
+        return X_train
+
+    def pca(self, X_train, n, X_test=None):
+        num_features = X_train.shape[1]
+        n = n if n <= num_features else num_features
+        pca = PCA(n_components=n).fit(X_train)
+        X_train = pca.transform(X_train)
+        if type(X_test) == np.ndarray:
+            X_test = pca.transform(X_test)
+            return X_train, X_test
+        return X_train
 
     def run_classifiers(self, X_train, X_test, y_train, y_test):
         names = [
@@ -140,23 +163,17 @@ class Historian:
             score = clf.score(X_test, y_test)
             report = classification_report(
                 y_test, clf.predict(X_test), output_dict=True)
-            clfs[name] = {'score': score, 'report': report,
-                          'ratio': clf.score(X_train, y_train)/score}
+            ratio = clf.score(X_train, y_train) / score
+            if ratio < 1.15:
+                clfs[name] = {'score': score, 'report': report,
+                              'ratio': ratio, 'clf': clf}
+        clfs = sorted(clfs.items(), reverse=True,
+                      key=lambda clf: clf[1]['score'])
         return clfs
 
-        # best_score = 0
-        # best_name = ''
-        # best_clf = None
+        # def plot_2d combos:
+        # https://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html
+        # https://stackoverflow.com/questions/51297423/plot-scikit-learn-sklearn-svm-decision-boundary-surface
+        # use pca to reduce dimensionality and make easier to plot
 
-        # if score > best_score:
-        #     best_name = name
-        #     best_score = score
-        #     best_clf = clf
-        # best_names.append(best_name)
-        # clfs.append(best_clf)
-        # scores.append(best_score)
-        # print(f'{best_name}: {best_score}')
-
-    # def plot_2d combos:
-
-    # def plot 3d combos
+        # def plot 3d combos
