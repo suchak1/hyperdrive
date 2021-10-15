@@ -81,6 +81,9 @@ HALVING = 'Halving'
 # Difficulty Ribbon
 MAs = ['MA9', 'MA14', 'MA25', 'MA40', 'MA60', 'MA90', 'MA128', 'MA200']
 
+# SOPR
+SOPR = 'SOPR'
+
 # Misc
 POLY_CRYPTO_SYMBOLS = [
     'X%3ABTCUSD', 'X%3AETHUSD',
@@ -178,6 +181,12 @@ class PathFinder:
         return os.path.join(
             DATA_DIR,
             'diff_ribbon.csv'
+        )
+
+    def get_sopr_path(self):
+        return os.path.join(
+            DATA_DIR,
+            'sopr.csv'
         )
 
     def get_all_paths(self, path, truncate=False):

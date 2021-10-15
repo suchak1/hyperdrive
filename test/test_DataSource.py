@@ -318,6 +318,9 @@ class TestMarketData:
     def test_save_diff_ribbon(self):
         assert 'diff_ribbon.csv' in md.save_diff_ribbon()
 
+    def test_save_sopr(self):
+        assert 'sopr.csv' in md.save_sopr()
+
 
 class TestIEXCloud:
     def test_init(self):
@@ -479,3 +482,8 @@ class TestGlassnode:
         df = glass.get_diff_ribbon(timeframe='max')
         assert len(df) > 3000
         assert set([C.TIME] + C.MAs).issubset(df.columns)
+
+    def test_get_sopr(self):
+        df = glass.get_sopr(timeframe='max')
+        assert len(df) > 3000
+        assert {C.TIME, C.SOPR}.issubset(df.columns)
