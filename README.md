@@ -1,7 +1,6 @@
 | <img src="https://raw.githubusercontent.com/suchak1/hyperdrive/master/img/1.png" width="75" /> | _hyperdrive_: Robinhood analytics and algorithmic trading |
 | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
 
-
 ![Build Pipeline](https://github.com/suchak1/hyperdrive/workflows/Build%20Pipeline/badge.svg) ![Dev Pipeline](https://github.com/suchak1/hyperdrive/workflows/Dev%20Pipeline/badge.svg) ![New Release](https://github.com/suchak1/hyperdrive/workflows/New%20Release/badge.svg)
 
 _hyperdrive_ is a project to obtain stock data, create trading strategies, test against historical data (backtesting), and deploy strategies for algorithmic trading.
@@ -28,6 +27,12 @@ To install the necessary packages, run
 
 ```
 pip install -r requirements.txt
+```
+
+### Testing
+
+```
+python -m pytest -s -v test/test_filename -k function_name
 ```
 
 ## Use
@@ -83,9 +88,9 @@ Using Robinhood 2FA, we can simply provide our MFA one-time password in the `.en
   - [ ] Earnings
   - [ ] Cash Flow
   - [ ] CEO Compensation
-- [ ] Government / Macro           <!-- this stuff prob won't be v useful -->  
-  - [x] [![Unemployment](<https://github.com/suchak1/hyperdrive/workflows/Unemployment/badge.svg>)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3AUnemployment)          <!-- BLS -->
-  - [ ] Real GDP                   <!-- BEA -->
+- [ ] Government / Macro <!-- this stuff prob won't be v useful -->
+  - [x] [![Unemployment](https://github.com/suchak1/hyperdrive/workflows/Unemployment/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3AUnemployment) <!-- BLS -->
+  - [ ] Real GDP <!-- BEA -->
   - [ ] US Recession Probabilities <!-- FRED -->
 - [ ] Market
   - [ ] General Volatility (VIX)
