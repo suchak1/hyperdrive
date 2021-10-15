@@ -32,7 +32,7 @@ pip install -r requirements.txt
 ### Testing
 
 ```
-python -m pytest test/test_filename -k function_name
+python -m pytest -s -v test/test_filename -k function_name
 ```
 
 ## Use
