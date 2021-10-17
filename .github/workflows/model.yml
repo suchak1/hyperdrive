@@ -34,12 +34,15 @@ jobs:
       #     python -m pip install --upgrade pip
       #     pip install flake8 pytest coverage
       #     if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
       - name: Decrypt script
         env:
           GPG_PASS: ${{ secrets.GPG_PASS }}
         run: |
-          gpgconf --reload gpg-agent && gpg --verbose --batch --yes --decrypt --passphrase=${GPG_KEY} --output "encrypted/create_model.py" "encrypted/create_model.py.gpg"
+          gpgconf --kill gpg-agent
+          echo $'default-cache-ttl 1\nmax-cache-ttl 1' >> ~/.gnupg/gpg-agent.conf
+          gpg --verbose --batch --yes --decrypt --passphrase=${GPG_KEY} --output "encrypted/create_model.py" "encrypted/create_model.py.gpg"
+
+        # gpgconf --reload gpg-agent && cat ~/.gnupg/gpg-agent.conf
 
       - name: Create model
         env:
