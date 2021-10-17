@@ -48,20 +48,11 @@ jobs:
           pip install flake8 pytest coverage
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Set up Node.js 16
-        uses: actions/setup-node@v2
-        with:
-          node-version: "16"
-
-      - name: Install crypto-js
-        run: |
-          npm i crypto-js@4.1.1
-
       - name: Decrypt script
         env:
           RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
         run: |
-          node util/decrypt.js
+          util/decrypt.sh encrypted/create_model.py
 
       - name: Create model
         env:
