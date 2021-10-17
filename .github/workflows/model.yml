@@ -4,6 +4,9 @@
 name: Model Pipeline
 
 on:
+  push:
+    branches:
+      - feature/strategy-builder
   workflow_dispatch:
 
 jobs:
