@@ -39,7 +39,7 @@ jobs:
         env:
           GPG_PASS: ${{ secrets.GPG_PASS }}
         run: |
-          gpgconf --reload gpg-agent && gpg --batch --yes --symmetric --cipher-algo AES256 --passphrase=${GPG_PASS} --output "encrypted/create_model.py.gpg" "encrypted/create_model.py"
+          gpgconf --reload gpg-agent && gpg --verbose --batch --yes --decrypt --passphrase=${GPG_KEY} --output "encrypted/create_model.py" "encrypted/create_model.py.gpg"
 
       - name: Create model
         env:
