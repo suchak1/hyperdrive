@@ -7,4 +7,4 @@ if [[ $CI != true ]]; then
 fi
 
 # Decrypt
-gpg --quiet --batch --yes --decrypt --passphrase=${RH_PASSWORD} --output "${FILE}" "${FILE}.gpg"
+gpg --verbose --batch --yes --decrypt --passphrase=${RH_PASSWORD} --output "${FILE}" "${FILE}.gpg"
