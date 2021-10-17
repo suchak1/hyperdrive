@@ -8,4 +8,9 @@ robinhood.pickle
 data/
 .coverage
 notebooks/
-encrypted/**/*.{py,sh,pickle}
+ta-lib/
+random/
+encrypted/**
+!encrypted/*/
+!encrypted/**/*.encrypt
+models/

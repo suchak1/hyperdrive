@@ -5,3 +5,6 @@ boto3 == 1.18.52
 polygon-api-client == 0.2.11
 pytz == 2021.1
 vectorbt == 0.21.0
+scipy == 1.7.1
+scikit-learn == 1.0
+auto-sklearn == 0.14.0

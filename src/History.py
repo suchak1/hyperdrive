@@ -135,7 +135,11 @@ class Historian:
         X_train = pca.transform(X_train)
         if type(X_test) == np.ndarray:
             X_test = pca.transform(X_test)
+            var = pca.explained_variance_ratio_.sum() * 100
+            print(f'Explained variance (X_train): {round(var, 2)}%')
             return X_train, X_test
+        var = pca.explained_variance_ratio_.sum() * 100
+        print(f'Explained variance (X): {round(var, 2)}%')
         return X_train
 
     def run_classifiers(self, X_train, X_test, y_train, y_test):
