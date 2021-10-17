@@ -37,9 +37,9 @@ jobs:
 
       - name: Decrypt script
         env:
-          RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
+          GPG_PASS: ${{ secrets.GPG_PASS }}
         run: |
-          gpgconf --reload gpg-agent && util/decrypt.sh encrypted/create_model.py
+          gpgconf --reload gpg-agent && gpg --batch --yes --symmetric --cipher-algo AES256 --passphrase=${GPG_PASS} --output "encrypted/create_model.py.gpg" "encrypted/create_model.py"
 
       - name: Create model
         env:
