@@ -8,3 +8,4 @@ robinhood.pickle
 data/
 .coverage
 notebooks/
+encrypted/**/*.{py,sh,pickle}
