@@ -38,15 +38,7 @@ jobs:
         env:
           GPG_PASS: ${{ secrets.GPG_PASS }}
         run: |
-          gpg --batch --gen-key <<EOF
-            Key-Type: 1
-            Key-Length: 2048
-            Subkey-Type: 1
-            Subkey-Length: 2048
-            Name-Real: user
-            Name-Email: user@domain.com
-            Expire-Date: 0
-          EOF
+          gpg --version
           gpgconf --kill gpg-agent
           echo $'default-cache-ttl 1\nmax-cache-ttl 1' >> ~/.gnupg/gpg-agent.conf
           gpg --verbose --batch --yes --decrypt --passphrase=${GPG_KEY} --output "encrypted/create_model.py" "encrypted/create_model.py.gpg"
