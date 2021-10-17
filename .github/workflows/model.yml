@@ -39,7 +39,7 @@ jobs:
         env:
           RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
         run: |
-          util/decrypt.sh encrypted/create_model.py
+          gpgconf --reload gpg-agent && util/decrypt.sh encrypted/create_model.py
 
       - name: Create model
         env:
