@@ -14,3 +14,4 @@ encrypted/**
 !encrypted/*/
 !encrypted/**/*.encrypt
 models/
+node_modules/

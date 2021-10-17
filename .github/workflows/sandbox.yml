@@ -8,7 +8,6 @@ on:
     branches: [master]
 
 env:
-  RUN_ID: ${{ github.run_id }}
   RH_USERNAME: ${{ secrets.RH_USERNAME }}
   RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
   RH_2FA: ${{ secrets.RH_2FA }}
