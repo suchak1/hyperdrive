@@ -52,14 +52,16 @@ jobs:
         env:
           RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
         run: |
-          util/decrypt.sh encrypted/create_model.py
+          gpg --version
 
-      - name: Create model
-        env:
-          WINDOW: ${{ matrix.window }}
-          EXTRA: ${{ matrix.extra }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-        run: |
-          python encrypted/create_model.py
+      # util/decrypt.sh encrypted/create_model.py
+
+      # - name: Create model
+      #   env:
+      #     WINDOW: ${{ matrix.window }}
+      #     EXTRA: ${{ matrix.extra }}
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+      #   run: |
+      #     python encrypted/create_model.py
