@@ -21,14 +21,13 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Cache pip dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
+      # - name: Cache pip dependencies
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ~/.cache/pip
+      #     key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-pip-
       # - name: Install dependencies
       #   run: |
       #     python -m pip install --upgrade pip
@@ -40,6 +39,7 @@ jobs:
         run: |
           gpg --version
           gpgconf --kill gpg-agent
+          mkdir -p ~/.gnupg
           echo $'default-cache-ttl 1\nmax-cache-ttl 1' >> ~/.gnupg/gpg-agent.conf
           gpg --verbose --batch --yes --decrypt --passphrase=${GPG_KEY} --output "encrypted/create_model.py" "encrypted/create_model.py.gpg"
 
