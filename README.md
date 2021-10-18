@@ -110,4 +110,5 @@ Using Robinhood 2FA, we can simply provide our MFA one-time password in the `.en
 <!-- google cloud automl (vertex ai)  NO -->
 <!-- auto sklearn -->
 <!-- get data, make decision/trade, update model before 11pm est each night -->
+<!-- 8:30 est polygon,  -->
 <!-- auto-encrypt and run on save extensions for encrypting model -->
