@@ -35,20 +35,10 @@ jobs:
       #     if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Decrypt script
         env:
-          GPG_PASS: ${{ secrets.GPG_PASS }}
+          RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
+          SALT: ${{ secrets.SALT }}
         run: |
-          echo "hi this is a secret" >> secret.txt
-          gpg --batch --yes --symmetric --cipher-algo AES256 --passphrase=secret --output "secret.txt.gpg" "secret.txt"
-          rm secret.txt
-          gpg --verbose --batch --yes --decrypt --passphrase=secret --output "secret.txt" "secret.txt.gpg"
-          cat secret.txt
-        # gpg --version
-        # gpgconf --kill gpg-agent
-        # mkdir -p ~/.gnupg
-        # echo $'default-cache-ttl 1\nmax-cache-ttl 1' >> ~/.gnupg/gpg-agent.conf
-        # gpg --verbose --batch --yes --decrypt --passphrase=${GPG_KEY} --output "encrypted/create_model.py" "encrypted/create_model.py.gpg"
-
-        # gpgconf --reload gpg-agent && cat ~/.gnupg/gpg-agent.conf
+          python util/decrypt.py encrypted/create_model.py
 
       - name: Create model
         env:

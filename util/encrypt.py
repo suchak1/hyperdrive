@@ -1,13 +1,16 @@
 import os
+import sys
+import base64
 from dotenv import load_dotenv, find_dotenv
+from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 
 load_dotenv(find_dotenv('config.env'))
 
 password = os.environ['RH_PASSWORD'].encode('UTF-8')
 salt = os.environ['SALT'].encode('UTF-8')
+filename = os.environ.get('FILE') or sys.argv[1]
 
 kdf = Scrypt(
     salt=salt,
@@ -17,11 +20,10 @@ kdf = Scrypt(
     p=1,
 )
 
-key = kdf.derive(password)
-iv = salt + salt
+key = base64.urlsafe_b64encode(kdf.derive(password))
+f = Fernet(key)
+with open(filename, 'r') as file:
+    ciphertext = f.encrypt(file.read().encode('UTF-8'))
 
-cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
-encryptor = cipher.encryptor()
-ct = encryptor.update(b"a secret message") + encryptor.finalize()
-decryptor = cipher.decryptor()
-print(decryptor.update(ct) + decryptor.finalize())
+with open(f'{filename}.encrypted', 'wb') as file:
+    file.write(ciphertext)
