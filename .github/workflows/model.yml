@@ -33,31 +33,31 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Cache pip dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install flake8 pytest coverage
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      # - name: Cache pip dependencies
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ~/.cache/pip
+      #     key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-pip-
+      # - name: Install dependencies
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     pip install flake8 pytest coverage
+      #     if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Decrypt script
         env:
           RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
         run: |
-          util/decrypt.sh encrypted/create_model.py
+          gpgconf --reload gpg-agent && util/decrypt.sh encrypted/create_model.py
 
-      - name: Create model
-        env:
-          WINDOW: ${{ matrix.window }}
-          EXTRA: ${{ matrix.extra }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-        run: |
-          python encrypted/create_model.py
+      # - name: Create model
+      #   env:
+      #     WINDOW: ${{ matrix.window }}
+      #     EXTRA: ${{ matrix.extra }}
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+      #   run: |
+      #     python encrypted/create_model.py
