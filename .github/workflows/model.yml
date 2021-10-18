@@ -15,15 +15,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - window: 7
-          - window: 7
-            extra: true
-          - window: 14
-          - window: 14
-            extra: true
-          - window: 30
-          - window: 30
-            extra: true
+          - pca: 2
+          - pca: 3
+          - pca: 5
+          - pca: 7
       fail-fast: false
     steps:
       - name: Checkout repo
@@ -57,8 +52,7 @@ jobs:
 
       - name: Create model
         env:
-          WINDOW: ${{ matrix.window }}
-          EXTRA: ${{ matrix.extra }}
+          PCA: ${{ matrix.pca }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
