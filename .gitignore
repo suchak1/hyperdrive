@@ -12,6 +12,6 @@ ta-lib/
 random/
 encrypted/**
 !encrypted/*/
-!encrypted/**/*.gpg
+!encrypted/**/*.encrypted
 models/
 node_modules/
