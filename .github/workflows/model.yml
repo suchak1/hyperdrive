@@ -50,7 +50,7 @@ jobs:
       - name: Decrypt script
         env:
           RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
-          SALT: ${{ secrets.RH_PASSWORD }}
+          SALT: ${{ secrets.SALT }}
         run: |
           python util/decrypt.py encrypted/create_model.py
 
