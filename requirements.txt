@@ -9,3 +9,4 @@ scipy == 1.7.1
 scikit-learn >=0.24.0
 auto-sklearn == 0.14.0
 cryptography == 35.0.0
+ta == 0.7.0
