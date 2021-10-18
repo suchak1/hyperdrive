@@ -174,10 +174,3 @@ class Historian:
         clfs = sorted(clfs.items(), reverse=True,
                       key=lambda clf: clf[1]['score'])
         return clfs
-
-        # def plot_2d combos:
-        # https://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html
-        # https://stackoverflow.com/questions/51297423/plot-scikit-learn-sklearn-svm-decision-boundary-surface
-        # use pca to reduce dimensionality and make easier to plot
-
-        # def plot 3d combos
