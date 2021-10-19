@@ -4,9 +4,9 @@
 name: Model Creation
 
 on:
-  push:
-    branches:
-      - feature/strategy-builder
+  # push:
+  #   branches:
+  #     - feature/strategy-builder
   workflow_dispatch:
 
 jobs:
