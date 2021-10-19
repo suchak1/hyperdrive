@@ -1,4 +1,3 @@
-from pprint import pprint
 import sys
 sys.path.append('src')
 from Exchange import Binance  # noqa autopep8
@@ -61,7 +60,8 @@ class TestBinance:
     #               'minQty': '0.00000000',
     #               'stepSize': '0.00000000'},
     #              {'filterType': 'MAX_NUM_ORDERS', 'maxNumOrders': 200},
-    #              {'filterType': 'MAX_NUM_ALGO_ORDERS', 'maxNumAlgoOrders': 5}],
+    #              {'filterType': 'MAX_NUM_ALGO_ORDERS', 'maxNumAlgoOrders': 5}
+    # ],
     #  'icebergAllowed': True,
     #  'isMarginTradingAllowed': False,
     #  'isSpotTradingAllowed': True,
