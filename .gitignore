@@ -8,3 +8,10 @@ robinhood.pickle
 data/
 .coverage
 notebooks/
+ta-lib/
+random/
+encrypted/**
+!encrypted/*/
+!encrypted/**/*.encrypted
+models/
+node_modules/

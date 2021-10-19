@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import pickle
 from datetime import datetime
 import pandas as pd
 from Storage import Store
@@ -114,6 +115,14 @@ class FileWriter:
     def rename_file(self, old_name, new_name):
         os.rename(old_name, new_name)
         self.store.rename_key(old_name, new_name)
+
+    def save_pickle(self, filename, data):
+        self.store.finder.make_path(filename)
+        with open(filename, 'wb') as file:
+            pickle.dump(data, file)
+        self.store.upload_file(filename)
+        return True
+
 
 # add function that takes in a Constants directory, old to new column mapping
 # and renames the cols using df.rename(columns=mapping) for all csvs in the dir
