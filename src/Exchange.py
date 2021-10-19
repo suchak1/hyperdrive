@@ -1,5 +1,4 @@
 import os
-from pprint import pprint
 from binance import Client
 from binance.helpers import round_step_size
 from dotenv import load_dotenv, find_dotenv
@@ -29,7 +28,6 @@ class Binance:
         order_type = self.client.ORDER_TYPE_MARKET
         params = {'symbol': pair, 'type': order_type}
         symbol_info = self.client.get_symbol_info(pair)
-        pprint(symbol_info)
 
         if side == 'SELL':
             side = self.client.SIDE_SELL
