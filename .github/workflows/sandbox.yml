@@ -8,6 +8,7 @@ on:
     branches: [master]
 
 env:
+  # RUN_ID is necessary for tests
   RUN_ID: ${{ github.run_id }}
   RH_USERNAME: ${{ secrets.RH_USERNAME }}
   RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
