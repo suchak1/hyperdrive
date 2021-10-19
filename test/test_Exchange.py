@@ -2,7 +2,7 @@ from pprint import pprint
 import sys
 sys.path.append('src')
 from Exchange import Binance  # noqa autopep8
-bn = Binance(testnet=True)
+bn = Binance(testnet=False)
 
 
 class TestBinance:
@@ -14,20 +14,20 @@ class TestBinance:
 
     def test_order(self):
         # _to = 'BTC'
-        _to = 'BNB'
-        _from = 'USDT'
-        symbol = f'{_to}{_from}'
+        base = 'BTC'
+        quote = 'USD'
 
-        quantity, price = bn.calculate_order(_to, _from, 1)
         print('\n')
-        print('quantity: ', quantity)
 
-        # quantity, price = bn.calculate_order('BTC', 'USDT', 1.01)
-        # limit order
-        # order = bn.order4real(symbol, 'buy', quantity, price)
-        # market order
-        order = bn.order(symbol, 'sell', quantity)
+        # order = bn.order(base, quote, 'sell', 1, test=True)
+        order = bn.order(base, quote, 'buy', 1)
+
+        # order = bn.client.order_market_buy(symbol='BNBBTC', quantity=1)
         print(order)
+        # orders = bn.client.get_open_orders(symbol='BNBBTC')
+        # print(orders)
+        # orders = bn.client.get_open_orders(symbol='BNBUSDT')
+        # print(orders)
 
         # prices = bn.client.get_all_tickers()
         # print(prices)
@@ -35,6 +35,13 @@ class TestBinance:
     def test_get_asset_balance(self):
         balances = {}
         for symbol in ['USDT', 'BNB', 'BTC', 'USD', 'BUSD', 'USDC']:
-            balances[symbol] = bn.get_asset_balance(symbol)
+            balances[symbol] = bn.client.get_asset_balance(symbol)
         print('\n')
         pprint(balances)
+
+    # def test_get_asset_balance(self):
+    #     balances = {}
+    #     for symbol in ['USDT', 'BNB', 'BTC', 'USD', 'BUSD', 'USDC']:
+    #         balances[symbol] = bn.get_asset_balance(symbol)
+    #     print('\n')
+    #     pprint(balances)

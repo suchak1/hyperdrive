@@ -1,6 +1,8 @@
 import os
 import math
+from pprint import pprint
 from binance import Client
+from binance.helpers import round_step_size
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv('config.env'))
 
@@ -22,68 +24,44 @@ class Binance:
                 self.secret = os.environ['BINANCE_SECRET']
         self.client = Client(self.key, self.secret, testnet=testnet, tld='us')
 
-    def get_asset_balance(self, asset):
-        return self.client.get_asset_balance(asset=asset)
+    def order(self, base, quote, side, spend_ratio=1, test=False):
+        pair = f'{base}{quote}'
+        order_type = self.client.ORDER_TYPE_MARKET
+        params = {'symbol': pair, 'type': order_type}
+        symbol_info = self.client.get_symbol_info(pair)
+        pprint(symbol_info)
 
-    def order(self, symbol, side, quantity, price=None, test=False):
-        side = Client.SIDE_SELL if side.lower() == 'sell' else Client.SIDE_BUY
-        order_type = (
-            Client.ORDER_TYPE_LIMIT if price else Client.ORDER_TYPE_MARKET)
-        time_in_force = self.client.TIME_IN_FORCE_GTC if price else None
+        if side.lower() == 'sell':
+            side = self.client.SIDE_SELL
+            balance_label = base
+            # precision_label = 'baseAssetPrecision'
+            quantity_label = 'quantity'
+            filters = symbol_info['filters']
+            for filter in filters:
+                if filter['filterType'] == 'LOT_SIZE':
+                    precision = float(filter['stepSize'])
+        else:
+            side = self.client.SIDE_BUY
+            balance_label = quote
+            # precision_label = 'quoteAssetPrecision'
+            quantity_label = 'quoteOrderQty'
+
+        balance = float(self.client.get_asset_balance(balance_label)['free'])
+        amount = spend_ratio * balance
+        # precision = symbol_info[precision_label]
+        # quantity = "{:0.0{}f}".format(amount, precision)
+        # step_size = 0.0001
+        quantity = round_step_size(amount, step_size)
+        params[quantity_label] = quantity
+        print(quantity_label, params[quantity_label])
+
+        params['side'] = side
         fx = self.client.create_order
         if test:
-            fx = self.client.test_create_order
+            fx = self.client.create_test_order
 
-        order = fx(
-            symbol=symbol,
-            side=side,
-            type=order_type,
-            quantity=quantity,
-            price=price,
-            timeInForce=time_in_force)
+        order = fx(**params)
         return order
-
-    def calculate_order(self, _to, _from, ratio=1):
-        def floatPrecision(f, n):
-            n = int(math.log10(1 / float(n)))
-            f = math.floor(float(f) * 10 ** n) / 10 ** n
-            f = "{:0.0{}f}".format(float(f), n)
-            return str(int(f)) if int(n) == 0 else f
-        symbol = f'{_to}{_from}'
-        symbol_info = self.client.get_symbol_info(symbol)
-
-        tick_size = float(list(filter(
-            lambda f: f['filterType'] == 'PRICE_FILTER', symbol_info['filters']
-        ))[0]['tickSize'])
-        step_size = float(list(filter(
-            lambda f: f['filterType'] == 'LOT_SIZE', symbol_info['filters']
-        ))[0]['stepSize'])
-        price = float(list(filter(
-            lambda x: x['symbol'] == symbol, self.client.get_all_tickers()
-        ))[0]['price'])
-
-        price = floatPrecision(price, tick_size)
-        from_balance = float(
-            self.client.get_asset_balance(asset=_from)['free'])
-        quantity = floatPrecision(
-            from_balance * ratio / float(price), step_size)
-        print(f'\n{_from}: ', from_balance)
-        print('ratio: ', ratio)
-        return quantity, price
-
-    # def order4real(self, symbol, side, quantity, price=None):
-    #     side = Client.SIDE_SELL if side.lower() == 'sell' else Client.SIDE_BUY
-    #     order_type = (
-    #         Client.ORDER_TYPE_LIMIT if price else Client.ORDER_TYPE_MARKET)
-
-    #     order = self.client.create_order(
-    #         symbol=symbol,
-    #         side=side,
-    #         type=order_type,
-    #         quantity=quantity,
-    #         price=price,
-    #         timeInForce=self.client.TIME_IN_FORCE_GTC)
-    #     return order
 
 
 #     order = client.order_market_buy(
