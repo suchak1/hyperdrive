@@ -99,23 +99,17 @@ Using Robinhood 2FA, we can simply provide our MFA one-time password in the `.en
 ### Strategy
 
 - [x] Buy and Hold
-- [ ] Indicator/TA based
+- [x] Indicator/TA based
 - [ ] Portfolio Optimization
 
+### Trading
+
+- [x] Buy and Sell
 ---
 
 <!-- need to create an oracle -->
-<!-- use automl -->
-<!-- aws - autogluon, sagemaker -->
-<!-- google cloud automl (vertex ai)  NO -->
-<!-- auto sklearn -->
-<!-- get data, make decision/trade, update model before 11pm est each night -->
-<!-- 8:30pm est polygon, 9pm est glassnode -->
-
-<!-- 2. connect model output to buy/sell ordering - update csvs with model result and order summary (signals.csv, orders.csv) -->
-<!-- 3. get new data and model input every day at 9pm? and order -->
-
 <!-- extra -->
+<!-- 3. auto update model monthly -->
 <!-- abstract away undersample fx from preprocess fx, and buy and sell from order fx, make oracle class -->
 <!-- 4. automate saving model and preprocessors (every 2 weeks ) -->
 <!-- 5. add live results on website / model vs buying and holding like alphahub - use dash or plotly? use pca visualization, tsne for higher dimensions, roc curve, etc-->
