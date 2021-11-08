@@ -16,13 +16,7 @@ class FileReader:
         self.store = Store()
         self.traveller = TimeTraveller()
 
-    def load_json(self, filename):
-        # loads json file as dictionary data
-        with open(filename, 'r') as file:
-            return json.load(file)
-
-    def load_csv(self, filename):
-        # loads csv file as Dataframe
+    def should_be_updated(self, filename):
         one_day = 60 * 60 * 24
         now = datetime.fromtimestamp(time.time())
         file_exists = os.path.exists(filename)
@@ -31,8 +25,19 @@ class FileReader:
             then = datetime.fromtimestamp(os.path.getmtime(filename))
             delta = now - then
             last_modified = delta.total_seconds()
+        return not file_exists or last_modified > one_day
+
+    def load_json(self, filename):
+        # loads json file as dictionary data
+        if self.should_be_updated(filename):
+            self.store.download_file(filename)
+        with open(filename, 'r') as file:
+            return json.load(file)
+
+    def load_csv(self, filename):
+        # loads csv file as Dataframe
         try:
-            if not file_exists or last_modified > one_day:
+            if self.should_be_updated(filename):
                 self.store.download_file(filename)
             df = pd.read_csv(filename).round(10)
         except pd.errors.EmptyDataError:
@@ -81,6 +86,8 @@ class FileReader:
         return filtered
 
     def load_pickle(self, filename):
+        if self.should_be_updated(filename):
+            self.store.download_file(filename)
         with open(filename, 'rb') as file:
             return pickle.load(file)
 
