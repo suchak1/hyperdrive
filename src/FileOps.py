@@ -80,6 +80,10 @@ class FileReader:
         filtered[col] = filtered[col].dt.tz_localize(None)
         return filtered
 
+    def load_pickle(self, filename):
+        with open(filename, 'rb') as file:
+            return pickle.load(file)
+
 
 class FileWriter:
     # file write operations
