@@ -1,0 +1,56 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Predict Signal
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+    # 9pm EST every day
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest coverage
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Decrypt script
+        env:
+          RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
+          SALT: ${{ secrets.SALT }}
+        run: |
+          python util/decrypt.py encrypted/predict_signal.py
+
+      - name: Predict signal
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          POLYGON: ${{ secrets.POLYGON }}
+          GLASSNODE: ${{ secrets.GLASSNODE }}
+          BINANCE_KEY: ${{ secrets.BINANCE_KEY }}
+          BINANCE_SECRET: ${{ secrets.BINANCE_SECRET }}
+        run: |
+          python encrypted/predict_signal.py

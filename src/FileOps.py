@@ -95,6 +95,8 @@ class FileWriter:
         self.store.finder.make_path(filename)
         with open(filename, 'w') as file:
             json.dump(data, file, indent=4)
+        self.store.upload_file(filename)
+        return True
 
     def save_csv(self, filename, data):
         # saves df as csv file with provided filename
