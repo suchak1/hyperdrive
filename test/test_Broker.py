@@ -40,7 +40,8 @@ class TestRobinhood:
 
     def test_get_names(self):
         assert rh.get_names([]) == []
-        assert rh.get_names(exp_symbols) == ['Apple', 'Facebook', 'Disney']
+        assert rh.get_names(exp_symbols) == [
+            'Apple', 'Meta Platforms', 'Disney']
 
     def test_save_symbols(self):
         symbols_path = rh.finder.get_symbols_path()
