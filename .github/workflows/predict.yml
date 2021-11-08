@@ -4,9 +4,9 @@
 name: Predict Signal
 
 on:
-  push:
-    branches:
-      - feature/predict
+  # push:
+  #   branches:
+  #     - feature/predict
   schedule:
     - cron: "0 2 * * *"
     # 9pm EST every day
