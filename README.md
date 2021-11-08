@@ -111,4 +111,12 @@ Using Robinhood 2FA, we can simply provide our MFA one-time password in the `.en
 <!-- auto sklearn -->
 <!-- get data, make decision/trade, update model before 11pm est each night -->
 <!-- 8:30pm est polygon, 9pm est glassnode -->
-<!-- auto-encrypt and run on save extensions for encrypting model -->
+
+<!-- 2. connect model output to buy/sell ordering - update csvs with model result and order summary (signals.csv, orders.csv) -->
+<!-- 3. get new data and model input every day at 9pm? and order -->
+
+<!-- extra -->
+<!-- abstract away undersample fx from preprocess fx, and buy and sell from order fx, make oracle class -->
+<!-- 4. automate saving model and preprocessors (every 2 weeks ) -->
+<!-- 5. add live results on website / model vs buying and holding like alphahub - use dash or plotly? use pca visualization, tsne for higher dimensions, roc curve, etc-->
+<!-- 6. add authentication and business like report style like in dash example -->

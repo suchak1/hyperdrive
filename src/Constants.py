@@ -84,6 +84,9 @@ MAs = ['MA9', 'MA14', 'MA25', 'MA40', 'MA60', 'MA90', 'MA128', 'MA200']
 # SOPR
 SOPR = 'SOPR'
 
+# Signals
+SIG = 'Sig'
+
 # Misc
 POLY_CRYPTO_SYMBOLS = [
     'X%3ABTCUSD', 'X%3AETHUSD',

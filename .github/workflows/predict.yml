@@ -1,12 +1,15 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Model Creation
+name: Predict Signal
 
 on:
   # push:
   #   branches:
-  #     - feature/strategy-builder
+  #     - feature/predict
+  schedule:
+    - cron: "0 2 * * *"
+    # 9pm EST every day
   workflow_dispatch:
 
 jobs:
@@ -40,13 +43,17 @@ jobs:
           RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
           SALT: ${{ secrets.SALT }}
         run: |
-          python util/decrypt.py encrypted/create_model.py
+          python util/decrypt.py encrypted/predict_signal.py
 
-      - name: Create model
+      - name: Predict signal
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          POLYGON: ${{ secrets.POLYGON }}
+          GLASSNODE: ${{ secrets.GLASSNODE }}
+          BINANCE_KEY: ${{ secrets.BINANCE_KEY }}
+          BINANCE_SECRET: ${{ secrets.BINANCE_SECRET }}
         run: |
-          python encrypted/create_model.py
+          python encrypted/predict_signal.py
