@@ -114,19 +114,23 @@ class Historian:
         X_train = np.array(X_train_new)
         y_train = np.array(y_train_new)
 
-        X_train, X_test = self.standardize(X_train, X_test)
-        X_train, X_test = self.pca(X_train, n, X_test)
-        X = self.pca(self.standardize(X), n)
+        X_train, X_test, scaler = self.standardize(X_train, X_test)
+        X_train, X_test, pca = self.pca(X_train, n, X_test)
+        X, full_scaler = self.standardize(X)
+        X, full_pca = self.pca(X, n)
 
-        return X_train, X_test, y_train, y_test, X, y
+        return (
+            X_train, X_test, y_train, y_test,
+            X, y, scaler, pca, full_scaler, full_pca
+        )
 
     def standardize(self, X_train, X_test=None):
         scaler = StandardScaler().fit(X_train)
         X_train = scaler.transform(X_train)
         if type(X_test) == np.ndarray:
             X_test = scaler.transform(X_test)
-            return X_train, X_test
-        return X_train
+            return X_train, X_test, scaler
+        return X_train, scaler
 
     def pca(self, X_train, n, X_test=None):
         num_features = X_train.shape[1]
@@ -137,10 +141,10 @@ class Historian:
             X_test = pca.transform(X_test)
             var = pca.explained_variance_ratio_.sum() * 100
             print(f'Explained variance (X_train): {round(var, 2)}%')
-            return X_train, X_test
+            return X_train, X_test, pca
         var = pca.explained_variance_ratio_.sum() * 100
         print(f'Explained variance (X): {round(var, 2)}%')
-        return X_train
+        return X_train, pca
 
     def run_classifiers(self, X_train, X_test, y_train, y_test):
         names = [
