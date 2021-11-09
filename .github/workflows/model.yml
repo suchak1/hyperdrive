@@ -4,9 +4,9 @@
 name: Model Creation
 
 on:
-  push:
-    branches:
-      - feature/update-model
+  # push:
+  #   branches:
+  #     - feature/update-model
   workflow_dispatch:
 
 jobs:

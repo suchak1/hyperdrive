@@ -54,7 +54,6 @@ class Binance:
             quantity = round_step_size(amount, step_size)
 
         params[quantity_label] = quantity
-        print(quantity_label, params[quantity_label])
 
         params['side'] = side
         fx = self.client.create_order
