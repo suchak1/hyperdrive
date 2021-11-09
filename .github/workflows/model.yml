@@ -6,12 +6,21 @@ name: Model Creation
 on:
   # push:
   #   branches:
-  #     - feature/strategy-builder
+  #     - feature/update-model
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          # - pca: 2
+          # - pca: 3
+          - pca: 5
+          # - pca: 7
+          # - pca: 9
+      fail-fast: false
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
@@ -44,6 +53,7 @@ jobs:
 
       - name: Create model
         env:
+          PCA: ${{ matrix.pca }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
