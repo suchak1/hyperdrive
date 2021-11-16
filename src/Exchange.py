@@ -22,7 +22,8 @@ class Binance:
                 self.secret = os.environ['BINANCE_SECRET']
         self.client = Client(self.key, self.secret, testnet=testnet, tld='us')
 
-    def order(self, base, quote, side, spend_ratio=1, test=False):
+    def order(self, base, quote, side, spend_ratio=0.999, test=False):
+        # fee is 0.1%, so max spend_ratio is 99.9%
         pair = f'{base}{quote}'
         side = side.upper()
         order_type = self.client.ORDER_TYPE_MARKET
