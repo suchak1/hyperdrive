@@ -56,5 +56,5 @@ p2.start()
 p1.join()
 p2.join()
 
-if counter / (len(stock_symbols) + len(all_symbols)) < 0.95:
+if counter.value / (len(stock_symbols) + len(all_symbols)) < 0.95:
     exit(1)
