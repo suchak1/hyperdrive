@@ -368,7 +368,7 @@ class TestIEXCloud:
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 10
 
-    def test_get_intraday2(self):
+    def test_get_intraday(self):
         df = pd.concat(iex_intra.get_intraday(symbol='AAPL', timeframe='1w'))
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                 C.CLOSE, C.VOL}.issubset(df.columns)

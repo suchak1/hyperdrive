@@ -616,9 +616,9 @@ class IEXCloud(MarketData):
                 df['date'] = pd.to_datetime(df['date'] + ' ' + df['minute'])
 
                 # if all values are na except time, then skip
-                if (len(df.drop(columns=['date', 'minute']).dropna(how='all')) == 0):
-                    print('skipping', set(pd.to_datetime(
-                        pd.DataFrame(data)['date'])))
+                num_data_rows = len(
+                    df.drop(columns=['date', 'minute']).dropna(how='all'))
+                if (num_data_rows == 0):
                     continue
 
                 res_cols = ['date', 'minute', 'marketOpen', 'marketHigh',
@@ -629,14 +629,6 @@ class IEXCloud(MarketData):
 
                 columns = dict(zip(res_cols, std_cols))
 
-                # print(data)
-                # common = set(list(df.columns)).intersection(set(res_cols))
-                # print(common)
-                # if len(common) < 3:
-                #     print(data)
-                #     print(df)
-                # df = df[res_cols]
-                # print('this is before rename')
                 df = df[res_cols].rename(columns=columns)
                 df.drop(columns='minute', inplace=True)
 
