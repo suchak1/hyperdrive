@@ -18,8 +18,9 @@ symbols = iex.get_symbols()
 def update_iex_splits():
     for symbol in symbols:
         try:
-            filename = iex.save_splits(symbol=symbol, timeframe='3m',
-                                       retries=1 if C.TEST else C.DEFAULT_RETRIES)
+            filename = iex.save_splits(
+                symbol=symbol, timeframe='3m',
+                retries=1 if C.TEST else C.DEFAULT_RETRIES)
             with counter.get_lock():
                 counter.value += 1
             if C.CI and os.path.exists(filename):

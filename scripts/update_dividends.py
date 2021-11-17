@@ -35,8 +35,9 @@ def update_iex_dividends():
 def update_poly_dividends():
     for symbol in symbols:
         try:
-            filename = poly.save_dividends(symbol=symbol, timeframe='3m',
-                                           retries=1 if C.TEST else C.DEFAULT_RETRIES)
+            filename = poly.save_dividends(
+                symbol=symbol, timeframe='3m',
+                retries=1 if C.TEST else C.DEFAULT_RETRIES)
             with counter.get_lock():
                 counter.value += 1
             if C.CI and os.path.exists(filename):
