@@ -2,7 +2,6 @@ import os
 import sys
 sys.path.append('hyperdrive')
 from DataSource import StockTwits  # noqa autopep8
-from Constants import PathFinder  # noqa autopep8
 import Constants as C  # noqa autopep8
 
 
@@ -28,22 +27,21 @@ for symbol in current_batch:
     if symbol in C.SENTIMENT_SYMBOLS_IGNORE:
         continue
     try:
-        twit.save_social_sentiment(symbol=symbol, timeframe='1d',
-                                   retries=1)
+        filename = twit.save_social_sentiment(
+            symbol=symbol, timeframe='1d', retries=1)
+        if C.CI and os.path.exists(filename):
+            os.remove(filename)
     except Exception as e:
         try:
-            no_auth_twit.save_social_sentiment(symbol=symbol, timeframe='1d',
-                                               retries=1)
+            filename = no_auth_twit.save_social_sentiment(
+                symbol=symbol, timeframe='1d', retries=1)
+            if C.CI and os.path.exists(filename):
+                os.remove(filename)
         except Exception as e2:
             num_failed += 1
             print(f'Stocktwits sentiment update failed for {symbol}.')
             print(e)
             print(e2)
-    finally:
-        filename = PathFinder().get_sentiment_path(
-            symbol=symbol, provider=twit.provider)
-        if C.CI and os.path.exists(filename):
-            os.remove(filename)
 
 if num_failed / len(current_batch) > 0.5:
     raise Exception('Majority failure.')
