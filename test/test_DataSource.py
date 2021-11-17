@@ -12,7 +12,8 @@ from Workflow import Flow  # noqa autopep8
 
 
 md = MarketData()
-iex = IEXCloud()
+iex = IEXCloud(test=True)
+iex_intra = IEXCloud()
 poly = Polygon()
 twit = StockTwits()
 twit.token = ''
@@ -28,8 +29,8 @@ def use_dev_bucket(data_src_obj):
 
 
 if not C.CI:
-    iex.token = os.environ['IEXCLOUD_SANDBOX']
     iex = use_dev_bucket(iex)
+    iex_intra = use_dev_bucket(iex_intra)
     md = use_dev_bucket(md)
     poly = use_dev_bucket(poly)
     twit = use_dev_bucket(twit)
@@ -37,7 +38,6 @@ if not C.CI:
     glass = use_dev_bucket(glass)
     # or simply make DevStore class that has s3 dev bucket name
 
-iex.base = 'https://sandbox.iexapis.com'
 exp_symbols = ['AAPL', 'FB', 'DIS']
 retries = 10
 
@@ -265,7 +265,8 @@ class TestMarketData:
         dates = md.traveller.dates_in_range(timeframe)
         intra_paths = [md.finder.get_intraday_path(
             symbol, date) for date in dates]
-        filenames = set(iex.save_intraday(symbol=symbol, timeframe=timeframe))
+        filenames = set(iex_intra.save_intraday(
+            symbol=symbol, timeframe=timeframe))
         intersection = filenames.intersection(intra_paths)
         assert intersection
 
@@ -368,7 +369,7 @@ class TestIEXCloud:
         assert len(df) > 10
 
     def test_get_intraday(self):
-        df = pd.concat(iex.get_intraday(symbol='AAPL', timeframe='1w'))
+        df = pd.concat(iex_intra.get_intraday(symbol='AAPL', timeframe='1w'))
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 1000

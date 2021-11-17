@@ -15,7 +15,8 @@ env:
   RH_USERNAME: ${{ secrets.RH_USERNAME }}
   RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
   RH_2FA: ${{ secrets.RH_2FA }}
-  IEXCLOUD: ${{ secrets.IEXCLOUD_SANDBOX }}
+  IEXCLOUD: ${{ secrets.IEXCLOUD }}
+  IEXCLOUD_SANDBOX: ${{ secrets.IEXCLOUD_SANDBOX }}
   STOCKTWITS: ${{ secrets.STOCKTWITS }}
   GLASSNODE: ${{ secrets.GLASSNODE }}
   BLS: ${{ secrets.BLS }}

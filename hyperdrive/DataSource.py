@@ -437,12 +437,17 @@ class MarketData:
 
 
 class IEXCloud(MarketData):
-    def __init__(self):
+    def __init__(self, test=False):
         super().__init__()
-        self.base = 'https://cloud.iexapis.com'
         self.version = 'v1'
-        self.token = os.environ['IEXCLOUD']
         self.provider = 'iexcloud'
+
+        if test:
+            self.base = 'https://sandbox.iexapis.com'
+            self.token = os.environ['IEXCLOUD_SANDBOX']
+        else:
+            self.base = 'https://cloud.iexapis.com'
+            self.token = os.environ['IEXCLOUD']
 
     def get_dividends(self, **kwargs):
         # given a symbol, return the dividend history
