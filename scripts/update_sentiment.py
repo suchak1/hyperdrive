@@ -2,6 +2,7 @@ import os
 import sys
 sys.path.append('hyperdrive')
 from DataSource import StockTwits  # noqa autopep8
+from Constants import PathFinder  # noqa autopep8
 import Constants as C  # noqa autopep8
 
 

@@ -3,6 +3,7 @@ import sys
 from multiprocessing import Process, Value
 sys.path.append('hyperdrive')
 from DataSource import IEXCloud, Polygon  # noqa autopep8
+from Constants import PathFinder  # noqa autopep8
 import Constants as C  # noqa autopep8
 
 counter = Value('i', 0)
