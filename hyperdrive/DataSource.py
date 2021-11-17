@@ -612,6 +612,15 @@ class IEXCloud(MarketData):
                 if data == []:
                     continue
 
+                df = pd.DataFrame(data)
+                df['date'] = pd.to_datetime(df['date'] + ' ' + df['minute'])
+
+                # if all values are na except time, then skip
+                if (len(df.drop(columns=['date', 'minute']).dropna(how='all')) == 0):
+                    print('skipping', set(pd.to_datetime(
+                        pd.DataFrame(data)['date'])))
+                    continue
+
                 res_cols = ['date', 'minute', 'marketOpen', 'marketHigh',
                             'marketLow', 'marketClose', 'marketVolume',
                             'marketAverage', 'marketNumberOfTrades']
@@ -619,9 +628,18 @@ class IEXCloud(MarketData):
                             'close', 'volume', 'average', 'trades']
 
                 columns = dict(zip(res_cols, std_cols))
-                df = pd.DataFrame(data)[res_cols].rename(columns=columns)
-                df['date'] = pd.to_datetime(df['date'] + ' ' + df['minute'])
+
+                # print(data)
+                # common = set(list(df.columns)).intersection(set(res_cols))
+                # print(common)
+                # if len(common) < 3:
+                #     print(data)
+                #     print(df)
+                # df = df[res_cols]
+                # print('this is before rename')
+                df = df[res_cols].rename(columns=columns)
                 df.drop(columns='minute', inplace=True)
+
                 filename = self.finder.get_intraday_path(
                     symbol, date, self.provider)
                 df = self.standardize_ohlc(symbol, df, filename)
