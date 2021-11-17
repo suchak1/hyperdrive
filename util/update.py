@@ -5,6 +5,9 @@ import subprocess
 
 filename = 'requirements.txt'
 new_packages = []
+# we skip these because models may act unpredictably between versions
+# must be updated manually
+packages_to_skip = ['scikit-learn', 'auto-sklearn']
 
 with open(filename, 'r') as file:
     pattern = '(.*) == (.*)'
@@ -18,7 +21,7 @@ with open(filename, 'r') as file:
             key=lambda release: [
                 int(number) for number in release.split('.')
             ]).pop()
-        if latest != version:
+        if latest != version and package not in packages_to_skip:
             print(f'Upgrading {package} ({version} => {latest})')
             CI = os.environ.get('CI')
             python = 'python' if CI else 'python3'
