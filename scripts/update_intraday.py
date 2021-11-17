@@ -1,11 +1,12 @@
 import os
 import sys
-from multiprocessing import Process
+from multiprocessing import Process, Value
 sys.path.append('hyperdrive')
 from DataSource import IEXCloud, Polygon  # noqa autopep8
 from Constants import PathFinder, POLY_CRYPTO_SYMBOLS, FEW_DAYS  # noqa autopep8
 import Constants as C  # noqa autopep8
 
+counter = Value('i', 0)
 iex = IEXCloud()
 poly = Polygon(os.environ['POLYGON'])
 stock_symbols = iex.get_symbols()
