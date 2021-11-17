@@ -21,6 +21,8 @@ def update_iex_dividends():
         try:
             iex.save_dividends(symbol=symbol, timeframe='3m',
                                retries=1 if C.TEST else C.DEFAULT_RETRIES)
+            with counter.get_lock():
+                counter.value += 1
         except Exception as e:
             print(f'IEX Cloud dividend update failed for {symbol}.')
             print(e)
@@ -37,6 +39,8 @@ def update_poly_dividends():
         try:
             poly.save_dividends(symbol=symbol, timeframe='3m',
                                 retries=1 if C.TEST else C.DEFAULT_RETRIES)
+            with counter.get_lock():
+                counter.value += 1
         except Exception as e:
             print(f'Polygon.io dividend update failed for {symbol}.')
             print(e)

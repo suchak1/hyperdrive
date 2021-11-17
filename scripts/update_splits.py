@@ -21,6 +21,8 @@ def update_iex_splits():
         try:
             iex.save_splits(symbol=symbol, timeframe='3m',
                             retries=1 if C.TEST else C.DEFAULT_RETRIES)
+            with counter.get_lock():
+                counter.value += 1
         except Exception as e:
             print(f'IEX Cloud split update failed for {symbol}.')
             print(e)
@@ -37,6 +39,8 @@ def update_poly_splits():
         try:
             poly.save_splits(symbol=symbol, timeframe='3m',
                              retries=1 if C.TEST else C.DEFAULT_RETRIES)
+            with counter.get_lock():
+                counter.value += 1
         except Exception as e:
             print(f'Polygon.io split update failed for {symbol}.')
             print(e)

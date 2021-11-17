@@ -23,6 +23,8 @@ def update_iex_ohlc():
         try:
             iex.save_ohlc(symbol=symbol, timeframe='1d',
                           retries=1 if C.TEST else C.DEFAULT_RETRIES)
+            with counter.get_lock():
+                counter.value += 1
         except Exception as e:
             print(f'IEX Cloud OHLC update failed for {symbol}.')
             print(e)
@@ -38,6 +40,8 @@ def update_poly_ohlc():
     for symbol in all_symbols:
         try:
             poly.save_ohlc(symbol=symbol, timeframe=FEW_DAYS, retries=1)
+            with counter.get_lock():
+                counter.value += 1
         except Exception as e:
             print(f'Polygon.io OHLC update failed for {symbol}.')
             print(e)
