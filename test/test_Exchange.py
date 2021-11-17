@@ -1,5 +1,5 @@
 import sys
-sys.path.append('src')
+sys.path.append('hyperdrive')
 from Exchange import Binance  # noqa autopep8
 bn = Binance(testnet=True)
 

@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.append('src')
+sys.path.append('hyperdrive')
 from DataSource import Glassnode  # noqa autopep8
 from Constants import PathFinder  # noqa autopep8
 import Constants as C  # noqa autopep8

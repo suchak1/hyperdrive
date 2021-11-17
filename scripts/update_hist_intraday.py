@@ -2,7 +2,7 @@ import os
 import sys
 from time import sleep
 from datetime import datetime
-sys.path.append('src')
+sys.path.append('hyperdrive')
 from DataSource import IEXCloud, Polygon  # noqa autopep8
 from Constants import CI, PathFinder, POLY_CRYPTO_SYMBOLS  # noqa autopep8
 

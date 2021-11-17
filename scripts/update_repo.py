@@ -1,6 +1,6 @@
 import sys
 import shutil
-sys.path.append('src')
+sys.path.append('hyperdrive')
 from Storage import Store  # noqa autopep8
 from Constants import DATA_DIR  # noqa autopep8
 

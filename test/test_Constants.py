@@ -1,5 +1,5 @@
 import sys
-sys.path.append('src')
+sys.path.append('hyperdrive')
 from Constants import PathFinder  # noqa autopep8
 
 
@@ -53,7 +53,7 @@ class TestPathFinder():
         ) == 'data/intraday/polygon/TSLA/2020-01-01.csv'
 
     def test_get_all_paths(self):
-        paths = set(finder.get_all_paths('src', False))
-        assert 'src/DataSource.py' in paths
+        paths = set(finder.get_all_paths('hyperdrive', False))
+        assert 'hyperdrive/DataSource.py' in paths
         paths = set(finder.get_all_paths('.', True))
         assert 'test/test_Constants.py' in paths

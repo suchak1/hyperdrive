@@ -2,7 +2,7 @@ import os
 import sys
 import pandas as pd
 from datetime import datetime
-sys.path.append('src')
+sys.path.append('hyperdrive')
 from Broker import Robinhood  # noqa autopep8
 import Constants as C  # noqa autopep8
 
