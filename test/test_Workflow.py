@@ -1,7 +1,7 @@
 import sys
 import pytest
 from datetime import datetime
-sys.path.append('src')
+sys.path.append('hyperdrive')
 from Workflow import Flow  # noqa autopep8
 
 flow = Flow()

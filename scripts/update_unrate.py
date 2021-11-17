@@ -1,5 +1,5 @@
 import sys
-sys.path.append('src')
+sys.path.append('hyperdrive')
 from DataSource import LaborStats  # noqa
 
 bls = LaborStats()

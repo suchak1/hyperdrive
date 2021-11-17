@@ -1,7 +1,7 @@
 import os
 import sys
 import pandas as pd
-sys.path.append('src')
+sys.path.append('hyperdrive')
 from FileOps import FileReader, FileWriter  # noqa autopep8
 import Constants as C  # noqa autopep8
 

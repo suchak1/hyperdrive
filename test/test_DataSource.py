@@ -4,7 +4,7 @@ import pytest
 from time import sleep, time
 from random import choice
 import pandas as pd
-sys.path.append('src')
+sys.path.append('hyperdrive')
 from DataSource import MarketData, IEXCloud, Polygon, \
                         StockTwits, LaborStats, Glassnode  # noqa autopep8
 import Constants as C  # noqa autopep8

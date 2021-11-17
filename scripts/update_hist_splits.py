@@ -1,7 +1,7 @@
 import os
 import sys
 from multiprocessing import Process
-sys.path.append('src')
+sys.path.append('hyperdrive')
 from DataSource import IEXCloud, Polygon  # noqa autopep8
 from Constants import CI, PathFinder  # noqa autopep8
 

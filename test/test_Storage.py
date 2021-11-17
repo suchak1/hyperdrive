@@ -4,7 +4,7 @@ import sys
 import pytest
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv, find_dotenv
-sys.path.append('src')
+sys.path.append('hyperdrive')
 from Storage import Store  # noqa autopep8
 import Constants as C  # noqa autopep8
 

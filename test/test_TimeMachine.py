@@ -2,7 +2,7 @@ import re
 import sys
 import pytest
 from datetime import datetime, timedelta
-sys.path.append('src')
+sys.path.append('hyperdrive')
 from TimeMachine import TimeTraveller  # noqa autopep8
 
 traveller = TimeTraveller()

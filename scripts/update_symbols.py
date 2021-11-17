@@ -1,5 +1,5 @@
 import sys
-sys.path.append('src')
+sys.path.append('hyperdrive')
 from Broker import Robinhood  # noqa autopep8
 
 broker = Robinhood()

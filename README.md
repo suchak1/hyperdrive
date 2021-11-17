@@ -43,7 +43,7 @@ To make a script, create a new .py file in the `scripts/` dir with the following
 
 ```
 import sys
-sys.path.append('src')
+sys.path.append('hyperdrive')
 from Algotrader import HyperDrive  # noqa autopep8
 
 drive = HyperDrive()
@@ -105,6 +105,7 @@ Using Robinhood 2FA, we can simply provide our MFA one-time password in the `.en
 ### Trading
 
 - [x] Buy and Sell
+
 ---
 
 <!-- need to create an oracle -->
