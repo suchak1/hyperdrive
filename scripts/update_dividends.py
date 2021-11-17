@@ -52,3 +52,6 @@ p1.start()
 p2.start()
 p1.join()
 p2.join()
+
+if counter / (len(symbols) * 2) < 0.95:
+    exit(1)
