@@ -1,11 +1,11 @@
-| <img src="img/25_nasa.gif" width="75" /> | _hyperdrive_: an algorithmic trading library |
-| ---------------------------------------- | -------------------------------------------- |
+| <img src="img/25_nasa.gif" width="75" /> | **_hyperdrive_**: an algorithmic trading library |
+| ---------------------------------------- | ------------------------------------------------ |
 
 <!-- <img src="https://raw.githubusercontent.com/suchak1/hyperdrive/master/img/25_nasa.gif" width="75" /> -->
 
 ![Build Pipeline](https://github.com/suchak1/hyperdrive/workflows/Build%20Pipeline/badge.svg) ![Dev Pipeline](https://github.com/suchak1/hyperdrive/workflows/Dev%20Pipeline/badge.svg) ![New Release](https://github.com/suchak1/hyperdrive/workflows/New%20Release/badge.svg)
 
-_`hyperdrive`_ is an algorithmic trading library that powers quant research firm [<img src="https://forcepu.sh/favicon.ico" width="16" /> _forcepu.sh_](https://forcepu.sh).
+**_hyperdrive_** is an algorithmic trading library that powers quant research firm &nbsp;[<img src="img/btc_ice.png" width="16" /> **forcepu.sh**](https://forcepu.sh).
 
 Unlike other backtesting libraries, _`hyperdrive`_ specializes on data collection and quantitative research.
 
@@ -155,7 +155,7 @@ print(holding_stats)
 print(f'My Strategy\n{"-"*42}')
 print(my_strat_stats)
 
-holding.plot()
+# holding.plot()
 my_strat.plot()
 ```
 
@@ -199,7 +199,7 @@ Sortino Ratio                     7.727806
 Name: Close, dtype: object
 ```
 
-<img src="https://forcepu.sh/static/btc_ice.e58994df.png" width="16" />
+<img src="img/TSLA_strat.png">
 
 ### 4. Executing an order
 
