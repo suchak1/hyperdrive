@@ -24,11 +24,14 @@ def update_iex_splits():
                 retries=1 if C.TEST else C.DEFAULT_RETRIES)
             with counter.get_lock():
                 counter.value += 1
-            if C.CI and os.path.exists(filename):
-                os.remove(filename)
         except Exception as e:
             print(f'IEX Cloud split update failed for {symbol}.')
             print(e)
+        finally:
+            filename = PathFinder().get_splits_path(
+                symbol=symbol, provider=iex.provider)
+            if C.CI and os.path.exists(filename):
+                os.remove(filename)
 
 # 2nd pass
 
@@ -41,11 +44,14 @@ def update_poly_splits():
                 retries=1 if C.TEST else C.DEFAULT_RETRIES)
             with counter.get_lock():
                 counter.value += 1
-            if C.CI and os.path.exists(filename):
-                os.remove(filename)
         except Exception as e:
             print(f'Polygon.io split update failed for {symbol}.')
             print(e)
+        finally:
+            filename = PathFinder().get_splits_path(
+                symbol=symbol, provider=poly.provider)
+            if C.CI and os.path.exists(filename):
+                os.remove(filename)
 
 
 p1 = Process(target=update_iex_splits)
