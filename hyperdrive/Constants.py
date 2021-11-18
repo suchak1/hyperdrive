@@ -29,6 +29,8 @@ INTRA_DIR = 'intraday'
 IEX_DIR = 'iexcloud'
 POLY_DIR = 'polygon'
 TWIT_DIR = 'stocktwits'
+# models
+MODELS_DIR = 'models'
 
 folders = {
     'iexcloud': IEX_DIR,

@@ -1,110 +1,168 @@
-| <img src="https://raw.githubusercontent.com/suchak1/hyperdrive/master/img/1.png" width="75" /> | _hyperdrive_: Robinhood analytics and algorithmic trading |
-| ---------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| <img src="img/25_nasa.gif" width="75" /> | _hyperdrive_: an algorithmic trading library |
+| ---------------------------------------- | -------------------------------------------- |
+
+<!-- <img src="https://raw.githubusercontent.com/suchak1/hyperdrive/master/img/25_nasa.gif" width="75" /> -->
 
 ![Build Pipeline](https://github.com/suchak1/hyperdrive/workflows/Build%20Pipeline/badge.svg) ![Dev Pipeline](https://github.com/suchak1/hyperdrive/workflows/Dev%20Pipeline/badge.svg) ![New Release](https://github.com/suchak1/hyperdrive/workflows/New%20Release/badge.svg)
 
-_hyperdrive_ is a project to obtain stock data, create trading strategies, test against historical data (backtesting), and deploy strategies for algorithmic trading.
+_hyperdrive_ is an algorithmic trading library that powers quant research firm [<img src="https://forcepu.sh/favicon.ico"> `forcepu.sh`](https://forcepu.sh).
+
+Unlike other backtesting libraries, _hyperdrive_ specializes on data collection and quantitative research.
+
+In the examples below, we explore how to store stock + crypto data, create trading strategies, test it against historical data (backtesting), and execute orders.
 
 ## Getting Started
 
 ### Prerequisites
 
-You will need Python 3.8+ and a Robinhood account.
-
-Place your credentials in a file named `.env` in the project root directory.
-Follow this structure:
-
-```
-RH_USERNAME=...
-RH_PASSWORD=...
-RH_2FA=...
-IEXCLOUD=...
-```
+You will need Python 3.8+
 
 ### Installation
 
 To install the necessary packages, run
 
 ```
-pip install -r requirements.txt
+pythom -m pip install hyperdrive -U
 ```
 
-### Testing
+## Examples
+
+Most secrets must be passed as environment variables. Future updates will allow secrets to be passed directly into class object (see example on order execution).
+
+<!-- ### 1. Getting data
+
+Pre-requisites:
+
+- an IEXCloud or Polygon API key
+- an AWS account and an S3 bucket
+
+Environment Variables:
+
+- `IEXCLOUD` or `POLYGON`
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_DEFAULT_REGION`
+- `S3_BUCKET`
 
 ```
-python -m pytest -s -v test/test_filename -k function_name
+from hyperdrive import DataSource
+from DataSource import IEXCloud
+
+# Your IEXCloud API token must be an environment variable (accessible in os.environ['IEXCloud'])
+
+iex = IEXCloud()
+df = iex.get_ohlc(symbol='TSLA', timeframe='7d')
+print(df)
+```
+
+Output:
+
+```
+           Time     Open       High      Low    Close       Vol
+2863 2021-11-10  1010.41  1078.1000   987.31  1067.95  42802722
+2864 2021-11-11  1102.77  1104.9700  1054.68  1063.51  22396568
+2865 2021-11-12  1047.50  1054.5000  1019.20  1033.42  25573148
+2866 2021-11-15  1017.63  1031.9800   978.60  1013.39  34775649
+2867 2021-11-16  1003.31  1057.1999  1002.18  1054.73  26542359
+```
+
+Although this function won't save data to the S3 bucket, hyperdrive checks the S3 bucket with key `data/ohlc/iexcloud/TSLA.csv` to see if any cached data exists to correct for inconsistencies in values and column names. -->
+
+### 1. Storing data
+
+Pre-requisites:
+
+- an IEXCloud or Polygon API key
+- an AWS account and an S3 bucket
+
+Environment Variables:
+
+- `IEXCLOUD` or `POLYGON`
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_DEFAULT_REGION`
+- `S3_BUCKET`
+
+```
+from hyperdrive import DataSource
+from DataSource import IEXCloud, MarketData
+
+# IEXCloud API token loaded as an environment variable (os.environ['IEXCloud'])
+
+symbol = 'TSLA'
+timeframe = '7d'
+
+md = MarketData()
+iex = IEXCloud()
+
+iex.save_ohlc(symbol=symbol, timeframe=timeframe)
+df = md.get_ohlc(symbol=symbol, timeframe=timeframe)
+
+print(df)
+```
+
+Output:
+
+```
+           Time     Open       High      Low    Close       Vol
+2863 2021-11-10  1010.41  1078.1000   987.31  1067.95  42802722
+2864 2021-11-11  1102.77  1104.9700  1054.68  1063.51  22396568
+2865 2021-11-12  1047.50  1054.5000  1019.20  1033.42  25573148
+2866 2021-11-15  1017.63  1031.9800   978.60  1013.39  34775649
+2867 2021-11-16  1003.31  1057.1999  1002.18  1054.73  26542359
+```
+
+### 2. Creating a model
+
+Much of this code is still closed-source, but you can take a look at the [`Historian` class in the `History` module](hyperdrive/History.py) for some ideas.
+
+### 3. Backtesting a strategy
+
+TODO: Add example
+
+### 4. Executing an order
+
+Pre-requisites:
+
+- a Binance.US API key
+
+Environment Variables:
+
+- `BINANCE`
+
+```
+from hyperdrive import Exchange
+from Exchange import Binance
+
+# Binance API token loaded as an environment variable (os.environ['BINANCE'])
+
+bn = Binance()
+
+# use 45% of your USD account balance to buy BTC
+order = bn.order('BTC', 'USD', 'BUY', 0.45)
+
+print(order)
+```
+
+Output:
+
+```
+BTCUSD,714855908,-1,3cfyrJOSXqq6Zl1RJdeRRC,1637030680121,0.0000,0.00075700,0.00075700,46.8315,FILLED,GTC,MARKET,SELL,"[{'price': '61864.6400', 'qty': '0.00075700', 'commission': '0.0500', 'commissionAsset': 'USD', 'tradeId': 25803914}]",2021-11-15
 ```
 
 ## Use
 
-### Making Scripts
+Use the scripts provided in the [`scripts/`](scripts) dir as a reference since they are actually used in production daily.
 
-To make a script, create a new .py file in the `scripts/` dir with the following code:
+Available data collection functions:
 
-```
-import sys
-sys.path.append('hyperdrive')
-from Algotrader import HyperDrive  # noqa autopep8
-
-drive = HyperDrive()
-```
-
-## Features:
-
-- [x] Broker authentication
-- [x] Automated data storage
-- [x] Backtesting engine
-- [ ] Monte Carlo simulations
-- [ ] Plotting and technical analysis
-- [ ] Model training
-- [x] Strategy definition (start with buy and hold)
-- [ ] Buy and sell functionality
-- [ ] Live trading
-- [ ] Documentation
-
-Check out the [Roadmap](https://github.com/suchak1/hyperdrive/projects/2) for progress
-...
-
-### Auth
-
-Using Robinhood 2FA, we can simply provide our MFA one-time password in the `.env` file to login to Robinhood (via `pyotp`).
-
-### Data
-
-- [x] Price and Volume
-  - [x] [![Symbols](https://github.com/suchak1/hyperdrive/workflows/Symbols/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3ASymbols)
-  - [x] [![OHLC](https://github.com/suchak1/hyperdrive/workflows/OHLC/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3AOHLC)
-  - [x] [![Intraday](https://github.com/suchak1/hyperdrive/workflows/Intraday/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3AIntraday)
-- [x] Actions
-  - [x] [![Dividends](https://github.com/suchak1/hyperdrive/workflows/Dividends/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3ADividends)
-  - [x] [![Splits](https://github.com/suchak1/hyperdrive/workflows/Splits/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3ASplits)
-- [ ] Sentiment
-  - [ ] News Sentiment
-  - [x] [![Social Sentiment](<https://github.com/suchak1/hyperdrive/workflows/Social%20Sentiment%20(1)/badge.svg>)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3A%22Social+Sentiment+%281%29%22)
-  - [ ] [Investor Sentiment](http://www.aaii.com/files/surveys/sentiment.xls)
-  - [ ] Analyst Recommendations
-- [ ] Company / Micro
-  - [ ] Profile (Sector, # of Employees)
-  - [ ] Earnings
-  - [ ] Cash Flow
-  - [ ] CEO Compensation
-- [ ] Government / Macro <!-- this stuff prob won't be v useful -->
-  - [x] [![Unemployment](https://github.com/suchak1/hyperdrive/workflows/Unemployment/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3AUnemployment) <!-- BLS -->
-  - [ ] Real GDP <!-- BEA -->
-  - [ ] US Recession Probabilities <!-- FRED -->
-- [ ] Market
-  - [ ] General Volatility (VIX)
-  - [ ] Sector Performance
-
-### Strategy
-
-- [x] Buy and Hold
-- [x] Indicator/TA based
-- [ ] Portfolio Optimization
-
-### Trading
-
-- [x] Buy and Sell
+- [x] [![Symbols](https://github.com/suchak1/hyperdrive/workflows/Symbols/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3ASymbols) (from Robinhood)
+- [x] [![OHLC](https://github.com/suchak1/hyperdrive/workflows/OHLC/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3AOHLC) (from IEXCloud and Polygon)
+- [x] [![Intraday](https://github.com/suchak1/hyperdrive/workflows/Intraday/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3AIntraday) (from IEXCloud and Polygon)
+- [x] [![Dividends](https://github.com/suchak1/hyperdrive/workflows/Dividends/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3ADividends) (from IEXCloud and Polygon)
+- [x] [![Splits](https://github.com/suchak1/hyperdrive/workflows/Splits/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3ASplits) (from IEXCloud and Polygon)
+- [x] [![Social Sentiment](<https://github.com/suchak1/hyperdrive/workflows/Social%20Sentiment%20(1)/badge.svg>)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3A%22Social+Sentiment+%281%29%22) (from StockTwits)
+- [x] [![Unemployment](https://github.com/suchak1/hyperdrive/workflows/Unemployment/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3AUnemployment) (from BLS)
 
 ---
 
@@ -115,3 +173,7 @@ Using Robinhood 2FA, we can simply provide our MFA one-time password in the `.en
 <!-- 4. automate saving model and preprocessors (every 2 weeks ) -->
 <!-- 5. add live results on website / model vs buying and holding like alphahub - use dash or plotly? use pca visualization, tsne for higher dimensions, roc curve, etc-->
 <!-- 6. add authentication and business like report style like in dash example -->
+
+```
+
+```
