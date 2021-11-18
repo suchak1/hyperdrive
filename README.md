@@ -5,11 +5,11 @@
 
 ![Build Pipeline](https://github.com/suchak1/hyperdrive/workflows/Build%20Pipeline/badge.svg) ![Dev Pipeline](https://github.com/suchak1/hyperdrive/workflows/Dev%20Pipeline/badge.svg) ![New Release](https://github.com/suchak1/hyperdrive/workflows/New%20Release/badge.svg)
 
-_hyperdrive_ is an algorithmic trading library that powers quant research firm [<img src="https://forcepu.sh/favicon.ico"> `forcepu.sh`](https://forcepu.sh).
+_`hyperdrive`_ is an algorithmic trading library that powers quant research firm [<img src="https://forcepu.sh/favicon.ico" width="16" /> _forcepu.sh_](https://forcepu.sh).
 
-Unlike other backtesting libraries, _hyperdrive_ specializes on data collection and quantitative research.
+Unlike other backtesting libraries, _`hyperdrive`_ specializes on data collection and quantitative research.
 
-In the examples below, we explore how to store stock + crypto data, create trading strategies, test it against historical data (backtesting), and execute orders.
+In the examples below, we explore how to store market data, create trading strategies, test those strategies against historical data (backtesting), and execute orders.
 
 ## Getting Started
 
@@ -118,7 +118,88 @@ Much of this code is still closed-source, but you can take a look at the [`Histo
 
 ### 3. Backtesting a strategy
 
-TODO: Add example
+We use [_vectorbt_](https://vectorbt.dev/) to backtest strategies.
+
+```
+from hyperdrive import History, DataSource, Constants as C
+from History import Historian
+from DataSource import MarketData
+
+hist = Historian()
+md = MarketData()
+
+symbol = 'TSLA'
+timeframe = '1y'
+
+df = md.get_ohlc(symbol=symbol, timeframe=timeframe)
+
+holding = hist.buy_and_hold(df[C.CLOSE])
+signals = hist.get_optimal_signals(df[C.CLOSE])
+my_strat = hist.create_portfolio(df[C.CLOSE], signals)
+
+metrics = [
+    'Total Return [%]', 'Benchmark Return [%]',
+    'Max Drawdown [%]', 'Max Drawdown Duration',
+    'Total Trades', 'Win Rate [%]', 'Avg Winning Trade [%]',
+    'Avg Losing Trade [%]', 'Profit Factor',
+    'Expectancy', 'Sharpe Ratio', 'Calmar Ratio',
+    'Omega Ratio', 'Sortino Ratio'
+]
+
+holding_stats = holding.stats()[metrics]
+my_strat_stats = my_strat.stats()[metrics]
+
+print(f'Buy and Hold Strat\n{"-"*42}')
+print(holding_stats)
+
+print(f'My Strategy\n{"-"*42}')
+print(my_strat_stats)
+
+holding.plot()
+my_strat.plot()
+```
+
+Output:
+
+```
+Buy and Hold Strat
+------------------------------------------
+Total Return [%]                138.837436
+Benchmark Return [%]            138.837436
+Max Drawdown [%]                 36.246589
+Max Drawdown Duration    186 days 00:00:00
+Total Trades                             1
+Win Rate [%]                           NaN
+Avg Winning Trade [%]                  NaN
+Avg Losing Trade [%]                   NaN
+Profit Factor                          NaN
+Expectancy                             NaN
+Sharpe Ratio                      2.206485
+Calmar Ratio                      6.977133
+Omega Ratio                       1.381816
+Sortino Ratio                     3.623509
+Name: Close, dtype: object
+
+My Strategy
+------------------------------------------
+Total Return [%]                364.275727
+Benchmark Return [%]            138.837436
+Max Drawdown [%]                  35.49422
+Max Drawdown Duration    122 days 00:00:00
+Total Trades                             6
+Win Rate [%]                          80.0
+Avg Winning Trade [%]            52.235227
+Avg Losing Trade [%]             -3.933059
+Profit Factor                     45.00258
+Expectancy                      692.157004
+Sharpe Ratio                      4.078172
+Calmar Ratio                     23.220732
+Omega Ratio                       2.098986
+Sortino Ratio                     7.727806
+Name: Close, dtype: object
+```
+
+<img src="https://forcepu.sh/static/btc_ice.e58994df.png" width="16" />
 
 ### 4. Executing an order
 
@@ -131,6 +212,7 @@ Environment Variables:
 - `BINANCE`
 
 ```
+from pprint import pprint
 from hyperdrive import Exchange
 from Exchange import Binance
 
@@ -141,13 +223,30 @@ bn = Binance()
 # use 45% of your USD account balance to buy BTC
 order = bn.order('BTC', 'USD', 'BUY', 0.45)
 
-print(order)
+pprint(order)
 ```
 
 Output:
 
 ```
-BTCUSD,714855908,-1,3cfyrJOSXqq6Zl1RJdeRRC,1637030680121,0.0000,0.00075700,0.00075700,46.8315,FILLED,GTC,MARKET,SELL,"[{'price': '61864.6400', 'qty': '0.00075700', 'commission': '0.0500', 'commissionAsset': 'USD', 'tradeId': 25803914}]",2021-11-15
+{'clientOrderId': '3cfyrJOSXqq6Zl1RJdeRRC',
+ 'cummulativeQuoteQty': 46.8315,
+ 'executedQty': 0.000757,
+ 'fills': [{'commission': '0.0500',
+            'commissionAsset': 'USD',
+            'price': '61864.6400',
+            'qty': '0.00075700',
+            'tradeId': 25803914}],
+ 'orderId': 714855908,
+ 'orderListId': -1,
+ 'origQty': 0.000757,
+ 'price': 0.0,
+ 'side': 'SELL',
+ 'status': 'FILLED',
+ 'symbol': 'BTCUSD',
+ 'timeInForce': 'GTC',
+ 'transactTime': 1637030680121,
+ 'type': 'MARKET'}
 ```
 
 ## Use
