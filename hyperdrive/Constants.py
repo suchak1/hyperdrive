@@ -29,6 +29,8 @@ INTRA_DIR = 'intraday'
 IEX_DIR = 'iexcloud'
 POLY_DIR = 'polygon'
 TWIT_DIR = 'stocktwits'
+# models
+MODELS_DIR = 'models'
 
 folders = {
     'iexcloud': IEX_DIR,
@@ -104,6 +106,7 @@ DEFAULT_DELAY = 2
 POLY_FREE_DELAY = 13
 FEW = 3
 FEW_DAYS = str(FEW) + 'd'
+SCRIPT_FAILURE_THRESHOLD = 0.95
 
 
 class PathFinder:

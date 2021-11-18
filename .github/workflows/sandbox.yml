@@ -87,6 +87,3 @@ jobs:
 
       - name: Update unemployment
         run: python scripts/update_unrate.py
-
-      - name: Upload repo to S3
-        run: python scripts/update_repo.py
