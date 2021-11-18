@@ -7,9 +7,9 @@
 
 **_hyperdrive_** is an algorithmic trading library that powers quant research firm &nbsp;[<img src="img/btc_ice.png" width="16" /> **forcepu.sh**](https://forcepu.sh).
 
-Unlike other backtesting libraries, _`hyperdrive`_ specializes on data collection and quantitative research.
+Unlike other backtesting libraries, _`hyperdrive`_ specializes in data collection and quantitative research.
 
-In the examples below, we explore how to store market data, create trading strategies, test those strategies against historical data (backtesting), and execute orders.
+In the examples below, we explore how to store market data, create trading strategies, test strategies against historical data (backtesting), and execute orders.
 
 ## Getting Started
 
