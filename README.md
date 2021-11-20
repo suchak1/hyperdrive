@@ -1,11 +1,9 @@
-| <img src="img/25_nasa.gif" width="75" /> | **_hyperdrive_**: an algorithmic trading library |
-| ---------------------------------------- | ------------------------------------------------ |
-
-<!-- <img src="https://raw.githubusercontent.com/suchak1/hyperdrive/master/img/25_nasa.gif" width="75" /> -->
+| <img src="https://raw.githubusercontent.com/suchak1/hyperdrive/master/img/nasa.gif" width="75" /> | **_hyperdrive_**: an algorithmic trading library |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
 
 ![Build Pipeline](https://github.com/suchak1/hyperdrive/workflows/Build%20Pipeline/badge.svg) ![Dev Pipeline](https://github.com/suchak1/hyperdrive/workflows/Dev%20Pipeline/badge.svg) ![New Release](https://github.com/suchak1/hyperdrive/workflows/New%20Release/badge.svg)
 
-**_hyperdrive_** is an algorithmic trading library that powers quant research firm &nbsp;[<img src="img/btc_ice.png" width="16" /> **forcepu.sh**](https://forcepu.sh).
+**_hyperdrive_** is an algorithmic trading library that powers quant research firm &nbsp;[<img src="https://raw.githubusercontent.com/suchak1/hyperdrive/master/img/forcepush.png" width="16" /> **forcepu.sh**](https://forcepu.sh).
 
 Unlike other backtesting libraries, _`hyperdrive`_ specializes in data collection and quantitative research.
 
@@ -114,7 +112,7 @@ Output:
 
 ### 2. Creating a model
 
-Much of this code is still closed-source, but you can take a look at the [`Historian` class in the `History` module](hyperdrive/History.py) for some ideas.
+Much of this code is still closed-source, but you can take a look at the [`Historian` class in the `History` module](https://github.com/suchak1/hyperdrive/blob/master/hyperdrive/History.py) for some ideas.
 
 ### 3. Backtesting a strategy
 
@@ -199,7 +197,7 @@ Sortino Ratio                     7.727806
 Name: Close, dtype: object
 ```
 
-<img src="img/TSLA_strat.png">
+<img src="https://raw.githubusercontent.com/suchak1/hyperdrive/master/img/my_strat.png">
 
 ### 4. Executing an order
 
@@ -251,7 +249,7 @@ Output:
 
 ## Use
 
-Use the scripts provided in the [`scripts/`](scripts) dir as a reference since they are actually used in production daily.
+Use the scripts provided in the [`scripts/`](https://github.com/suchak1/hyperdrive/tree/master/scripts) directory as a reference since they are actually used in production daily.
 
 Available data collection functions:
 
@@ -261,7 +259,7 @@ Available data collection functions:
 - [x] [![Dividends](https://github.com/suchak1/hyperdrive/workflows/Dividends/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3ADividends) (from IEXCloud and Polygon)
 - [x] [![Splits](https://github.com/suchak1/hyperdrive/workflows/Splits/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3ASplits) (from IEXCloud and Polygon)
 - [x] [![Social Sentiment](<https://github.com/suchak1/hyperdrive/workflows/Social%20Sentiment%20(1)/badge.svg>)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3A%22Social+Sentiment+%281%29%22) (from StockTwits)
-- [x] [![Unemployment](https://github.com/suchak1/hyperdrive/workflows/Unemployment/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3AUnemployment) (from BLS)
+- [x] [![Unemployment](https://github.com/suchak1/hyperdrive/workflows/Unemployment/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3AUnemployment) (from the Bureau of Labor Statistics)
 
 ---
 
