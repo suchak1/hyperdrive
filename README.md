@@ -1,4 +1,4 @@
-| <img src="https://raw.githubusercontent.com/suchak1/hyperdrive/master/img/nasa.gif" width="200" /> | **_hyperdrive_**: an algorithmic trading library |
+| <img src="https://raw.githubusercontent.com/suchak1/hyperdrive/master/img/nasa.gif" width="300" /> | **_hyperdrive_**: an algorithmic trading library |
 | -------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
 
 <!-- max width 600 -->
