@@ -1,13 +1,26 @@
-| <img src="https://raw.githubusercontent.com/suchak1/hyperdrive/master/img/nasa.gif" width="75" /> | **_hyperdrive_**: an algorithmic trading library |
-| ------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| <img src="https://raw.githubusercontent.com/suchak1/hyperdrive/master/img/nasa.gif" width="200" /> | **_hyperdrive_**: an algorithmic trading library |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
 
-![Build Pipeline](https://github.com/suchak1/hyperdrive/workflows/Build%20Pipeline/badge.svg) ![Dev Pipeline](https://github.com/suchak1/hyperdrive/workflows/Dev%20Pipeline/badge.svg) ![New Release](https://github.com/suchak1/hyperdrive/workflows/New%20Release/badge.svg)
+<!-- max width 600 -->
+
+![Build Pipeline](https://github.com/suchak1/hyperdrive/workflows/Build%20Pipeline/badge.svg) ![Dev Pipeline](https://github.com/suchak1/hyperdrive/workflows/Dev%20Pipeline/badge.svg) ![New Release](https://github.com/suchak1/hyperdrive/workflows/New%20Release/badge.svg) [![Downloads](https://static.pepy.tech/personalized-badge/hyperdrive?period=total&units=international_system&left_color=gray&right_color=violet&left_text=Downloads)](https://pepy.tech/project/hyperdrive) ![PyPI](https://img.shields.io/pypi/v/hyperdrive?color=yellow)
+
+<!-- all green https://static.pepy.tech/personalized-badge/hyperdrive?period=total&units=international_system&left_color=brightgreen&right_color=brightgreen&left_text=Downloads -->
+<!-- all black https://static.pepy.tech/personalized-badge/hyperdrive?period=total&units=international_system&left_color=black&right_color=black&left_text=Downloads-->
+<!-- too bright https://static.pepy.tech/personalized-badge/hyperdrive?period=total&units=international_system&left_color=grey&right_color=yellow&left_text=Downloads -->
+<!-- green left, gray right https://static.pepy.tech/personalized-badge/hyperdrive?period=total&units=international_system&left_color=brightgreen&right_color=gray&left_text=Downloads-->
+<!-- black and indigo https://static.pepy.tech/personalized-badge/hyperdrive?period=total&units=international_system&left_color=black&right_color=indigo&left_text=Downloads -->
 
 **_hyperdrive_** is an algorithmic trading library that powers quant research firm &nbsp;[<img src="https://raw.githubusercontent.com/suchak1/hyperdrive/master/img/forcepush.png" width="16" /> **forcepu.sh**](https://forcepu.sh).
 
 Unlike other backtesting libraries, _`hyperdrive`_ specializes in data collection and quantitative research.
 
-In the examples below, we explore how to store market data, create trading strategies, test strategies against historical data (backtesting), and execute orders.
+In the examples below, we explore how to:
+
+1. store market data
+2. create trading strategies
+3. test strategies against historical data (backtesting)
+4. execute orders.
 
 ## Getting Started
 
