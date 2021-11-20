@@ -3,7 +3,7 @@
 
 <!-- max width 600 -->
 
-![Build Pipeline](https://github.com/suchak1/hyperdrive/workflows/Build%20Pipeline/badge.svg) ![Dev Pipeline](https://github.com/suchak1/hyperdrive/workflows/Dev%20Pipeline/badge.svg) ![New Release](https://github.com/suchak1/hyperdrive/workflows/New%20Release/badge.svg) [![Downloads](https://static.pepy.tech/personalized-badge/hyperdrive?period=total&units=international_system&left_color=gray&right_color=violet&left_text=Downloads)](https://pepy.tech/project/hyperdrive) ![PyPI](https://img.shields.io/pypi/v/hyperdrive?color=yellow)
+![Build Pipeline](https://github.com/suchak1/hyperdrive/workflows/Build%20Pipeline/badge.svg) ![Dev Pipeline](https://github.com/suchak1/hyperdrive/workflows/Dev%20Pipeline/badge.svg) ![New Release](https://github.com/suchak1/hyperdrive/workflows/New%20Release/badge.svg) [![Downloads](https://static.pepy.tech/personalized-badge/hyperdrive?period=total&units=international_system&left_color=red&right_color=red&left_text=downloads)](https://pepy.tech/project/hyperdrive) ![PyPI](https://img.shields.io/pypi/v/hyperdrive?color=yellow)
 
 <!-- all green https://static.pepy.tech/personalized-badge/hyperdrive?period=total&units=international_system&left_color=brightgreen&right_color=brightgreen&left_text=Downloads -->
 <!-- all black https://static.pepy.tech/personalized-badge/hyperdrive?period=total&units=international_system&left_color=black&right_color=black&left_text=Downloads-->
