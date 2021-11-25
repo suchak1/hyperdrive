@@ -11,3 +11,4 @@ auto-sklearn == 0.14.0
 cryptography == 35.0.0
 ta == 0.7.0
 python-binance == 1.0.15
+requests == 2.26.0
