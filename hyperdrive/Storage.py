@@ -59,8 +59,9 @@ class Store:
 
     def download_file(self, key, prefix=''):
         try:
-            self.finder.make_path(key)
-            with open(f'{prefix}{key}', 'wb') as file:
+            filename = f'{prefix}{key}'
+            self.finder.make_path(filename)
+            with open(filename, 'wb') as file:
                 bucket = self.get_bucket()
                 s3_key = key.replace('\\', '/')
                 bucket.download_fileobj(s3_key, file)
