@@ -52,6 +52,12 @@ class TestPathFinder():
             'TSLA', '2020-01-01', 'polygon'
         ) == 'data/intraday/polygon/TSLA/2020-01-01.csv'
 
+    def test_get_orders_path(self):
+        assert finder.get_orders_path() == 'models/latest/orders.csv'
+
+    def test_get_signals_path(self):
+        assert finder.get_signals_path() == 'models/latest/signals.csv'
+
     def test_get_all_paths(self):
         paths = set(finder.get_all_paths('hyperdrive', False))
         assert 'hyperdrive/DataSource.py' in paths

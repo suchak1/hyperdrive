@@ -195,6 +195,20 @@ class PathFinder:
             'sopr.csv'
         )
 
+    def get_orders_path(self):
+        return os.path.join(
+            MODELS_DIR,
+            'latest',
+            'orders.csv'
+        )
+
+    def get_signals_path(self):
+        return os.path.join(
+            MODELS_DIR,
+            'latest',
+            'signals.csv'
+        )
+
     def get_all_paths(self, path, truncate=False):
         # given a path, get all sub paths
         paths = []

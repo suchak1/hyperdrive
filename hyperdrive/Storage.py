@@ -57,10 +57,10 @@ class Store:
         else:
             return True
 
-    def download_file(self, key):
+    def download_file(self, key, prefix=''):
         try:
             self.finder.make_path(key)
-            with open(key, 'wb') as file:
+            with open(f'{prefix}{key}', 'wb') as file:
                 bucket = self.get_bucket()
                 s3_key = key.replace('\\', '/')
                 bucket.download_fileobj(s3_key, file)
