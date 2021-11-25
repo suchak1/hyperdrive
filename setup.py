@@ -1,5 +1,5 @@
 import os
-import requests
+# import requests
 from dotenv import load_dotenv, find_dotenv
 from setuptools import setup, find_packages
 
@@ -7,14 +7,14 @@ from setuptools import setup, find_packages
 load_dotenv(find_dotenv('config.env'))
 
 
-def get_version():
-    url = 'https://api.github.com/repos/suchak1/hyperdrive/releases/latest'
-    token = os.environ.get('GITHUB')
-    headers = {'Authorization': f'token {token}'}
-    response = requests.get(url, headers=headers if token else None)
-    data = response.json()
-    version = data['tag_name'].replace('v', '')
-    return version
+# def get_version():
+#     url = 'https://api.github.com/repos/suchak1/hyperdrive/releases/latest'
+#     token = os.environ.get('GITHUB')
+#     headers = {'Authorization': f'token {token}'}
+#     response = requests.get(url, headers=headers if token else None)
+#     data = response.json()
+#     version = data['tag_name'].replace('v', '')
+#     return version
 
 
 def get_requirements():
@@ -29,7 +29,7 @@ def get_readme():
 
 setup(
     name='hyperdrive',
-    version=get_version(),
+    # version=get_version(),
     description='An algorithmic trading platform',
     long_description=get_readme(),
     long_description_content_type="text/markdown",
