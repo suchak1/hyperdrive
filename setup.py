@@ -1,10 +1,10 @@
 import os
 # import requests
-from dotenv import load_dotenv, find_dotenv
+# from dotenv import load_dotenv, find_dotenv
 from setuptools import setup, find_packages
 
 
-load_dotenv(find_dotenv('config.env'))
+# load_dotenv(find_dotenv('config.env'))
 
 
 # def get_version():
