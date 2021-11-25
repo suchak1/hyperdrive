@@ -24,10 +24,10 @@ class Historian:
             close, init_cash=1000, freq='D')
         return portfolio
 
-    def create_portfolio(self, close, signals):
+    def create_portfolio(self, close, signals, fee=0):
         # returns a portfolio based on signals
         portfolio = vbt.Portfolio.from_signals(
-            close, signals, ~signals, init_cash=1000, freq='D'
+            close, signals, ~signals, init_cash=1000, freq='D', fees=fee
         )
         return portfolio
 
