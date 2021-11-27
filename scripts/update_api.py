@@ -31,7 +31,7 @@ metrics = [
 
 
 def get_res_body(pf):
-    balances = list(pf.value())
+    balances = [round(bal, 2) for bal in list(pf.value())]
     pf_df = pd.DataFrame({
         C.TIME: df[C.TIME].tail(len(balances)).dt.strftime('%m/%d/%Y'),
         C.BAL: balances
@@ -39,7 +39,7 @@ def get_res_body(pf):
     body = {
         'data': json.loads(pf_df.to_json(orient='records')),
         'stats': {
-            k: None if pd.isna(v) else v for k, v in dict(
+            k: None if pd.isna(v) else round(v, 2) for k, v in dict(
                 pf.stats()[metrics]).items()
         }
     }
