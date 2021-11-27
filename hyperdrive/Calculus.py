@@ -1,12 +1,4 @@
-import numpy as np
 
-
-class Calculus:
+class Calculator:
     def delta(self, series):
-        if type(arr) == np.ndarray:
-            pass
-        elif type(arr) == pd.Series:
-            pass
-        else:
-            # prob a list
-            raise Exception('')
+        return series / series.shift() - 1
