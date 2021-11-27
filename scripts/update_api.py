@@ -30,11 +30,11 @@ metrics = [
 
 holding = {
     'balances': list(holding_pf.value()),
-    'stats': dict(holding_pf.stats())
+    'stats': dict(holding_pf.stats()[metrics])
 }
 hyper = {
     'balances': list(hyper_pf.value()),
-    'stats': dict(hyper_pf.stats())
+    'stats': dict(hyper_pf.stats()[metrics])
 }
 
 holding_path = md.finder.get_api_path('holding')
