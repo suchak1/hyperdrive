@@ -19,6 +19,7 @@ TEST = get_env_bool('TEST')
 # File Paths
 # data
 DATA_DIR = 'data'
+API_DIR = 'api'
 DEV_DIR = 'dev'
 DIV_DIR = 'dividends'
 SPLT_DIR = 'splits'
@@ -193,6 +194,20 @@ class PathFinder:
         return os.path.join(
             DATA_DIR,
             'sopr.csv'
+        )
+
+    def get_signals_path(self):
+        return os.path.join(
+            MODELS_DIR,
+            'latest',
+            'signals.csv'
+        )
+
+    def get_api_path(self, endpoint):
+        return os.path.join(
+            DATA_DIR,
+            API_DIR,
+            f'{endpoint}.json',
         )
 
     def get_all_paths(self, path, truncate=False):

@@ -15,19 +15,26 @@ from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.metrics import classification_report
+from Calculus import Calculator
 
 
 class Historian:
+    def __init__(self):
+        self.calc = Calculator()
+
+    # add fx to perform calculations on columns
+    # takes calc.fx, df, and column names as args
+
     def buy_and_hold(self, close):
         # returns a portfolio based on buy and hold strategy
         portfolio = vbt.Portfolio.from_holding(
             close, init_cash=1000, freq='D')
         return portfolio
 
-    def create_portfolio(self, close, signals):
+    def create_portfolio(self, close, signals, fee=0):
         # returns a portfolio based on signals
         portfolio = vbt.Portfolio.from_signals(
-            close, signals, ~signals, init_cash=1000, freq='D'
+            close, signals, ~signals, init_cash=1000, freq='D', fees=fee
         )
         return portfolio
 
