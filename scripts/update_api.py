@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import pandas as pd
 sys.path.append('hyperdrive')
 from DataSource import MarketData  # noqa autopep8
@@ -28,14 +29,25 @@ metrics = [
     'Sortino Ratio'
 ]
 
-holding = {
-    'balances': list(holding_pf.value()),
-    'stats': dict(holding_pf.stats()[metrics])
-}
-hyper = {
-    'balances': list(hyper_pf.value()),
-    'stats': dict(hyper_pf.stats()[metrics])
-}
+
+def get_res_body(pf):
+    balances = [round(bal, 2) for bal in list(pf.value())]
+    pf_df = pd.DataFrame({
+        C.TIME: df[C.TIME].tail(len(balances)).dt.strftime('%m/%d/%Y'),
+        C.BAL: balances
+    })
+    body = {
+        'data': json.loads(pf_df.to_json(orient='records')),
+        'stats': {
+            k: None if pd.isna(v) else round(v, 2) for k, v in dict(
+                pf.stats()[metrics]).items()
+        }
+    }
+    return body
+
+
+holding = get_res_body(holding_pf)
+hyper = get_res_body(hyper_pf)
 
 holding_path = md.finder.get_api_path('holding')
 hyper_path = md.finder.get_api_path('hyper')
