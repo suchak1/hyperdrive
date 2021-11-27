@@ -90,6 +90,9 @@ SOPR = 'SOPR'
 # Signals
 SIG = 'Sig'
 
+# Balances
+BAL = 'Bal'
+
 # Misc
 POLY_CRYPTO_SYMBOLS = [
     'X%3ABTCUSD', 'X%3AETHUSD',
