@@ -211,7 +211,7 @@ class PathFinder:
         return os.path.join(
             MODELS_DIR,
             'latest',
-            'signals.csv'
+            'orders.csv'
         )
 
     def get_api_path(self, endpoint):
