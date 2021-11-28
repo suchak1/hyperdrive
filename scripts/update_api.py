@@ -1,6 +1,5 @@
 import os
 import sys
-import json
 import pandas as pd
 sys.path.append('hyperdrive')
 from DataSource import MarketData  # noqa autopep8
@@ -17,8 +16,14 @@ signals = md.reader.load_csv(signals_path)
 signals[C.TIME] = pd.to_datetime(signals[C.TIME])
 df = md.get_ohlc(symbol).merge(signals, on=C.TIME)
 
+# 1 week delay
+df = df.head(len(df) - 7)
+
 holding_pf = hist.buy_and_hold(df[C.CLOSE])
 hyper_pf = hist.create_portfolio(df[C.CLOSE], df[C.SIG], 0.001)
+
+holding_balances = [round(bal, 2) for bal in list(holding_pf.value())]
+hyper_balances = [round(bal, 2) for bal in list(hyper_pf.value())]
 
 metrics = [
     'Total Return [%]',
@@ -30,26 +35,51 @@ metrics = [
 ]
 
 
-def get_res_body(pf):
-    balances = [round(bal, 2) for bal in list(pf.value())]
-    pf_df = pd.DataFrame({
-        C.TIME: df[C.TIME].tail(len(balances)).dt.strftime('%m/%d/%Y'),
-        C.BAL: balances
-    })
-    body = {
-        'data': json.loads(pf_df.to_json(orient='records')),
-        'stats': {
-            k: None if pd.isna(v) else round(v, 2) for k, v in dict(
-                pf.stats()[metrics]).items()
-        }
+def transform_stats(stats):
+    return {
+        k: (
+            None if pd.isna(v) else round(v, 2)
+        ) for k, v in dict(stats[metrics]).items()
     }
-    return body
 
 
-holding = get_res_body(holding_pf)
-hyper = get_res_body(hyper_pf)
+holding_stats = transform_stats(holding_pf.stats())
+hyper_stats = transform_stats(hyper_pf.stats())
 
-holding_path = md.finder.get_api_path('holding')
-hyper_path = md.finder.get_api_path('hyper')
-md.writer.save_json(holding_path, holding)
-md.writer.save_json(hyper_path, hyper)
+
+dates = list(df[C.TIME].dt.strftime('%m/%d/%Y'))
+signals = hist.unfill(list(df[C.SIG]))
+records = []
+
+for idx, date in enumerate(dates):
+    records.append({
+        'Name': 'HODL',
+        C.TIME: date,
+        C.BAL: holding_balances[idx],
+    })
+
+    records.append({
+        'Name': 'hyperdrive',
+        C.TIME: date,
+        C.BAL: hyper_balances[idx],
+        C.SIG: signals[idx]
+    })
+
+stats = []
+for idx, metric in enumerate(metrics):
+
+    stats.append({
+        'key': idx,
+        'metric': metric,
+        'HODL': holding_stats[metric],
+        'hyperdrive': hyper_stats[metric]
+    })
+
+
+preview = {
+    'data': records,
+    'stats': stats
+}
+
+preview_path = md.finder.get_api_path('preview')
+md.writer.save_json(preview_path, preview)

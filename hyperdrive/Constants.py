@@ -87,11 +87,12 @@ MAs = ['MA9', 'MA14', 'MA25', 'MA40', 'MA60', 'MA90', 'MA128', 'MA200']
 # SOPR
 SOPR = 'SOPR'
 
-# Signals
+# Oracle
 SIG = 'Sig'
 
-# Balances
+# API
 BAL = 'Bal'
+NAME = 'Name'
 
 # Misc
 POLY_CRYPTO_SYMBOLS = [
@@ -204,6 +205,13 @@ class PathFinder:
             MODELS_DIR,
             'latest',
             'signals.csv'
+        )
+
+    def get_orders_path(self):
+        return os.path.join(
+            MODELS_DIR,
+            'latest',
+            'orders.csv'
         )
 
     def get_api_path(self, endpoint):
