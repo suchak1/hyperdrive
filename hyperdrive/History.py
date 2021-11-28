@@ -49,7 +49,7 @@ class Historian:
         out = s.to_numpy().flatten()
         return out
 
-    def unfill(self, arr):
+    def unfill(self, arr, NA=np.nan):
         if not len(arr):
             return np.array(arr)
         xs = list(arr)
@@ -60,7 +60,7 @@ class Historian:
                 new.append(x)
                 curr = x
             else:
-                new.append(np.nan)
+                new.append(NA)
         return np.array(new)
 
     def get_optimal_signals(self, close, n=10, method='ffill'):

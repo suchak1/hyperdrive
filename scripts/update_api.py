@@ -23,8 +23,8 @@ df = df.head(len(df) - 7)
 holding_pf = hist.buy_and_hold(df[C.CLOSE])
 hyper_pf = hist.create_portfolio(df[C.CLOSE], df[C.SIG], 0.001)
 
-holding_balances = list(holding_pf.value())
-hyper_balances = list(hyper_pf.value())
+holding_balances = [round(bal, 2) for bal in list(holding_pf.value())]
+hyper_balances = [round(bal, 2) for bal in list(hyper_pf.value())]
 
 metrics = [
     'Total Return [%]',
@@ -49,7 +49,7 @@ hyper_stats = transform_stats(hyper_pf.stats())
 
 
 dates = list(df[C.TIME].dt.strftime('%m/%d/%Y'))
-signals = list(hist.unfill(df[C.SIG].to_numpy()))
+signals = list(hist.unfill(df[C.SIG].to_numpy(), None))
 records = []
 
 for idx, date in enumerate(dates):
