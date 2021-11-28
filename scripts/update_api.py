@@ -1,6 +1,5 @@
 import os
 import sys
-import json
 import pandas as pd
 sys.path.append('hyperdrive')
 from DataSource import MarketData  # noqa autopep8
