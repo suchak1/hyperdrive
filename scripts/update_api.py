@@ -72,8 +72,8 @@ for idx, metric in enumerate(metrics):
     stats.append({
         'key': idx,
         'metric': metric,
-        'HODL': holding_stats[idx],
-        'hyperdrive': hyper_stats[idx]
+        'HODL': holding_stats[metric],
+        'hyperdrive': hyper_stats[metric]
     })
 
 
