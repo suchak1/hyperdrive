@@ -78,7 +78,7 @@ for idx, metric in enumerate(metrics):
 
 
 preview = {
-    'data': json.loads(records),
+    'data': records,
     'stats': stats
 }
 
