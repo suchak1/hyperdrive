@@ -40,7 +40,7 @@ def transform_stats(stats):
     return {
         k: (
             None if pd.isna(v) else round(v, 2)
-        ) for k, v in dict(stats()[metrics]).items()
+        ) for k, v in dict(stats[metrics]).items()
     }
 
 
@@ -81,12 +81,6 @@ preview = {
     'data': json.loads(records),
     'stats': stats
 }
-
-# preview schema
-# {
-#  data: [{Time:, Name:, Bal, Sig}, {...} ]
-#  stats: [{}
-# }
 
 preview_path = md.finder.get_api_path('preview')
 md.writer.save_json(preview_path, preview)
