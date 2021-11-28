@@ -8,7 +8,11 @@ from History import Historian  # noqa autopep8
 hist = Historian()
 ls = [np.nan, True, True, np.nan, False, np.nan, np.nan, np.nan, True]
 fs = [True,   True, True, True,   False, False,  False,  False,  True]
+unfilled_fs = [True, np.nan, np.nan, np.nan,
+               False, np.nan, np.nan, np.nan, True]
 ns = [True,   True, True, True,   False, False,  False,  True,   True]
+unfilled_ns = [True, np.nan, np.nan, np.nan,
+               False, np.nan, np.nan, True, True]
 arr = np.array(ls)
 test_ffill = np.array(fs)
 test_nfill = np.array(ns)
@@ -38,6 +42,12 @@ class TestHistorian:
         assert np.array_equal(ffill, test_ffill)
         nfill = hist.fill(arr, 'nearest')
         assert np.array_equal(nfill, test_nfill)
+
+    def test_unfill(self):
+        unfill1 = hist.unfill(test_ffill)
+        assert np.array_equal(unfill1, unfilled_fs)
+        unfill2 = hist.unfill(test_nfill)
+        assert np.array_equal(unfill2, unfilled_ns)
 
     def test_get_optimal_signals(self):
         f_signals = hist.get_optimal_signals(close, n=2, method='ffill')

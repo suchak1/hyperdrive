@@ -49,7 +49,7 @@ hyper_stats = transform_stats(hyper_pf.stats())
 
 
 dates = list(df[C.TIME].dt.strftime('%m/%d/%Y'))
-signals = list(df[C.SIG])
+signals = list(hist.unfill(df[C.SIG].to_numpy()))
 records = []
 
 for idx, date in enumerate(dates):

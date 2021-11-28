@@ -49,6 +49,20 @@ class Historian:
         out = s.to_numpy().flatten()
         return out
 
+    def unfill(arr):
+        if not len(arr):
+            return np.array(arr)
+        xs = list(arr)
+        curr = xs[0]
+        new = [curr]
+        for x in xs[1:]:
+            if curr != x:
+                new.append(x)
+                curr = x
+            else:
+                new.append(np.nan)
+        return np.array(new)
+
     def get_optimal_signals(self, close, n=10, method='ffill'):
         # finds the optimal signals for an array of prices
         close = np.array(close)
