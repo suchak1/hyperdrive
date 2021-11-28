@@ -49,7 +49,7 @@ class Historian:
         out = s.to_numpy().flatten()
         return out
 
-    def unfill(arr):
+    def unfill(self, arr):
         if not len(arr):
             return np.array(arr)
         xs = list(arr)
