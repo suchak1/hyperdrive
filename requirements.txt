@@ -7,7 +7,7 @@ pytz == 2021.3
 vectorbt == 0.21.0
 scipy == 1.7.3
 scikit-learn == 0.24.2
-auto-sklearn == 0.14.0
+auto-sklearn == 0.14.2
 cryptography == 36.0.0
 ta == 0.8.0
 python-binance == 1.0.15
