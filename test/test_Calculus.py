@@ -28,7 +28,16 @@ class TestCalculator:
             assert round(s) == expected[idx]
 
     def test_derive(self):
-        y =
+        series = pd.Series(calc.fib(9))
+        derived = calc.derive(series)
+        expected = pd.Series([1, 0.5, 0.5, 1, 1.5, 2.5, 4, 6.5, 8])
+        assert derived.equals(expected)
 
     def test_cv(self):
-        pass
+        series = pd.Series([2, 4, 6])
+        cvd = calc.cv(series)
+        expected = 0.5
+        assert cvd == expected
+
+    def test_fib(self):
+        assert calc.fib(9) == [0, 1, 1, 2, 3, 5, 8, 13, 21]

@@ -1,5 +1,6 @@
 
 import numpy as np
+import pandas as pd
 from scipy.signal import savgol_filter
 
 
@@ -24,16 +25,18 @@ class Calculator:
         )
         return np.gradient(y, x_delta)
 
-    def cv(self, df, axis):
-        return df.std(axis=axis) / df.mean(axis=axis)
-
-    def fib(self, n, accumulator=0):
-        if n <= 1:
-            return 0
-        elif n == 2:
-            return 1
+    def cv(self, x, axis):
+        if type(x) == pd.Series:
+            axis = 0
         else:
-            return (
-                self.fib(n - 1, accumulator) +
-                self.fib(n - 2, accumulator)
-            )
+            axis = 1
+        return x.std(axis=axis) / x.mean(axis=axis)
+
+    def fib(self, n):
+        if n <= 1:
+            return [0]
+        elif n == 2:
+            return [0, 1]
+        else:
+            lst = self.fib(n - 1)
+            return self.fib(n - 1) + [lst[-1] + lst[-2]]
