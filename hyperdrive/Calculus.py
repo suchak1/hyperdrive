@@ -20,8 +20,8 @@ class Calculator:
 
     def derive(y, x):
         x_delta = (
-            x.values.astype('float64')[1] -
-            x.values.astype('float64')[0]
+            x.to_numpy().astype('float64')[1] -
+            x.to_numpy().astype('float64')[0]
         )
         return np.gradient(y, x_delta)
 
