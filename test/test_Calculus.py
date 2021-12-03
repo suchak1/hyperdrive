@@ -28,7 +28,7 @@ class TestCalculator:
             assert round(s) == expected[idx]
 
     def test_derive(self):
-        pass
+        y =
 
     def test_cv(self):
         pass
