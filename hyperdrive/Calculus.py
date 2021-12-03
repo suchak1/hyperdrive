@@ -30,6 +30,7 @@ class Calculator:
             axis = 0
         else:
             axis = 1
+        # consider supporting ddof=0 and rebuilding model
         return x.std(axis=axis) / x.mean(axis=axis)
 
     def fib(self, n):
