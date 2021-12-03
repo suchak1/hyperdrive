@@ -61,5 +61,5 @@ p2.start()
 p1.join()
 p2.join()
 
-if counter.value / (len(symbols) * 2) < 0.95:
+if counter.value / (len(symbols) * 2) < 0.05:
     exit(1)
