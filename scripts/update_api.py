@@ -17,7 +17,7 @@ signals[C.TIME] = pd.to_datetime(signals[C.TIME])
 df = md.get_ohlc(symbol).merge(signals, on=C.TIME)
 
 # 1 week delay
-df = df.head(len(df) - 7)
+df = df.head(len(df) - 5)
 
 holding_pf = hist.buy_and_hold(df[C.CLOSE])
 hyper_pf = hist.create_portfolio(df[C.CLOSE], df[C.SIG], 0.001)
