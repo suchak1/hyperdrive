@@ -102,5 +102,4 @@ jobs:
         run: python encrypted/predict_signal.py
 
       - name: Execute order
-      # make sure not using real binance secrets
-      # C.TEST
+        run: python scripts/execute_order.py

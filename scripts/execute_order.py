@@ -6,7 +6,7 @@ from DataSource import MarketData  # noqa
 from Exchange import Binance  # noqa autopep8
 import Constants as C  # noqa
 
-bn = Binance()
+bn = Binance(testnet=True if C.TEST else False)
 md = MarketData()
 md.provider = 'polygon'
 
