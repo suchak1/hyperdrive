@@ -23,7 +23,7 @@ class Historian:
         self.calc = Calculator()
 
     # add fx to perform calculations on columns
-    # takes calc.fx, df, and column names as args
+    # takes calc.fx, df, and column names as args, fx args
 
     def buy_and_hold(self, close):
         # returns a portfolio based on buy and hold strategy

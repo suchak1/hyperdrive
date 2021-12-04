@@ -87,3 +87,18 @@ jobs:
 
       - name: Update unemployment
         run: python scripts/update_unrate.py
+
+      - name: Decrypt scripts
+        env:
+          SALT: ${{ secrets.SALT }}
+        run: |
+          python util/decrypt.py encrypted/create_model.py
+          python util/decrypt.py encrypted/predict_signal.py
+
+      - name: Create model
+        run: python encrypted/create_model.py
+
+      - name: Predict signal
+      # C.TEST
+      - name: Execute order
+      # C.TEST
