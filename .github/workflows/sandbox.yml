@@ -99,8 +99,8 @@ jobs:
         run: python encrypted/create_model.py
 
       - name: Predict signal
-      # add check if C.TEST and workflow is running, then new_ohlc = ohlc
-      # C.TEST
+        run: python encrypted/predict_signal.py
+
       - name: Execute order
       # make sure not using real binance secrets
       # C.TEST
