@@ -29,9 +29,14 @@ class TestCalculator:
 
     def test_derive(self):
         series = pd.Series(calc.fib(9))
+        # series = np.array(calc.fib(9))
+        print(series)
         derived = calc.derive(series)
-        expected = pd.Series([1, 0.5, 0.5, 1, 1.5, 2.5, 4, 6.5, 8])
-        assert derived.equals(expected)
+        print(derived)
+        expected = np.array([1, 0.5, 0.5, 1, 1.5, 2.5, 4, 6.5, 8])
+        print(expected)
+        assert np.array_equal(derived, expected)
+        # assert derived == expected
 
     def test_cv(self):
         series = pd.Series([2, 4, 6])
