@@ -97,7 +97,6 @@ jobs:
 
       - name: Create model
         run: python encrypted/create_model.py
-        # add 60s training time parameter if C.TEST
 
       - name: Predict signal
       # add check if C.TEST and workflow is running, then new_ohlc = ohlc
