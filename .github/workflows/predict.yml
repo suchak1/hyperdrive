@@ -53,7 +53,16 @@ jobs:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
           POLYGON: ${{ secrets.POLYGON }}
           GLASSNODE: ${{ secrets.GLASSNODE }}
+        run: |
+          python encrypted/predict_signal.py
+
+      - name: Execute order
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
           BINANCE_KEY: ${{ secrets.BINANCE_KEY }}
           BINANCE_SECRET: ${{ secrets.BINANCE_SECRET }}
         run: |
-          python encrypted/predict_signal.py
+          python scripts/execute_order.py
