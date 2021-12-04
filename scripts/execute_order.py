@@ -6,7 +6,7 @@ from DataSource import MarketData  # noqa
 from Exchange import Binance  # noqa autopep8
 import Constants as C  # noqa
 
-bn = Binance(testnet=True if C.TEST else False)
+bn = Binance(testnet=C.TEST)
 md = MarketData()
 md.provider = 'polygon'
 
@@ -24,7 +24,10 @@ if should_order:
     base = 'BTC'
     quote = 'USD'
 
-    order = bn.order(base, quote, 'BUY' if signal else 'SELL')
+    order = bn.order(
+        base, quote, 'BUY' if signal else 'SELL',
+        0.01 if C.TEST else 1, C.TEST
+    )
     order_df = pd.json_normalize(order)
 
     yesterday = (

@@ -101,5 +101,5 @@ jobs:
       - name: Predict signal
         run: python encrypted/predict_signal.py
 
-      - name: Execute order
-        run: python scripts/execute_order.py
+      # - name: Execute order
+      #   run: python scripts/execute_order.py
