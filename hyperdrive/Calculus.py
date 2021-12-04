@@ -25,7 +25,7 @@ class Calculator:
         )
         return np.gradient(y, x_delta)
 
-    def cv(self, x, axis):
+    def cv(self, x):
         if type(x) == pd.Series:
             axis = 0
         else:
