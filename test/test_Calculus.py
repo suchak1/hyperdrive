@@ -22,7 +22,7 @@ class TestCalculator:
 
     def test_smooth(self):
         series = pd.Series([0, 25, 50, 100, 50, 25, 0])
-        smoothed = calc.smooth(series)
+        smoothed = calc.smooth(series, 3, 2)
         expected = [-8, 36, 63, 79, 63, 36, -8]
         for idx, s in enumerate(smoothed):
             assert round(s) == expected[idx]
