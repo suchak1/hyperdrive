@@ -18,17 +18,12 @@ class Calculator:
             order
         )
 
-    def derive(self, y, x=[0, 1]):
-        # if type(x) == pd.Series:
-        #     x = x.to_numpy().astype('float64')
-        # x_delta = x[1] - x[0]
-        # print('x_delta', x_delta)
-        # return np.gradient(y, x_delta)
-        if type(y) == pd.Series:
-            y = y.to_numpy()
-        print('y', y)
-        return np.gradient(y)
-        # return np.array([1, 0.5, 0.5, 1, 1.5, 2.5, 4, 6.5, 8])
+    def derive(self, y, x=np.array([0, 1])):
+        if type(x) == pd.Series:
+            x = x.to_numpy()
+        x = x.astype('float64')
+        x_delta = (x[1] - x[0])
+        return np.gradient(y, x_delta)
 
     def cv(self, x):
         if type(x) == pd.Series:
