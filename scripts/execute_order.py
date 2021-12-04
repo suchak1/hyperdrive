@@ -22,11 +22,11 @@ should_order = num_unique_signals > 1
 
 if should_order:
     base = 'BTC'
-    quote = 'USD'
+    quote = 'USDT' if C.TEST else 'USD'
+    spend_ratio = 0.01 if C.TEST else 1
 
     order = bn.order(
-        base, quote, 'BUY' if signal else 'SELL',
-        0.01 if C.TEST else 1, C.TEST
+        base, quote, 'BUY' if signal else 'SELL', spend_ratio, C.TEST
     )
     order_df = pd.json_normalize(order)
 
