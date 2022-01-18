@@ -72,7 +72,7 @@ jobs:
         run: coverage run -m pytest -vv -s
 
       - name: Generate test coverage report
-        run: coverage report -m --fail-under=90
+        run: coverage report -m -i --fail-under=90
 
       - name: Commit new file(s)
         uses: stefanzweifel/git-auto-commit-action@v4

@@ -25,16 +25,16 @@ class Historian:
     # add fx to perform calculations on columns
     # takes calc.fx, df, and column names as args, fx args
 
-    def buy_and_hold(self, close):
+    def buy_and_hold(self, close, init_cash=1000):
         # returns a portfolio based on buy and hold strategy
         portfolio = vbt.Portfolio.from_holding(
-            close, init_cash=1000, freq='D')
+            close, init_cash=init_cash, freq='D')
         return portfolio
 
-    def create_portfolio(self, close, signals, fee=0):
+    def create_portfolio(self, close, signals, init_cash=1000, fee=0):
         # returns a portfolio based on signals
         portfolio = vbt.Portfolio.from_signals(
-            close, signals, ~signals, init_cash=1000, freq='D', fees=fee
+            close, signals, ~signals, init_cash=init_cash, freq='D', fees=fee
         )
         return portfolio
 

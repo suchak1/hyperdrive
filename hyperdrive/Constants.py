@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv, find_dotenv
 from pytz import timezone
+import vectorbt as vbt
 
 load_dotenv(find_dotenv('config.env'))
 
@@ -93,6 +94,7 @@ SIG = 'Sig'
 # API
 BAL = 'Bal'
 NAME = 'Name'
+ABS_TOL = vbt.utils.math_.abs_tol
 
 # Misc
 POLY_CRYPTO_SYMBOLS = [

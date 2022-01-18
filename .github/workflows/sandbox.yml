@@ -65,7 +65,7 @@ jobs:
         run: coverage run -m pytest -vv -s
 
       - name: Generate test coverage report
-        run: coverage report -m --fail-under=90
+        run: coverage report -m -i --fail-under=90
 
       - name: Update symbols
         run: python scripts/update_symbols.py
@@ -87,6 +87,11 @@ jobs:
 
       - name: Update unemployment
         run: python scripts/update_unrate.py
+
+      - name: Update API
+        env:
+          SYMBOL: ${{ secrets.SYMBOL }}
+        run: python scripts/update_api.py
 
       - name: Decrypt scripts
         env:
