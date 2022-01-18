@@ -66,3 +66,9 @@ jobs:
 
       - name: Generate test coverage report
         run: coverage report -m --fail-under=90
+
+      # - name: Update API
+      #   env:
+      #     SYMBOL: ${{ secrets.SYMBOL }}
+      #     S3_BUCKET: ${{ secrets.S3_BUCKET }}
+      #   run: python scripts/update_api.py

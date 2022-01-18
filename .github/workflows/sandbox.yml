@@ -88,6 +88,11 @@ jobs:
       - name: Update unemployment
         run: python scripts/update_unrate.py
 
+      - name: Update API
+        env:
+          SYMBOL: ${{ secrets.SYMBOL }}
+        run: python scripts/update_api.py
+
       - name: Decrypt scripts
         env:
           SALT: ${{ secrets.SALT }}
