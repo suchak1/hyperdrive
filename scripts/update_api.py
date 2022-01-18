@@ -1,4 +1,3 @@
-import json
 import os
 import sys
 import numpy as np
@@ -30,7 +29,6 @@ df = md.get_ohlc(symbol).merge(signals, on=C.TIME)
 
 # 1 week delay
 df = df.head(len(df) - 5)
-# close = df[C.CLOSE]
 
 
 def create_portfolio_preview(close, signals, invert):
@@ -115,7 +113,6 @@ preview = {
     'BTC': btc_preview,
     'USD': usd_preview
 }
-with open('preview.json', 'w') as file:
-    json.dump(preview, file, indent=4)
-# preview_path = md.finder.get_api_path('preview')
-# md.writer.save_json(preview_path, preview)
+
+preview_path = md.finder.get_api_path('preview')
+md.writer.save_json(preview_path, preview)
