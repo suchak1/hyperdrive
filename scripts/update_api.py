@@ -2,7 +2,6 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-import vectorbt as vbt
 sys.path.append('hyperdrive')
 from DataSource import MarketData  # noqa autopep8
 from History import Historian  # noqa autopep8
@@ -40,7 +39,7 @@ def create_portfolio_preview(close, signals, invert):
     ]
     if invert:
         close = 1 / close
-        init_cash = 1 + vbt.utils.math.abs_tol
+        init_cash = 1 + C.ABS_TOL
         metrics.append('Total Fees Paid')
     else:
         init_cash = close.iloc[0]
