@@ -8,8 +8,8 @@ on:
   #   branches:
   #     - feature/predict
   schedule:
-    - cron: "0 1 * * *"
-    # 8pm EST every day
+    - cron: "0 0 * * *"
+    # 7pm EST / 0 UTC every day
   workflow_dispatch:
 
 jobs:
