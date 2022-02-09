@@ -10,6 +10,7 @@ on:
   schedule:
     - cron: "0 0 * * *"
     # 7pm EST / 0 UTC every day
+    # change to this 1.5 hr before 0 utc
   workflow_dispatch:
 
 jobs:
@@ -45,6 +46,7 @@ jobs:
         run: |
           python util/decrypt.py encrypted/predict_signal.py
 
+      # add wait until 0 utc here
       - name: Predict signal
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

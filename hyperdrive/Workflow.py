@@ -1,9 +1,7 @@
 import re
-import sys
 from datetime import datetime, timedelta
-sys.path.append('hyperdrive')
-from DataSource import MarketData  # noqa
-from Constants import POLY_FREE_DELAY, FEW, POLY_CRYPTO_SYMBOLS  # noqa
+from DataSource import MarketData
+from Constants import POLY_FREE_DELAY, FEW, POLY_CRYPTO_SYMBOLS
 
 
 class Flow:
