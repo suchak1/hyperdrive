@@ -3,8 +3,8 @@ import sys
 from time import sleep
 from datetime import datetime
 sys.path.append('hyperdrive')
-from DataSource import IEXCloud, Polygon  # noqa autopep8
-from Constants import CI, PathFinder, POLY_CRYPTO_SYMBOLS  # noqa autopep8
+from DataSource import Polygon  # noqa autopep8
+from Constants import CI, POLY_CRYPTO_SYMBOLS, TIME_FMT  # noqa autopep8
 
 
 poly = Polygon(os.environ['POLYGON'])
@@ -18,7 +18,7 @@ def update_poly_intraday():
         now = datetime.now()
         hour = now.hour
         while hour in set(range(8, 12)):
-            print(datetime.now().strftime('%H:%M'))
+            print(datetime.now().strftime(TIME_FMT))
             print('Sleeping for 1 hr')
             sleep(3600)
             hour = datetime.now().hour

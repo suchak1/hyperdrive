@@ -8,8 +8,9 @@ on:
   #   branches:
   #     - feature/predict
   schedule:
-    - cron: "0 0 * * *"
-    # 7pm EST / 0 UTC every day
+    - cron: "00 22 * * *"
+    # 5:00pm EST / 22:00 UTC every day
+    # 2 hr before 00:00 UTC
   workflow_dispatch:
 
 jobs:
@@ -44,6 +45,9 @@ jobs:
           SALT: ${{ secrets.SALT }}
         run: |
           python util/decrypt.py encrypted/predict_signal.py
+
+      - name: Sleep until 00:00 UTC
+        run: python scripts/sleep.py 00:00
 
       - name: Predict signal
         env:

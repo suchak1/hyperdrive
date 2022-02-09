@@ -1,9 +1,11 @@
 import re
 import sys
 import pytest
+from time import time
 from datetime import datetime, timedelta
 sys.path.append('hyperdrive')
 from TimeMachine import TimeTraveller  # noqa autopep8
+from Constants import PRECISE_TIME_FMT  # noqa autopep8
 
 traveller = TimeTraveller()
 
@@ -37,3 +39,23 @@ class TestTimeTraveller:
     def test_combine_date_time(self):
         dt = traveller.combine_date_time('2020-01-02', '09:30')
         assert dt == datetime(2020, 1, 2, 9, 30)
+
+    def test_sleep_until(self):
+        num_sec = 5
+        tol = 1
+
+        # sched > curr case
+        start = time()
+        curr = datetime.utcnow()
+        sched = curr + timedelta(seconds=num_sec)
+        traveller.sleep_until(sched.strftime(PRECISE_TIME_FMT))
+        end = time()
+        assert (end - start + tol) > num_sec
+
+        # sched < curr case
+        start = time()
+        curr = datetime.utcnow()
+        sched = curr - timedelta(seconds=num_sec)
+        traveller.sleep_until(sched.strftime(PRECISE_TIME_FMT))
+        end = time()
+        assert (end - start) < num_sec
