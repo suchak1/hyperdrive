@@ -5,7 +5,7 @@ from time import time
 from datetime import datetime, timedelta
 sys.path.append('hyperdrive')
 from TimeMachine import TimeTraveller  # noqa autopep8
-from Constants import TIME_FMT  # noqa autopep8
+from Constants import PRECISE_TIME_FMT  # noqa autopep8
 
 traveller = TimeTraveller()
 
@@ -41,20 +41,21 @@ class TestTimeTraveller:
         assert dt == datetime(2020, 1, 2, 9, 30)
 
     def test_sleep_until(self):
-        num_sec = 1
+        num_sec = 5
+        tol = 1
 
         # sched > curr case
         start = time()
         curr = datetime.utcnow()
         sched = curr + timedelta(seconds=num_sec)
-        traveller.sleep_until(sched.strftime(TIME_FMT))
+        traveller.sleep_until(sched.strftime(PRECISE_TIME_FMT))
         end = time()
-        assert end - start > num_sec
+        assert (end - start + tol) > num_sec
 
         # sched < curr case
         start = time()
         curr = datetime.utcnow()
         sched = curr - timedelta(seconds=num_sec)
-        traveller.sleep_until(sched.strftime(TIME_FMT))
+        traveller.sleep_until(sched.strftime(PRECISE_TIME_FMT))
         end = time()
-        assert end - start < num_sec
+        assert (end - start) < num_sec
