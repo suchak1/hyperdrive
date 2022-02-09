@@ -8,9 +8,9 @@ on:
   #   branches:
   #     - feature/predict
   schedule:
-    - cron: "30 22 * * *"
-    # 5:30pm EST / 22:30 UTC every day
-    # 1.5 hr before 00:00 UTC
+    - cron: "00 22 * * *"
+    # 5:00pm EST / 22:00 UTC every day
+    # 2 hr before 00:00 UTC
   workflow_dispatch:
 
 jobs:
