@@ -65,17 +65,7 @@ class TimeTraveller:
         prev_diff = abs((curr_time - prev_sched_time).total_seconds())
         next_diff = abs((curr_time - next_sched_time).total_seconds())
 
-        sched_time = prev_sched_time
-        # diff = prev_diff
-
-        if next_diff < prev_diff:
-            sched_time = next_sched_time
-            # diff = next_diff
+        sched_time = next_sched_time if next_diff < prev_diff else prev_sched_time
 
         diff = sched_time - curr_time if sched_time > curr_time else 0
         sleep(diff)
-        # new idea:
-        # take curr time and sched time w current day and sched time w next day
-        # sched time will be one that is closer to curr time
-        # diff = sched - curr if sched > curr else 0
-        # sleep(diff)
