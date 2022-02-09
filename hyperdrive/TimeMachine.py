@@ -55,17 +55,20 @@ class TimeTraveller:
         time = self.get_time(time)
         return date.combine(date, time)
 
-    def wait_until(self, time):
+    def get_diff(self, t1, t2):
+        return abs((t1 - t2).total_seconds())
+
+    def sleep_until(self, time):
         # time could be "00:00"
-        curr_time = datetime.utcnow()
-        prev_sched_time = datetime.combine(
-            curr_time.date(), self.get_time(time))
-        next_sched_time = prev_sched_time + timedelta(days=1)
+        curr = datetime.utcnow()
+        prev_sched = datetime.combine(
+            curr.date(), self.get_time(time))
+        next_sched = prev_sched + timedelta(days=1)
 
-        prev_diff = abs((curr_time - prev_sched_time).total_seconds())
-        next_diff = abs((curr_time - next_sched_time).total_seconds())
+        prev_diff = self.get_diff(curr, prev_sched)
+        next_diff = self.get_diff(curr, next_sched)
 
-        sched_time = next_sched_time if next_diff < prev_diff else prev_sched_time
+        sched = next_sched if next_diff < prev_diff else prev_sched
+        diff = self.get_diff(curr, sched) if sched > curr else 0
 
-        diff = sched_time - curr_time if sched_time > curr_time else 0
         sleep(diff)
