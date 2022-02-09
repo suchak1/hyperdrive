@@ -1,3 +1,4 @@
+from time import sleep
 from datetime import datetime, timedelta
 from Constants import TZ, DATE_FMT, TIME_FMT
 
@@ -56,54 +57,25 @@ class TimeTraveller:
 
     def wait_until(self, time):
         # time could be "00:00"
-        target_time = self.get_time(time)
-        target_seconds = target_time.hour * 3600 + \
-            target_time.minute * 60 + target_time.second
-        sec_in_a_day = int(timedelta(days=1).total_seconds())
+        curr_time = datetime.utcnow()
+        prev_sched_time = datetime.combine(
+            curr_time.date(), self.get_time(time))
+        next_sched_time = prev_sched_time + timedelta(days=1)
 
-        # while
-        now = datetime.utcnow()
+        prev_diff = abs((curr_time - prev_sched_time).total_seconds())
+        next_diff = abs((curr_time - next_sched_time).total_seconds())
 
-        midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
-        seconds = (now - midnight).seconds
+        sched_time = prev_sched_time
+        # diff = prev_diff
 
-        # cases:
-        # curr: 11pm, sched: 1am
-        # result: wait 2hr
-        # curr > sched
-        # curr is before midnight and sched is after midnight
-        # curr is after noon and sched is before noon
+        if next_diff < prev_diff:
+            sched_time = next_sched_time
+            # diff = next_diff
 
-        # curr: 1pm, sched: 3pm
-        # result: wait 2hr
-        # curr < sched
-        # curr is before midnight and sched is before midnight
-        # curr is after noon and sched is after noon
-
-        # curr: 1am, sched: 11pm
-        # result: no wait, return
-        # curr < sched
-        # curr is after midnight and sched is before midnight
-        # curr is before noon and sched is after noon
-
-        # curr: 3pm, sched: 1pm
-        # result: no wait, return
-        # curr > sched
-        # curr is before midnight and sched is before midnight
-        # curr is after noon and sched is after noon
-
-
-# times close to noon are anomaly
-        # curr: 11am, sched: 1pm
-        # result: wait 2hr
-        # curr < sched
-        # curr is before noon and sched is after noon
-
-        # curr: 1pm, sched: 11am
-        # result: no wait, return
-        # curr > sched
-        # curr is after noon and sched is before noon
-
-        if seconds > target_seconds:
-            #
-            return
+        diff = sched_time - curr_time if sched_time > curr_time else 0
+        sleep(diff)
+        # new idea:
+        # take curr time and sched time w current day and sched time w next day
+        # sched time will be one that is closer to curr time
+        # diff = sched - curr if sched > curr else 0
+        # sleep(diff)
