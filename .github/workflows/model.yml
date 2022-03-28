@@ -15,8 +15,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - pca: 2
-          - pca: 3
+          # - pca: 2
+          # - pca: 3
           - pca: 5
           - pca: 7
           # - pca: 9
