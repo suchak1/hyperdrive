@@ -98,27 +98,12 @@ class Historian:
             good_signals) if idx in top_idxs]
         return good_signals
 
-    def split(self, X, y):
-        df = pd.DataFrame(X)
-        df['y'] = y
-        df = df.dropna()
-        y = df['y'].to_numpy()
-        X = df.drop('y', axis=1).to_numpy()
-        X_train, X_test, y_train, y_test = \
-            train_test_split(X, y, test_size=.2)
-        print('NaN: X_train', np.any(np.isnan(X_train)))
-        print('Fin: X_train', np.all(np.isfinite(X_train)))
-        print('NaN: X_test', np.any(np.isnan(X_test)))
-        print('Fin: X_test', np.all(np.isfinite(X_test)))
-        return X_train, X_test, y_train, y_test
-
     def oversample(self, X_train, y_train):
         sm = SMOTE()
         X_res, y_res = sm.fit_resample(X_train, y_train)
         return X_res, y_res
 
     def preprocess(self, X, y, num_pca=2):
-        # X_train, X_test, y_train, y_test = self.split(X, y)
         df = pd.DataFrame(X)
         df['y'] = y
         df = df.dropna()
@@ -129,23 +114,14 @@ class Historian:
         X_train, y_train = self.oversample(X_train, y_train)
         X_train, X_test, scaler = self.standardize(X_train, X_test)
         if num_pca:
-            print('NaN: X_train', np.any(np.isnan(X_train)))
-            print('Fin: X_train', np.all(np.isfinite(X_train)))
-            print('NaN: X_test', np.any(np.isnan(X_test)))
-            print('Fin: X_test', np.all(np.isfinite(X_test)))
             X_train, X_test, pca = self.pca(X_train, num_pca, X_test)
         else:
             pca = None
         X, full_scaler = self.standardize(X)
         if num_pca:
-            print('NaN: X', np.any(np.isnan(X)))
-            print('Fin: X', np.all(np.isfinite(X)))
-            print(X)
             X, full_pca = self.pca(X, num_pca)
         else:
             full_pca = None
-
-        raise Exception('Works!')
 
         return (
             X_train, X_test, y_train, y_test,

@@ -60,3 +60,7 @@ class TestHistorian:
     def test_preprocess(self):
         X_train = hist.preprocess(X, y)[0]
         assert len(X_train) > (len(X) * 0.8)
+
+    def test_undersample(self):
+        y_train = hist.undersample(X, y)[2]
+        assert np.mean(y_train) == 0.5
