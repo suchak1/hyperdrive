@@ -5,16 +5,7 @@ from scipy.signal import argrelextrema
 from sklearn.model_selection import train_test_split
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
-from sklearn.neural_network import MLPClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
-from sklearn.gaussian_process import GaussianProcessClassifier
-from sklearn.gaussian_process.kernels import RBF
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
-from sklearn.naive_bayes import GaussianNB
-from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
-from sklearn.metrics import classification_report
+from imblearn.over_sampling import SMOTE
 from Calculus import Calculator
 
 
@@ -107,8 +98,7 @@ class Historian:
             good_signals) if idx in top_idxs]
         return good_signals
 
-    def undersample(self, X, y, n=2):
-        # undersample, split train / test data, and standardize
+    def split(self, X, y):
         df = pd.DataFrame(X)
         df['y'] = y
         df = df.dropna()
@@ -116,28 +106,26 @@ class Historian:
         X = df.drop('y', axis=1).to_numpy()
         X_train, X_test, y_train, y_test = \
             train_test_split(X, y, test_size=.2)
-        train_true = 0
-        train_false = 0
-        X_train_new = []
-        y_train_new = []
-        train_num = len(y_train) - sum(y_train)
-        # use arr[mask]all[:num] instead to get
-        for idx, signal in enumerate(y_train):
-            if signal and train_true < train_num:
-                train_true += 1
-            elif not signal and train_false < train_num:
-                train_false += 1
-            else:
-                continue
-            X_train_new.append(X_train[idx])
-            y_train_new.append(y_train[idx])
-        X_train = np.array(X_train_new)
-        y_train = np.array(y_train_new)
+        return X_train, X_test, y_train, y_test
 
+    def oversample(self, X_train, y_train):
+        sm = SMOTE()
+        X_res, y_res = sm.fit_resample(X_train, y_train)
+        return X_res, y_res
+
+    def preprocess(self, X, y, num_pca=2):
+        X_train, X_test, y_train, y_test = self.split(X, y)
+        X_train, y_train = self.oversample(X_train, y_train)
         X_train, X_test, scaler = self.standardize(X_train, X_test)
-        X_train, X_test, pca = self.pca(X_train, n, X_test)
+        if num_pca:
+            X_train, X_test, pca = self.pca(X_train, num_pca, X_test)
+        else:
+            pca = None
         X, full_scaler = self.standardize(X)
-        X, full_pca = self.pca(X, n)
+        if num_pca:
+            X, full_pca = self.pca(X, num_pca)
+        else:
+            full_pca = None
 
         return (
             X_train, X_test, y_train, y_test,
@@ -165,36 +153,3 @@ class Historian:
         var = pca.explained_variance_ratio_.sum() * 100
         print(f'Explained variance (X): {round(var, 2)}%')
         return X_train, pca
-
-    def run_classifiers(self, X_train, X_test, y_train, y_test):
-        names = [
-            "Nearest Neighbors", "Linear SVM", "RBF SVM", "Gaussian Process",
-            "Decision Tree", "Random Forest", "Neural Net", "AdaBoost",
-            "Naive Bayes", "QDA"]
-        classifiers = [
-            KNeighborsClassifier(3),
-            SVC(kernel="linear", C=0.025),
-            SVC(gamma=2, C=1),
-            GaussianProcessClassifier(1.0 * RBF(1.0)),
-            DecisionTreeClassifier(max_depth=5),
-            RandomForestClassifier(
-                max_depth=5, n_estimators=10, max_features=1),
-            MLPClassifier(alpha=1, max_iter=1000),
-            AdaBoostClassifier(),
-            GaussianNB(),
-            QuadraticDiscriminantAnalysis()]
-
-        clfs = {}
-
-        for name, clf in zip(names, classifiers):
-            clf.fit(X_train, y_train)
-            score = clf.score(X_test, y_test)
-            report = classification_report(
-                y_test, clf.predict(X_test), output_dict=True)
-            ratio = clf.score(X_train, y_train) / score
-            if ratio < 1.15:
-                clfs[name] = {'score': score, 'report': report,
-                              'ratio': ratio, 'clf': clf}
-        clfs = sorted(clfs.items(), reverse=True,
-                      key=lambda clf: clf[1]['score'])
-        return clfs
