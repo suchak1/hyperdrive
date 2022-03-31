@@ -19,6 +19,9 @@ class MarketData:
         self.traveller = TimeTraveller()
         self.provider = 'iexcloud'
 
+    def get_indexer(self, s1, s2):
+        return list(s1.intersection(s2))
+
     def try_again(self, func, **kwargs):
         retries = (kwargs['retries']
                    if 'retries' in kwargs
@@ -200,11 +203,13 @@ class MarketData:
 
         sen_df = self.reader.update_df(
             filename, self.get_social_sentiment(**kwargs), C.TIME)
-        sen_df = sen_df[{C.TIME, C.POS, C.NEG}.intersection(sen_df.columns)]
+        sen_df = sen_df[self.get_indexer(
+            {C.TIME, C.POS, C.NEG}, sen_df.columns)]
 
         vol_df = self.reader.update_df(
             filename, self.get_social_volume(**kwargs), C.TIME)
-        vol_df = vol_df[{C.TIME, C.VOL, C.DELTA}.intersection(vol_df.columns)]
+        vol_df = vol_df[self.get_indexer(
+            {C.TIME, C.VOL, C.DELTA}, vol_df.columns)]
 
         if sen_df.empty and not vol_df.empty:
             df = vol_df
@@ -233,7 +238,7 @@ class MarketData:
             [C.TIME, C.POS, C.NEG],
             0
         )
-        return df[{C.TIME, C.POS, C.NEG}.intersection(df.columns)]
+        return df[self.get_indexer({C.TIME, C.POS, C.NEG}, df.columns)]
 
     def standardize_volume(self, symbol, df):
         full_mapping = dict(
@@ -250,7 +255,7 @@ class MarketData:
             [C.TIME, C.VOL, C.DELTA],
             0
         )
-        return df[{C.TIME, C.VOL, C.DELTA}.intersection(df.columns)]
+        return df[self.get_indexer({C.TIME, C.VOL, C.DELTA}, df.columns)]
 
     def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=False):
         # implement way to transform 1 min dataset to 5 min data
@@ -331,7 +336,7 @@ class MarketData:
             [C.TIME, C.HALVING, C.RATIO],
             0
         )
-        return df[{C.TIME, C.HALVING, C.RATIO}.intersection(df.columns)]
+        return df[self.get_indexer({C.TIME, C.HALVING, C.RATIO}, df.columns)]
 
     def get_s2f_ratio(self, timeframe='max'):
         # given a symbol, return a cached dataframe
@@ -371,7 +376,7 @@ class MarketData:
             [C.TIME] + C.MAs,
             0
         )
-        return df[set([C.TIME] + C.MAs).intersection(df.columns)]
+        return df[self.get_indexer(set([C.TIME] + C.MAs), df.columns)]
 
     def get_diff_ribbon(self, timeframe='max'):
         # given a symbol, return a cached dataframe
@@ -410,7 +415,7 @@ class MarketData:
             [C.TIME, C.SOPR],
             1
         )
-        return df[{C.TIME, C.SOPR}.intersection(df.columns)]
+        return df[self.get_indexer({C.TIME, C.SOPR}, df.columns)]
 
     def get_sopr(self, timeframe='max'):
         # given a symbol, return a cached dataframe
