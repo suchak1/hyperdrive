@@ -106,6 +106,10 @@ class Historian:
         X = df.drop('y', axis=1).to_numpy()
         X_train, X_test, y_train, y_test = \
             train_test_split(X, y, test_size=.2)
+        print('NaN: X_train', np.any(np.isnan(X_train)))
+        print('Fin: X_train', np.all(np.isfinite(X_train)))
+        print('NaN: X_test', np.any(np.isnan(X_test)))
+        print('Fin: X_test', np.all(np.isfinite(X_test)))
         return X_train, X_test, y_train, y_test
 
     def oversample(self, X_train, y_train):
@@ -114,18 +118,72 @@ class Historian:
         return X_res, y_res
 
     def preprocess(self, X, y, num_pca=2):
-        X_train, X_test, y_train, y_test = self.split(X, y)
+        # X_train, X_test, y_train, y_test = self.split(X, y)
+        df = pd.DataFrame(X)
+        df['y'] = y
+        df = df.dropna()
+        y = df['y'].to_numpy()
+        X = df.drop('y', axis=1).to_numpy()
+        X_train, X_test, y_train, y_test = \
+            train_test_split(X, y, test_size=.2)
         X_train, y_train = self.oversample(X_train, y_train)
         X_train, X_test, scaler = self.standardize(X_train, X_test)
         if num_pca:
+            print('NaN: X_train', np.any(np.isnan(X_train)))
+            print('Fin: X_train', np.all(np.isfinite(X_train)))
+            print('NaN: X_test', np.any(np.isnan(X_test)))
+            print('Fin: X_test', np.all(np.isfinite(X_test)))
             X_train, X_test, pca = self.pca(X_train, num_pca, X_test)
         else:
             pca = None
         X, full_scaler = self.standardize(X)
         if num_pca:
+            print('NaN: X', np.any(np.isnan(X)))
+            print('Fin: X', np.all(np.isfinite(X)))
+            print(X)
             X, full_pca = self.pca(X, num_pca)
         else:
             full_pca = None
+
+        raise Exception('Works!')
+
+        return (
+            X_train, X_test, y_train, y_test,
+            X, y, scaler, pca, full_scaler, full_pca
+        )
+
+    def undersample(self, X, y, n=2):
+        # undersample, split train / test data, and standardize
+        df = pd.DataFrame(X)
+        df['y'] = y
+        df = df.dropna()
+        y = df['y'].to_numpy()
+        X = df.drop('y', axis=1).to_numpy()
+        X_train, X_test, y_train, y_test = \
+            train_test_split(X, y, test_size=.2)
+        X_train, X_test, y_train, y_test = self.split(X, y)
+        train_true = 0
+        train_false = 0
+        X_train_new = []
+        y_train_new = []
+        train_num = len(y_train) - sum(y_train)
+        # use arr[mask]all[:num] instead to get
+        for idx, signal in enumerate(y_train):
+            if signal and train_true < train_num:
+                train_true += 1
+            elif not signal and train_false < train_num:
+                train_false += 1
+            else:
+                continue
+            X_train_new.append(X_train[idx])
+            y_train_new.append(y_train[idx])
+        X_train = np.array(X_train_new)
+        y_train = np.array(y_train_new)
+
+        X_train, X_test, scaler = self.standardize(X_train, X_test)
+        X_train, X_test, pca = self.pca(X_train, n, X_test)
+        X, full_scaler = self.standardize(X)
+        X, full_pca = self.pca(X, n)
 
         return (
             X_train, X_test, y_train, y_test,
