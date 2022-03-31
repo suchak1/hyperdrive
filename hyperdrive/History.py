@@ -137,7 +137,7 @@ class Historian:
         X = df.drop('y', axis=1).to_numpy()
         X_train, X_test, y_train, y_test = \
             train_test_split(X, y, test_size=.2)
-        X_train, X_test, y_train, y_test = self.split(X, y)
+
         train_true = 0
         train_false = 0
         X_train_new = []
