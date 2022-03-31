@@ -62,7 +62,7 @@ class FileReader:
             new[column] = pd.to_datetime(new[column])
             # preference to new entries over old
             old = old[~old[column].isin(new[column])]
-            new = old.append(new, ignore_index=True)
+            new = pd.concat([old, new], ignore_index=True)
         if save_fmt:
             new[column] = pd.to_datetime(new[column]).dt.strftime(save_fmt)
         return new

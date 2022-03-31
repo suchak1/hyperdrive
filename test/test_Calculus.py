@@ -35,7 +35,7 @@ class TestCalculator:
 
     def test_cv(self):
         series = pd.Series([2, 4, 6])
-        cvd = calc.cv(series)
+        cvd = calc.cv(x=series, ddof=1)
         expected = 0.5
         assert cvd == expected
 

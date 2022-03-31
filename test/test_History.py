@@ -57,12 +57,10 @@ class TestHistorian:
         strats = hist.generate_random(close, num=100)
         assert 0 < len(strats) <= 25
 
+    def test_preprocess(self):
+        X_train = hist.preprocess(X, y)[0]
+        assert len(X_train) > (len(X) * 0.8)
+
     def test_undersample(self):
         y_train = hist.undersample(X, y)[2]
         assert np.mean(y_train) == 0.5
-
-    def test_run_classifiers(self):
-        X_train, X_test, y_train, y_test = hist.undersample(X, y)[:4]
-        clfs = hist.run_classifiers(X_train, X_test, y_train, y_test)
-        for _, clf in clfs:
-            assert 'score' in clf

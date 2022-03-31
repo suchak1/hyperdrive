@@ -25,13 +25,12 @@ class Calculator:
         x_delta = (x[1] - x[0])
         return np.gradient(y, x_delta)
 
-    def cv(self, x):
+    def cv(self, x, ddof=0):
         if type(x) == pd.Series:
             axis = 0
         else:
             axis = 1
-        # consider supporting ddof=0 and rebuilding model
-        return x.std(axis=axis) / x.mean(axis=axis)
+        return x.std(axis=axis, ddof=ddof) / x.mean(axis=axis)
 
     def fib(self, n):
         if n <= 1:
