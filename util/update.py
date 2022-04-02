@@ -7,10 +7,10 @@ filename = 'requirements.txt'
 new_packages = []
 # we skip these because models may act unpredictably between versions
 # must be updated manually
-packages_to_skip = ['scikit-learn', 'auto-sklearn']
+packages_to_skip = ['scikit-learn', 'auto-sklearn', 'imbalanced-learn']
 
 with open(filename, 'r') as file:
-    pattern = '(.*) == (.*)'
+    pattern = '(\S*)\s?==\s?(\S*)'
     packages = re.findall(pattern, file.read())
     for package, version in packages:
         response = requests.get(f'https://pypi.org/pypi/{package}/json')
