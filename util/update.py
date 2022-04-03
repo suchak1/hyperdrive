@@ -10,7 +10,7 @@ new_packages = []
 packages_to_skip = ['scikit-learn', 'auto-sklearn', 'imbalanced-learn']
 
 with open(filename, 'r') as file:
-    pattern = '(\S*)\s?==\s?(\S*)'
+    pattern = r'(\S*)\s?==\s?(\S*)'
     packages = re.findall(pattern, file.read())
     for package, version in packages:
         response = requests.get(f'https://pypi.org/pypi/{package}/json')
