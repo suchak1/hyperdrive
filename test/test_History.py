@@ -64,3 +64,9 @@ class TestHistorian:
     def test_undersample(self):
         y_train = hist.undersample(X, y)[2]
         assert np.mean(y_train) == 0.5
+
+    def test_run_classifiers(self):
+        X_train, X_test, y_train, y_test = hist.undersample(X, y)[:4]
+        clfs = hist.run_classifiers(X_train, X_test, y_train, y_test)
+        for _, clf in clfs:
+            assert 'score' in clf
