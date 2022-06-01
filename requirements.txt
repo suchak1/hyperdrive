@@ -6,7 +6,7 @@ polygon-api-client == 0.2.11
 pytz == 2022.1
 vectorbt == 0.23.3
 scipy == 1.8.0
-scikit-learn == 0.24.2
+scikit-learn == 1.1.1
 auto-sklearn == 0.14.6
 cryptography == 37.0.1
 ta == 0.10.1
