@@ -1,7 +1,7 @@
 python-dotenv == 0.20.0
 pandas == 1.4.2
 robin-stocks == 2.1.0
-boto3 == 1.22.4
+boto3 == 1.24.21
 polygon-api-client == 0.2.11
 pytz == 2022.1
 vectorbt == 0.23.3
