@@ -696,7 +696,7 @@ class Polygon(MarketData):
                 raise e
             finally:
                 self.log_api_call_time()
-            raw = pd.DataFrame(response.results)
+            raw = pd.DataFrame(response)
             df = self.standardize_dividends(symbol, raw)
             return self.reader.data_in_timeframe(df, C.EX, timeframe)
         return self.try_again(func=_get_dividends, **kwargs)
