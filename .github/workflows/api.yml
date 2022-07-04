@@ -21,12 +21,12 @@ jobs:
           ref: ${{ github.head_ref }}
 
       - name: Set up Python 3.8
-        uses: actions/setup-python@v3.1.0
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
 
       - name: Cache pip dependencies
-        uses: actions/cache@v3.0.1
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}

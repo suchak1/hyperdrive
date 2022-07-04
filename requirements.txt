@@ -1,11 +1,11 @@
 python-dotenv == 0.20.0
-pandas == 1.4.2
+pandas == 1.4.3
 robin-stocks == 2.1.0
-boto3 == 1.22.4
+boto3 == 1.24.22
 polygon-api-client == 1.1.0
 pytz == 2022.1
 vectorbt == 0.23.3
-scipy == 1.8.0
+scipy == 1.8.1
 scikit-learn == 0.24.2
 auto-sklearn == 0.14.6
 cryptography == 37.0.2
