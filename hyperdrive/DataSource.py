@@ -676,11 +676,15 @@ class Polygon(MarketData):
         def _get_dividends(symbol, timeframe='max'):
             self.obey_free_limit()
             try:
-                # params: use ex date, sort from oldest to newest
                 start, _ = self.traveller.convert_dates(timeframe)
                 response = self.paginate(
                     self.client.list_dividends(
-                        symbol, ex_dividend_date_gte=start),
+                        symbol,
+                        ex_dividend_date_gte=start,
+                        order='asc',
+                        sort='ex_dividend_date',
+                        limit=C.POLY_MAX_LIMIT
+                    ),
                     lambda div: {
                         'exDate': div.ex_dividend_date,
                         'paymentDate': div.pay_date,
