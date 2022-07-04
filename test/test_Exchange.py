@@ -12,6 +12,7 @@ class TestBinance:
         assert hasattr(bn, 'client')
 
     def test_order(self):
+        # https://testnet.binance.vision/
         base = 'BTC'
         quote = 'USDT'
         bn.order(base, quote, 'buy', 0.01, test=True)

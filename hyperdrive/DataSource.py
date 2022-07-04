@@ -2,7 +2,7 @@ import os
 import requests
 from time import sleep, time
 import pandas as pd
-from polygon import RESTClient
+from polygon import RESTClient, exceptions
 from dotenv import load_dotenv, find_dotenv
 from FileOps import FileReader, FileWriter
 from TimeMachine import TimeTraveller
@@ -652,6 +652,16 @@ class Polygon(MarketData):
         self.provider = 'polygon'
         self.free = free
 
+    def paginate(self, gen, apply):
+        results = []
+        for idx, item in enumerate(gen):
+            if idx % C.POLY_MAX_LIMIT == 0:
+                self.log_api_call_time()
+            if self.free and idx % C.POLY_MAX_LIMIT == C.POLY_MAX_LIMIT - 1:
+                sleep(C.POLY_FREE_DELAY)
+            results.append(apply(item))
+        return results
+
     def obey_free_limit(self):
         if self.free and hasattr(self, 'last_api_call_time'):
             time_since_last_call = time() - self.last_api_call_time
@@ -666,12 +676,27 @@ class Polygon(MarketData):
         def _get_dividends(symbol, timeframe='max'):
             self.obey_free_limit()
             try:
-                response = self.client.reference_stock_dividends(symbol)
+                start, _ = self.traveller.convert_dates(timeframe)
+                response = self.paginate(
+                    self.client.list_dividends(
+                        symbol,
+                        ex_dividend_date_gte=start,
+                        order='desc',
+                        sort='ex_dividend_date',
+                        limit=C.POLY_MAX_LIMIT
+                    ),
+                    lambda div: {
+                        'exDate': div.ex_dividend_date,
+                        'paymentDate': div.pay_date,
+                        'declaredDate': div.declaration_date,
+                        'amount': div.cash_amount
+                    }
+                )
             except Exception as e:
                 raise e
             finally:
                 self.log_api_call_time()
-            raw = pd.DataFrame(response.results)
+            raw = pd.DataFrame(response)
             df = self.standardize_dividends(symbol, raw)
             return self.reader.data_in_timeframe(df, C.EX, timeframe)
         return self.try_again(func=_get_dividends, **kwargs)
@@ -680,12 +705,25 @@ class Polygon(MarketData):
         def _get_splits(symbol, timeframe='max'):
             self.obey_free_limit()
             try:
-                response = self.client.reference_stock_splits(symbol)
+                start, _ = self.traveller.convert_dates(timeframe)
+                response = self.paginate(
+                    self.client.list_splits(
+                        symbol,
+                        execution_date_gte=start,
+                        order='desc',
+                        sort='execution_date',
+                        limit=C.POLY_MAX_LIMIT
+                    ),
+                    lambda split: {
+                        'exDate': split.execution_date,
+                        'ratio': split.split_from / split.split_to
+                    }
+                )
             except Exception as e:
                 raise e
             finally:
                 self.log_api_call_time()
-            raw = pd.DataFrame(response.results)
+            raw = pd.DataFrame(response)
             df = self.standardize_splits(symbol, raw)
             return self.reader.data_in_timeframe(df, C.EX, timeframe)
         return self.try_again(func=_get_splits, **kwargs)
@@ -697,19 +735,18 @@ class Polygon(MarketData):
                 timeframe)
             self.obey_free_limit()
             try:
-                response = self.client.stocks_equities_aggregates(
+                response = self.client.get_aggs(
                     symbol, 1, 'day',
-                    from_=formatted_start, to=formatted_end, unadjusted=False
+                    from_=formatted_start, to=formatted_end, adjusted=True, limit=C.POLY_MAX_AGGS_LIMIT
                 )
             except Exception as e:
                 raise e
             finally:
                 self.log_api_call_time()
-            raw = response.results
-            columns = {'t': 'date', 'o': 'open', 'h': 'high',
-                       'l': 'low', 'c': 'close', 'v': 'volume',
-                       'vw': 'average', 'n': 'trades'}
 
+            raw = [vars(item) for item in response]
+            columns = {'timestamp': 'date',
+                       'vwap': 'average', 'transactions': 'trades'}
             df = pd.DataFrame(raw).rename(columns=columns)
             if is_crypto:
                 df['date'] = pd.to_datetime(
@@ -732,27 +769,25 @@ class Polygon(MarketData):
             if dates == []:
                 raise Exception(f'No dates in timeframe: {timeframe}.')
 
-            for idx, date in enumerate(dates):
+            for _, date in enumerate(dates):
                 self.obey_free_limit()
                 try:
-                    response = self.client.stocks_equities_aggregates(
+                    response = self.client.get_aggs(
                         symbol, min, 'minute', from_=date, to=date,
-                        unadjusted=False
+                        adjusted=True, limit=C.POLY_MAX_AGGS_LIMIT
                     )
+                except exceptions.NoResultsError:
+                    # This is to prevent breaking the loop over weekends
+                    continue
                 except Exception as e:
                     raise e
                 finally:
                     self.log_api_call_time()
 
-                if hasattr(response, 'results'):
-                    response = response.results
-                else:
-                    continue
-
-                columns = {'t': 'date', 'o': 'open', 'h': 'high',
-                           'l': 'low', 'c': 'close', 'v': 'volume',
-                           'vw': 'average', 'n': 'trades'}
-                df = pd.DataFrame(response).rename(columns=columns)
+                raw = [vars(item) for item in response]
+                columns = {'timestamp': 'date',
+                           'vwap': 'average', 'transactions': 'trades'}
+                df = pd.DataFrame(raw).rename(columns=columns)
                 if is_crypto:
                     df['date'] = pd.to_datetime(
                         df['date'], unit='ms')

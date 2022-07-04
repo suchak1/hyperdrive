@@ -10,7 +10,7 @@ rh = Robinhood()
 if not C.CI:
     rh.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
     rh.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
-exp_symbols = ['AAPL', 'FB', 'DIS']
+exp_symbols = ['AMZN', 'META', 'NFLX']
 
 
 class TestRobinhood:
@@ -41,7 +41,7 @@ class TestRobinhood:
     def test_get_names(self):
         assert rh.get_names([]) == []
         assert rh.get_names(exp_symbols) == [
-            'Apple', 'Meta Platforms', 'Disney']
+            'Amazon', 'Meta Platforms', 'Netflix']
 
     def test_save_symbols(self):
         symbols_path = rh.finder.get_symbols_path()
@@ -52,7 +52,7 @@ class TestRobinhood:
         rh.save_symbols()
         assert os.path.exists(symbols_path)
         df = rh.reader.load_csv(symbols_path)
-        assert 'AAPL' in list(df[C.SYMBOL])
+        assert 'AMZN' in list(df[C.SYMBOL])
 
     def get_holdings(self):
         holdings = rh.get_holdings()

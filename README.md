@@ -59,7 +59,7 @@ Environment Variables:
 from hyperdrive import DataSource
 from DataSource import IEXCloud
 
-# Your IEXCloud API token must be an environment variable (accessible in os.environ['IEXCloud'])
+# Your IEXCloud API token must be an environment variable (accessible in os.environ['IEXCLOUD'])
 
 iex = IEXCloud()
 df = iex.get_ohlc(symbol='TSLA', timeframe='7d')
@@ -98,7 +98,7 @@ Environment Variables:
 from hyperdrive import DataSource
 from DataSource import IEXCloud, MarketData
 
-# IEXCloud API token loaded as an environment variable (os.environ['IEXCloud'])
+# IEXCloud API token loaded as an environment variable (os.environ['IEXCLOUD'])
 
 symbol = 'TSLA'
 timeframe = '7d'
