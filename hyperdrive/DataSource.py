@@ -2,7 +2,7 @@ import os
 import requests
 from time import sleep, time
 import pandas as pd
-from polygon import RESTClient
+from polygon import RESTClient, exceptions
 from dotenv import load_dotenv, find_dotenv
 from FileOps import FileReader, FileWriter
 from TimeMachine import TimeTraveller
@@ -735,19 +735,18 @@ class Polygon(MarketData):
                 timeframe)
             self.obey_free_limit()
             try:
-                response = self.client.stocks_equities_aggregates(
+                response = self.client.get_aggs(
                     symbol, 1, 'day',
-                    from_=formatted_start, to=formatted_end, unadjusted=False
+                    from_=formatted_start, to=formatted_end, adjusted=True, limit=C.POLY_MAX_AGGS_LIMIT
                 )
             except Exception as e:
                 raise e
             finally:
                 self.log_api_call_time()
-            raw = response.results
-            columns = {'t': 'date', 'o': 'open', 'h': 'high',
-                       'l': 'low', 'c': 'close', 'v': 'volume',
-                       'vw': 'average', 'n': 'trades'}
 
+            raw = [vars(item) for item in response]
+            columns = {'timestamp': 'date',
+                       'vwap': 'average', 'transactions': 'trades'}
             df = pd.DataFrame(raw).rename(columns=columns)
             if is_crypto:
                 df['date'] = pd.to_datetime(
@@ -770,27 +769,25 @@ class Polygon(MarketData):
             if dates == []:
                 raise Exception(f'No dates in timeframe: {timeframe}.')
 
-            for idx, date in enumerate(dates):
+            for _, date in enumerate(dates):
                 self.obey_free_limit()
                 try:
-                    response = self.client.stocks_equities_aggregates(
+                    response = self.client.get_aggs(
                         symbol, min, 'minute', from_=date, to=date,
-                        unadjusted=False
+                        adjusted=True, limit=C.POLY_MAX_AGGS_LIMIT
                     )
+                except exceptions.NoResultsError:
+                    # This is to prevent breaking the loop over weekends
+                    continue
                 except Exception as e:
                     raise e
                 finally:
                     self.log_api_call_time()
 
-                if hasattr(response, 'results'):
-                    response = response.results
-                else:
-                    continue
-
-                columns = {'t': 'date', 'o': 'open', 'h': 'high',
-                           'l': 'low', 'c': 'close', 'v': 'volume',
-                           'vw': 'average', 'n': 'trades'}
-                df = pd.DataFrame(response).rename(columns=columns)
+                raw = [vars(item) for item in response]
+                columns = {'timestamp': 'date',
+                           'vwap': 'average', 'transactions': 'trades'}
+                df = pd.DataFrame(raw).rename(columns=columns)
                 if is_crypto:
                     df['date'] = pd.to_datetime(
                         df['date'], unit='ms')
