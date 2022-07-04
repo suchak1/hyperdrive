@@ -652,6 +652,16 @@ class Polygon(MarketData):
         self.provider = 'polygon'
         self.free = free
 
+    def paginate(self, gen, apply):
+        results = []
+        for idx, item in enumerate(gen):
+            if idx % C.POLY_MAX_LIMIT == 0:
+                self.log_api_call_time()
+            if self.free and idx % C.POLY_MAX_LIMIT == C.POLY_MAX_LIMIT - 1:
+                sleep(C.POLY_FREE_DELAY)
+            results.append(apply(item))
+        return results
+
     def obey_free_limit(self):
         if self.free and hasattr(self, 'last_api_call_time'):
             time_since_last_call = time() - self.last_api_call_time
@@ -666,7 +676,18 @@ class Polygon(MarketData):
         def _get_dividends(symbol, timeframe='max'):
             self.obey_free_limit()
             try:
-                response = self.client.reference_stock_dividends(symbol)
+                # params: use ex date, sort from oldest to newest
+                start, _ = self.traveller.convert_dates(timeframe)
+                response = self.paginate(
+                    self.client.list_dividends(
+                        symbol, ex_dividend_date_gte=start),
+                    lambda div: {
+                        'exDate': div.ex_dividend_date,
+                        'paymentDate': div.pay_date,
+                        'declaredDate': div.declaration_date,
+                        'amount': div.cash_amount
+                    }
+                )
             except Exception as e:
                 raise e
             finally:
