@@ -38,7 +38,7 @@ if not C.CI:
     glass = use_dev_bucket(glass)
     # or simply make DevStore class that has s3 dev bucket name
 
-exp_symbols = ['AAPL', 'FB', 'DIS']
+exp_symbols = ['AMZN', 'META', 'NFLX']
 retries = 10
 
 
