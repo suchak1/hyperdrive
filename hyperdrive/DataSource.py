@@ -705,12 +705,25 @@ class Polygon(MarketData):
         def _get_splits(symbol, timeframe='max'):
             self.obey_free_limit()
             try:
-                response = self.client.reference_stock_splits(symbol)
+                start, _ = self.traveller.convert_dates(timeframe)
+                response = self.paginate(
+                    self.client.list_splits(
+                        symbol,
+                        execution_date_gte=start,
+                        order='desc',
+                        sort='execution_date',
+                        limit=C.POLY_MAX_LIMIT
+                    ),
+                    lambda split: {
+                        'exDate': split.execution_date,
+                        'ratio': split.split_from / split.split_to
+                    }
+                )
             except Exception as e:
                 raise e
             finally:
                 self.log_api_call_time()
-            raw = pd.DataFrame(response.results)
+            raw = pd.DataFrame(response)
             df = self.standardize_splits(symbol, raw)
             return self.reader.data_in_timeframe(df, C.EX, timeframe)
         return self.try_again(func=_get_splits, **kwargs)
