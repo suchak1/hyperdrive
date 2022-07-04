@@ -681,7 +681,7 @@ class Polygon(MarketData):
                     self.client.list_dividends(
                         symbol,
                         ex_dividend_date_gte=start,
-                        order='asc',
+                        order='desc',
                         sort='ex_dividend_date',
                         limit=C.POLY_MAX_LIMIT
                     ),
