@@ -9,6 +9,21 @@ from itertools import permutations
 from sklearn.decomposition import PCA
 from plotly.subplots import make_subplots
 
+
+def avg(x):
+    return sum(x) / len(x)
+
+
+def calc_centroid(points, method='mean'):
+    # points = np.array(points)
+    x, y, z = points.T
+    if method != 'mean':
+        x = [min(x), max(x)]
+        y = [min(y), max(y)]
+        z = [min(z), max(z)]
+    return avg(x), avg(y), avg(z)
+
+
 with open('research/X.pkl', 'rb') as file:
     X = pickle.load(file)
 
@@ -25,19 +40,22 @@ if new_write:
             model = pickle.load(file)
             return model.predict(data)
 
-    num_points = 100
+    num_points = 25
     reducer = PCA(n_components=3)
     X_transformed = reducer.fit_transform(X)
     component_x, component_y, component_z = X_transformed.T
     all_coords = np.concatenate((component_x, component_y, component_z))
-    # not going far enough in the -x and -y directions
+    # or method='mean'
+    centroid = calc_centroid(X_transformed, method='extrema')
+    x_c, y_c, z_c = centroid
     super_min = min(all_coords)
     super_min -= abs(super_min) * 0.25
     super_max = max(all_coords)
     super_max += abs(super_max) * 0.25
-    lin_x = np.linspace(super_min, super_max, num_points)
-    lin_y = np.linspace(super_min, super_max, num_points)
-    lin_z = np.linspace(super_min, super_max, num_points)
+    radius = (super_max - super_min) / 2
+    lin_x = np.linspace(x_c - radius, x_c + radius, num_points)
+    lin_y = np.linspace(y_c - radius, y_c + radius, num_points)
+    lin_z = np.linspace(z_c - radius, z_c + radius, num_points)
     xx, yy, zz = np.meshgrid(lin_x, lin_y, lin_z)
     xs = xx.flatten()
     ys = yy.flatten()
@@ -180,20 +198,6 @@ def eq_plane(pt1, pt2, pt3):
     return a, b, c, d
 
 
-def avg(x):
-    return sum(x) / len(x)
-
-
-def calc_centroid(points, method='mean'):
-    # points = np.array(points)
-    x, y, z = points.T
-    if method != 'mean':
-        x = [min(x), max(x)]
-        y = [min(y), max(y)]
-        z = [min(z), max(z)]
-    return avg(x), avg(y), avg(z)
-
-
 def calc_plane(pt, coeffs):
     x, y, z = pt
     a, b, c, d = coeffs
@@ -263,12 +267,13 @@ def generate_icosphere(radius, center, refinement):
     # 5. iterate thru planes for each plane ^ checking if point is in convex solid
     # 6. use generate_icosphere fx src code to modify center and size of icosphere
     # 7. increase linspace sample area for prediction
+    # 8. plot cube without boundaries
+
+    # 11. try cube predictions
 
     # TO DO
-    # 8. plot cube without boundaries
     # 9. plot icosphere touching edges of cube
     # 10. finally, plot predictions icosphere
-    # 11. try cube predictions
     # 12. try octahedron preds
     # 13. commit to git and add to model creation automation
     # 14. start working on js
