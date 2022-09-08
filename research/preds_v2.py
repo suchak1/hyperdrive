@@ -15,57 +15,58 @@ with open('research/X.pkl', 'rb') as file:
 with open('research/y.pkl', 'rb') as file:
     y = pickle.load(file)
 
+new_write = True
 
-# def predict(data):
-#     filename = 'research/models/latest/model.pkl'
+if new_write:
+    def predict(data):
+        filename = 'research/models/latest/model.pkl'
 
-#     with open(filename, 'rb') as file:
-#         model = pickle.load(file)
-#         return model.predict(data)
+        with open(filename, 'rb') as file:
+            model = pickle.load(file)
+            return model.predict(data)
 
+    num_points = 100
+    reducer = PCA(n_components=3)
+    X_transformed = reducer.fit_transform(X)
+    component_x, component_y, component_z = X_transformed.T
+    all_coords = np.concatenate((component_x, component_y, component_z))
+    # not going far enough in the -x and -y directions
+    super_min = min(all_coords)
+    super_min -= abs(super_min) * 0.25
+    super_max = max(all_coords)
+    super_max += abs(super_max) * 0.25
+    lin_x = np.linspace(super_min, super_max, num_points)
+    lin_y = np.linspace(super_min, super_max, num_points)
+    lin_z = np.linspace(super_min, super_max, num_points)
+    xx, yy, zz = np.meshgrid(lin_x, lin_y, lin_z)
+    xs = xx.flatten()
+    ys = yy.flatten()
+    zs = zz.flatten()
 
-# num_points = 100
-# reducer = PCA(n_components=3)
-# X_transformed = reducer.fit_transform(X)
-# component_x, component_y, component_z = X_transformed.T
-# all_coords = np.concatenate((component_x, component_y, component_z))
-# super_min = min(all_coords)
-# super_min -= super_min * 0.25
-# super_max = max(all_coords)
-# super_max += super_max * 0.25
-# lin_x = np.linspace(super_min, super_max, num_points)
-# lin_y = np.linspace(super_min, super_max, num_points)
-# lin_z = np.linspace(super_min, super_max, num_points)
-# xx, yy, zz = np.meshgrid(lin_x, lin_y, lin_z)
-# xs = xx.flatten()
-# ys = yy.flatten()
-# zs = zz.flatten()
+    reduced = np.array([xs, ys, zs]).T
+    unreduced = reducer.inverse_transform(reduced)
+    preds = predict(unreduced)
 
+    with open('research/xs_2.pkl', 'wb') as file:
+        pickle.dump(xs, file)
 
-# reduced = np.array([xs, ys, zs]).T
-# unreduced = reducer.inverse_transform(reduced)
-# preds = predict(unreduced)
+    with open('research/ys_2.pkl', 'wb') as file:
+        pickle.dump(ys, file)
 
-# with open('research/xs_2.pkl', 'wb') as file:
-#     pickle.dump(xs, file)
+    with open('research/zs_2.pkl', 'wb') as file:
+        pickle.dump(zs, file)
 
-# with open('research/ys_2.pkl', 'wb') as file:
-#     pickle.dump(ys, file)
+    with open('research/preds_2.pkl', 'wb') as file:
+        pickle.dump(preds, file)
 
-# with open('research/zs_2.pkl', 'wb') as file:
-#     pickle.dump(zs, file)
+    with open('research/component_x_2.pkl', 'wb') as file:
+        pickle.dump(component_x, file)
 
-# with open('research/preds_2.pkl', 'wb') as file:
-#     pickle.dump(preds, file)
+    with open('research/component_y_2.pkl', 'wb') as file:
+        pickle.dump(component_y, file)
 
-# with open('research/component_x_2.pkl', 'wb') as file:
-#     pickle.dump(component_x, file)
-
-# with open('research/component_y_2.pkl', 'wb') as file:
-#     pickle.dump(component_y, file)
-
-# with open('research/component_z_2.pkl', 'wb') as file:
-#     pickle.dump(component_z, file)
+    with open('research/component_z_2.pkl', 'wb') as file:
+        pickle.dump(component_z, file)
 
 # x, y, z = pts.T
 with open('research/xs_2.pkl', 'rb') as file:
@@ -279,20 +280,52 @@ X_transformed = np.array((component_x, component_y, component_z)).T
 centroid = calc_centroid(X_transformed)
 
 nu = 1
-vertices, faces = generate_icosphere(refinement=nu)
-# print(calc_shortest_dist(vertices))
-# print(faces)
-eq = [eq_plane(*pts) for pts in get_plane_pts(vertices)]
-# print(eq)
+vertices, faces = generate_icosphere(
+    radius=(max(xs) - min(xs)) / 2,
+    center=centroid,
+    refinement=nu
+)
 
-# print(' ')
+fig = go.Figure(data=[
+    go.Scatter3d(
+        x=[datum for idx, datum in enumerate(component_x) if y[idx]],
+        y=[datum for idx, datum in enumerate(component_y) if y[idx]],
+        z=[datum for idx, datum in enumerate(component_z) if y[idx]],
+        mode='markers',
+        marker_color='cyan',
+        marker={'line': {'color': 'black', 'width': 1},
+                },
+        showlegend=True,
+        text='market surge',
+        name='BUY'
+    ),
+    go.Scatter3d(
+        x=[datum for idx, datum in enumerate(component_x) if not y[idx]],
+        y=[datum for idx, datum in enumerate(component_y) if not y[idx]],
+        z=[datum for idx, datum in enumerate(component_z) if not y[idx]],
+        mode='markers',
+        marker_color='magenta',
+        marker={'line': {'color': 'black', 'width': 1},
+                },
+        showlegend=True,
+        text='market decline',
+        name='SELL'
+    ),
+    # try creating isosphere instead!
+    # or octahedron!
+    # or perfect cube!
+    go.Isosurface(
+        x=xs,
+        y=ys,
+        z=zs,
+        opacity=0.15,
+        value=preds.astype(int),
+        colorscale=['magenta', 'cyan'],
+    )
+]
+)
 
-# eq2 = [eq_plane2(*pts) for pts in get_plane_pts(vertices)]
-# print(eq2)
-
-# plane eq => ax + by + cz + d = 0
-# print([pts for pts in get_plane_pts(vertices)][0])
-# print(len(get_plane_pts(vertices)))
+fig.show()
 
 quit()
 fig = go.Figure()
