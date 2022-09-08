@@ -1,11 +1,93 @@
 import math
+import pickle
 import numpy as np
 import icosphere
 import numpy as np
 from numpy.linalg import norm
 import plotly.graph_objects as go
 from itertools import permutations
+from sklearn.decomposition import PCA
 from plotly.subplots import make_subplots
+
+with open('research/X.pkl', 'rb') as file:
+    X = pickle.load(file)
+
+with open('research/y.pkl', 'rb') as file:
+    y = pickle.load(file)
+
+
+# def predict(data):
+#     filename = 'research/models/latest/model.pkl'
+
+#     with open(filename, 'rb') as file:
+#         model = pickle.load(file)
+#         return model.predict(data)
+
+
+# num_points = 100
+# reducer = PCA(n_components=3)
+# X_transformed = reducer.fit_transform(X)
+# component_x, component_y, component_z = X_transformed.T
+# all_coords = np.concatenate((component_x, component_y, component_z))
+# super_min = min(all_coords)
+# super_min -= super_min * 0.25
+# super_max = max(all_coords)
+# super_max += super_max * 0.25
+# lin_x = np.linspace(super_min, super_max, num_points)
+# lin_y = np.linspace(super_min, super_max, num_points)
+# lin_z = np.linspace(super_min, super_max, num_points)
+# xx, yy, zz = np.meshgrid(lin_x, lin_y, lin_z)
+# xs = xx.flatten()
+# ys = yy.flatten()
+# zs = zz.flatten()
+
+
+# reduced = np.array([xs, ys, zs]).T
+# unreduced = reducer.inverse_transform(reduced)
+# preds = predict(unreduced)
+
+# with open('research/xs_2.pkl', 'wb') as file:
+#     pickle.dump(xs, file)
+
+# with open('research/ys_2.pkl', 'wb') as file:
+#     pickle.dump(ys, file)
+
+# with open('research/zs_2.pkl', 'wb') as file:
+#     pickle.dump(zs, file)
+
+# with open('research/preds_2.pkl', 'wb') as file:
+#     pickle.dump(preds, file)
+
+# with open('research/component_x_2.pkl', 'wb') as file:
+#     pickle.dump(component_x, file)
+
+# with open('research/component_y_2.pkl', 'wb') as file:
+#     pickle.dump(component_y, file)
+
+# with open('research/component_z_2.pkl', 'wb') as file:
+#     pickle.dump(component_z, file)
+
+# x, y, z = pts.T
+with open('research/xs_2.pkl', 'rb') as file:
+    xs = pickle.load(file)
+
+with open('research/ys_2.pkl', 'rb') as file:
+    ys = pickle.load(file)
+
+with open('research/zs_2.pkl', 'rb') as file:
+    zs = pickle.load(file)
+
+with open('research/preds_2.pkl', 'rb') as file:
+    preds = pickle.load(file)
+
+with open('research/component_x_2.pkl', 'rb') as file:
+    component_x = pickle.load(file)
+
+with open('research/component_y_2.pkl', 'rb') as file:
+    component_y = pickle.load(file)
+
+with open('research/component_z_2.pkl', 'rb') as file:
+    component_z = pickle.load(file)
 
 
 def mesh_plot(vertices, faces):
@@ -179,9 +261,9 @@ def generate_icosphere(radius, center, refinement):
     # 4. check if two points are on same side of plane (signs?)
     # 5. iterate thru planes for each plane ^ checking if point is in convex solid
     # 6. use generate_icosphere fx src code to modify center and size of icosphere
+    # 7. increase linspace sample area for prediction
 
     # TO DO
-    # 7. increase linspace sample area for prediction
     # 8. plot cube without boundaries
     # 9. plot icosphere touching edges of cube
     # 10. finally, plot predictions icosphere
@@ -190,6 +272,11 @@ def generate_icosphere(radius, center, refinement):
     # 13. commit to git and add to model creation automation
     # 14. start working on js
 
+
+# need this to create icosphere center
+
+X_transformed = np.array((component_x, component_y, component_z)).T
+centroid = calc_centroid(X_transformed)
 
 nu = 1
 vertices, faces = generate_icosphere(refinement=nu)
