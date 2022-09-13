@@ -292,33 +292,51 @@ vertices, faces = generate_icosphere(
     refinement=nu
 )
 
-# print(np.array([xs, ys, zs]).T)
-# print(xs[:3])
-# print(ys[:3])
-# print(zs[:3])
-
-# quit()
-
-# print([pt for idx, pt in enumerate(
-#     np.array((xs, ys, zs)))][0])
-# quit()
 
 ############################################
-# Refactor all of this into a single for loop
-point_idxs = [idx for idx, pt in enumerate(
-    np.array([xs, ys, zs]).T) if check_pt_in_shape(pt, vertices)]
+# Filter to only points in shape
+if new_write:
+    xs_in_shape = []
+    ys_in_shape = []
+    zs_in_shape = []
+    preds_in_shape = []
 
+    for idx, pt in enumerate(np.array([xs, ys, zs]).T):
+        if check_pt_in_shape(pt, vertices):
+            xs_in_shape.append(xs[idx])
+            ys_in_shape.append(ys[idx])
+            zs_in_shape.append(zs[idx])
+            preds_in_shape.append(preds[idx])
 
-def get_vals_from_idxs(vals, idxs):
-    return np.array([vals[idx] for idx in idxs])
+    xs = np.array(xs_in_shape)
+    ys = np.array(ys_in_shape)
+    zs = np.array(zs_in_shape)
+    preds = np.array(preds_in_shape)
 
+    with open('research/xs_2_2.pkl', 'wb') as file:
+        pickle.dump(xs, file)
 
-xs = get_vals_from_idxs(xs, point_idxs)
-print(len(xs))
-# quit()
-ys = get_vals_from_idxs(ys, point_idxs)
-zs = get_vals_from_idxs(zs, point_idxs)
-preds = get_vals_from_idxs(preds, point_idxs)
+    with open('research/ys_2_2.pkl', 'wb') as file:
+        pickle.dump(ys, file)
+
+    with open('research/zs_2_2.pkl', 'wb') as file:
+        pickle.dump(zs, file)
+
+    with open('research/preds_2_2.pkl', 'wb') as file:
+        pickle.dump(preds, file)
+
+with open('research/xs_2_2.pkl', 'rb') as file:
+    xs = pickle.load(file)
+
+with open('research/ys_2_2.pkl', 'rb') as file:
+    ys = pickle.load(file)
+
+with open('research/zs_2_2.pkl', 'rb') as file:
+    zs = pickle.load(file)
+
+with open('research/preds_2_2.pkl', 'rb') as file:
+    preds = pickle.load(file)
+
 #############################################
 
 fig = go.Figure(data=[
