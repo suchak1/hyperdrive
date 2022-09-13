@@ -257,10 +257,11 @@ X_transformed = np.array((component_x, component_y, component_z)).T
 centroid = calc_centroid(X_transformed)
 
 nu = 1
+radius = (max(xs) - min(xs)) / 2
 vertices, faces = generate_icosphere(
     # use above calc instead for radius
     # actually... this is prob right
-    radius=(max(xs) - min(xs)) / 2,
+    radius=radius,
     center=centroid,
     refinement=nu
 )
@@ -310,6 +311,37 @@ vertices, faces = generate_icosphere(
 # with open('research/preds_2_2.pkl', 'rb') as file:
 #     preds = pickle.load(file)
 
+# xs_in_shape=[]
+# ys_in_shape=[]
+# zs_in_shape=[]
+preds_in_shape = []
+
+for idx, pt in enumerate(np.array([xs, ys, zs]).T):
+    # x = xs[idx]
+    # y = ys[idx]
+    # z = zs[idx]
+    x_c, y_c, z_c = centroid
+
+    if ((pt[0] - x_c) ** 2
+            + (pt[1] - y_c) ** 2
+            + (pt[2] - z_c) ** 2
+            > radius ** 2):
+        # xs_in_shape.append(xs[idx])
+        # ys_in_shape.append(ys[idx])
+        # zs_in_shape.append(zs[idx])
+        # preds_in_shape.append(preds[idx])
+        preds_in_shape.append(-1)
+        # preds[idx] = -1
+    else:
+        if preds[idx]:
+            preds_in_shape.append(1)
+        else:
+            preds_in_shape.append(0)
+print(preds)
+# xs=np.array(xs_in_shape)
+# ys=np.array(ys_in_shape)
+# zs=np.array(zs_in_shape)
+preds = np.array(preds_in_shape)
 #############################################
 
 fig = go.Figure(data=[
@@ -370,10 +402,13 @@ fig = go.Figure(data=[
         x=xs,
         y=ys,
         z=zs,
-        opacity=0.35,
-        value=xs ** 2 + ys ** 2 + zs ** 2,
+        opacity=0.4,
+        # value=preds.astype(int),
+        value=preds,
         isomin=0,
-        isomax=40,
+        isomax=1,
+        surface_count=3,
+        caps=dict(x_show=False, y_show=False),
         # value=preds.astype(int),
         colorscale=['magenta', 'cyan'],
     )
