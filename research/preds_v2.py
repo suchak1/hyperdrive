@@ -135,15 +135,6 @@ def calc_shortest_dist(points):
     return min(dists)
 
 
-# def get_plane_pts(points):
-#     shortest_dist = calc_shortest_dist(points)
-#     plane_sets = {}
-#     for i, point1 in enumerate(points):
-#         rest = [i + j + 1 for j, point in enumerate(
-#             points[i + 1:]) if math.dist(point1, point) == shortest_dist]
-
-#     pass
-
 def get_plane_pts(points):
     points = [tuple(point) for point in points]
     shortest_dist = calc_shortest_dist(points)
@@ -229,24 +220,6 @@ def generate_icosphere(radius, center, refinement):
     vertices = vertices / length * radius + center
     return vertices, faces
 
-    # def eq_plane2(pt1, pt2, pt3):
-    #     # this one seems to be wrong
-    #     # These two vectors are in the plane
-    #     pt1, pt2, pt3 = np.array(pt1), np.array(pt2), np.array(pt3)
-    #     v1 = pt3 - pt1
-    #     v2 = pt2 - pt1
-
-    #     # the cross product is a vector normal to the plane
-    #     cp = np.cross(v1, v2)
-    #     a, b, c = cp
-
-    #     # This evaluates a * x3 + b * y3 + c * z3 which equals d
-    #     d = np.dot(cp, pt3)
-    #     # print(a * pt1[0] + b * pt1[1] + c * pt1[2] + d)
-    #     # print(a * pt2[0] + b * pt2[1] + c * pt2[2] + d)
-    #     # print(a * pt3[0] + b * pt3[1] + c * pt3[2] + d)
-    #     return a, b, c, d
-
     # DONE
     # 1. get each set of 3 points - each set corresponds to a plane
     # 2. get plane equation for each plane
@@ -295,47 +268,47 @@ vertices, faces = generate_icosphere(
 
 ############################################
 # Filter to only points in shape
-if new_write:
-    xs_in_shape = []
-    ys_in_shape = []
-    zs_in_shape = []
-    preds_in_shape = []
+# if new_write:
+#     xs_in_shape = []
+#     ys_in_shape = []
+#     zs_in_shape = []
+#     preds_in_shape = []
 
-    for idx, pt in enumerate(np.array([xs, ys, zs]).T):
-        if check_pt_in_shape(pt, vertices):
-            xs_in_shape.append(xs[idx])
-            ys_in_shape.append(ys[idx])
-            zs_in_shape.append(zs[idx])
-            preds_in_shape.append(preds[idx])
+#     for idx, pt in enumerate(np.array([xs, ys, zs]).T):
+#         if check_pt_in_shape(pt, vertices):
+#             xs_in_shape.append(xs[idx])
+#             ys_in_shape.append(ys[idx])
+#             zs_in_shape.append(zs[idx])
+#             preds_in_shape.append(preds[idx])
 
-    xs = np.array(xs_in_shape)
-    ys = np.array(ys_in_shape)
-    zs = np.array(zs_in_shape)
-    preds = np.array(preds_in_shape)
+#     xs = np.array(xs_in_shape)
+#     ys = np.array(ys_in_shape)
+#     zs = np.array(zs_in_shape)
+#     preds = np.array(preds_in_shape)
 
-    with open('research/xs_2_2.pkl', 'wb') as file:
-        pickle.dump(xs, file)
+#     with open('research/xs_2_2.pkl', 'wb') as file:
+#         pickle.dump(xs, file)
 
-    with open('research/ys_2_2.pkl', 'wb') as file:
-        pickle.dump(ys, file)
+#     with open('research/ys_2_2.pkl', 'wb') as file:
+#         pickle.dump(ys, file)
 
-    with open('research/zs_2_2.pkl', 'wb') as file:
-        pickle.dump(zs, file)
+#     with open('research/zs_2_2.pkl', 'wb') as file:
+#         pickle.dump(zs, file)
 
-    with open('research/preds_2_2.pkl', 'wb') as file:
-        pickle.dump(preds, file)
+#     with open('research/preds_2_2.pkl', 'wb') as file:
+#         pickle.dump(preds, file)
 
-with open('research/xs_2_2.pkl', 'rb') as file:
-    xs = pickle.load(file)
+# with open('research/xs_2_2.pkl', 'rb') as file:
+#     xs = pickle.load(file)
 
-with open('research/ys_2_2.pkl', 'rb') as file:
-    ys = pickle.load(file)
+# with open('research/ys_2_2.pkl', 'rb') as file:
+#     ys = pickle.load(file)
 
-with open('research/zs_2_2.pkl', 'rb') as file:
-    zs = pickle.load(file)
+# with open('research/zs_2_2.pkl', 'rb') as file:
+#     zs = pickle.load(file)
 
-with open('research/preds_2_2.pkl', 'rb') as file:
-    preds = pickle.load(file)
+# with open('research/preds_2_2.pkl', 'rb') as file:
+#     preds = pickle.load(file)
 
 #############################################
 
@@ -367,38 +340,41 @@ fig = go.Figure(data=[
     # try creating isosphere instead!
     # or octahedron!
     # or perfect cube!
-    go.Scatter3d(
-        x=[datum for idx, datum in enumerate(xs) if preds[idx]],
-        y=[datum for idx, datum in enumerate(ys) if preds[idx]],
-        z=[datum for idx, datum in enumerate(zs) if preds[idx]],
-        opacity=0.15,
-        mode='markers',
-        marker_color='cyan',
-        # marker={'line': {'color': 'black', 'width': 1},
-        #         },
-        # showlegend=True,
-        # text='market surge',
-        # name='BUY'
-    ),
-    go.Scatter3d(
-        x=[datum for idx, datum in enumerate(xs) if not preds[idx]],
-        y=[datum for idx, datum in enumerate(ys) if not preds[idx]],
-        z=[datum for idx, datum in enumerate(zs) if not preds[idx]],
-        opacity=0.15,
-        mode='markers',
-        marker_color='magenta',
-        # marker={'line': {'color': 'black', 'width': 1},
-        #         },
-        # showlegend=True,
-        # text='market surge',
-        # name='BUY'
-    ),
+    # go.Scatter3d(
+    #     x=[datum for idx, datum in enumerate(xs) if preds[idx]],
+    #     y=[datum for idx, datum in enumerate(ys) if preds[idx]],
+    #     z=[datum for idx, datum in enumerate(zs) if preds[idx]],
+    #     opacity=0.15,
+    #     mode='markers',
+    #     marker_color='cyan',
+    #     # marker={'line': {'color': 'black', 'width': 1},
+    #     #         },
+    #     # showlegend=True,
+    #     # text='market surge',
+    #     # name='BUY'
+    # ),
+    # go.Scatter3d(
+    #     x=[datum for idx, datum in enumerate(xs) if not preds[idx]],
+    #     y=[datum for idx, datum in enumerate(ys) if not preds[idx]],
+    #     z=[datum for idx, datum in enumerate(zs) if not preds[idx]],
+    #     opacity=0.15,
+    #     mode='markers',
+    #     marker_color='magenta',
+    #     # marker={'line': {'color': 'black', 'width': 1},
+    #     #         },
+    #     # showlegend=True,
+    #     # text='market surge',
+    #     # name='BUY'
+    # ),
     go.Isosurface(
         x=xs,
         y=ys,
         z=zs,
-        opacity=0.15,
-        value=preds.astype(int),
+        opacity=0.35,
+        value=xs ** 2 + ys ** 2 + zs ** 2,
+        isomin=0,
+        isomax=40,
+        # value=preds.astype(int),
         colorscale=['magenta', 'cyan'],
     )
 ]
