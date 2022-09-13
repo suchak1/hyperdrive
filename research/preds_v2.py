@@ -30,7 +30,7 @@ with open('research/X.pkl', 'rb') as file:
 with open('research/y.pkl', 'rb') as file:
     y = pickle.load(file)
 
-new_write = True
+new_write = False
 
 if new_write:
     def predict(data):
@@ -86,7 +86,6 @@ if new_write:
     with open('research/component_z_2.pkl', 'wb') as file:
         pickle.dump(component_z, file)
 
-# x, y, z = pts.T
 with open('research/xs_2.pkl', 'rb') as file:
     xs = pickle.load(file)
 
@@ -286,10 +285,41 @@ centroid = calc_centroid(X_transformed)
 
 nu = 1
 vertices, faces = generate_icosphere(
+    # use above calc instead for radius
+    # actually... this is prob right
     radius=(max(xs) - min(xs)) / 2,
     center=centroid,
     refinement=nu
 )
+
+# print(np.array([xs, ys, zs]).T)
+# print(xs[:3])
+# print(ys[:3])
+# print(zs[:3])
+
+# quit()
+
+# print([pt for idx, pt in enumerate(
+#     np.array((xs, ys, zs)))][0])
+# quit()
+
+############################################
+# Refactor all of this into a single for loop
+point_idxs = [idx for idx, pt in enumerate(
+    np.array([xs, ys, zs]).T) if check_pt_in_shape(pt, vertices)]
+
+
+def get_vals_from_idxs(vals, idxs):
+    return np.array([vals[idx] for idx in idxs])
+
+
+xs = get_vals_from_idxs(xs, point_idxs)
+print(len(xs))
+# quit()
+ys = get_vals_from_idxs(ys, point_idxs)
+zs = get_vals_from_idxs(zs, point_idxs)
+preds = get_vals_from_idxs(preds, point_idxs)
+#############################################
 
 fig = go.Figure(data=[
     go.Scatter3d(
@@ -319,6 +349,32 @@ fig = go.Figure(data=[
     # try creating isosphere instead!
     # or octahedron!
     # or perfect cube!
+    go.Scatter3d(
+        x=[datum for idx, datum in enumerate(xs) if preds[idx]],
+        y=[datum for idx, datum in enumerate(ys) if preds[idx]],
+        z=[datum for idx, datum in enumerate(zs) if preds[idx]],
+        opacity=0.15,
+        mode='markers',
+        marker_color='cyan',
+        # marker={'line': {'color': 'black', 'width': 1},
+        #         },
+        # showlegend=True,
+        # text='market surge',
+        # name='BUY'
+    ),
+    go.Scatter3d(
+        x=[datum for idx, datum in enumerate(xs) if not preds[idx]],
+        y=[datum for idx, datum in enumerate(ys) if not preds[idx]],
+        z=[datum for idx, datum in enumerate(zs) if not preds[idx]],
+        opacity=0.15,
+        mode='markers',
+        marker_color='magenta',
+        # marker={'line': {'color': 'black', 'width': 1},
+        #         },
+        # showlegend=True,
+        # text='market surge',
+        # name='BUY'
+    ),
     go.Isosurface(
         x=xs,
         y=ys,
