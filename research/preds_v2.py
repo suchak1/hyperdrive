@@ -30,7 +30,7 @@ with open('research/X.pkl', 'rb') as file:
 with open('research/y.pkl', 'rb') as file:
     y = pickle.load(file)
 
-new_write = False
+new_write = True
 
 if new_write:
     def predict(data):
@@ -40,7 +40,7 @@ if new_write:
             model = pickle.load(file)
             return model.predict(data)
 
-    num_points = 25
+    num_points = 4
     reducer = PCA(n_components=3)
     X_transformed = reducer.fit_transform(X)
     component_x, component_y, component_z = X_transformed.T
@@ -49,9 +49,9 @@ if new_write:
     centroid = calc_centroid(X_transformed, method='extrema')
     x_c, y_c, z_c = centroid
     super_min = min(all_coords)
-    super_min -= abs(super_min) * 0.25
+    # super_min -= abs(super_min) * 0.25
     super_max = max(all_coords)
-    super_max += abs(super_max) * 0.25
+    # super_max += abs(super_max) * 0.25
     radius = (super_max - super_min) / 2
     lin_x = np.linspace(x_c - radius, x_c + radius, num_points)
     lin_y = np.linspace(y_c - radius, y_c + radius, num_points)
@@ -277,84 +277,84 @@ vertices = np.array([
 ])
 vertices += centroid
 
-############################################
-# Filter to only points in shape
-if new_write:
-    xs_in_shape = []
-    ys_in_shape = []
-    zs_in_shape = []
-    preds_in_shape = []
+# ############################################
+# # Filter to only points in shape
+# if new_write:
+#     xs_in_shape = []
+#     ys_in_shape = []
+#     zs_in_shape = []
+#     preds_in_shape = []
 
-    for idx, pt in enumerate(np.array([xs, ys, zs]).T):
-        xs_in_shape.append(xs[idx])
-        ys_in_shape.append(ys[idx])
-        zs_in_shape.append(zs[idx])
-        if check_pt_in_shape(pt, vertices):
-            preds_in_shape.append(preds[idx])
-        else:
-            preds_in_shape.append(-1)
-
-    xs = np.array(xs_in_shape)
-    ys = np.array(ys_in_shape)
-    zs = np.array(zs_in_shape)
-    preds = np.array(preds_in_shape)
-
-    with open('research/xs_2_2.pkl', 'wb') as file:
-        pickle.dump(xs, file)
-
-    with open('research/ys_2_2.pkl', 'wb') as file:
-        pickle.dump(ys, file)
-
-    with open('research/zs_2_2.pkl', 'wb') as file:
-        pickle.dump(zs, file)
-
-    with open('research/preds_2_2.pkl', 'wb') as file:
-        pickle.dump(preds, file)
-
-with open('research/xs_2_2.pkl', 'rb') as file:
-    xs = pickle.load(file)
-
-with open('research/ys_2_2.pkl', 'rb') as file:
-    ys = pickle.load(file)
-
-with open('research/zs_2_2.pkl', 'rb') as file:
-    zs = pickle.load(file)
-
-with open('research/preds_2_2.pkl', 'rb') as file:
-    preds = pickle.load(file)
-
-# xs_in_shape = []
-# ys_in_shape = []
-# zs_in_shape = []
-# preds_in_shape = []
-
-# for idx, pt in enumerate(np.array([xs, ys, zs]).T):
-#     # x = xs[idx]
-#     # y = ys[idx]
-#     # z = zs[idx]
-#     x_c, y_c, z_c = centroid
-
-#     if ((pt[0] - x_c) ** 2
-#             + (pt[1] - y_c) ** 2
-#             + (pt[2] - z_c) ** 2
-#             > radius ** 2):
-#         # xs_in_shape.append(xs[idx])
-#         # ys_in_shape.append(ys[idx])
-#         # zs_in_shape.append(zs[idx])
-#         # preds_in_shape.append(preds[idx])
-#         preds_in_shape.append(-1)
-#         # preds[idx] = -1
-#     else:
-#         if preds[idx]:
-#             preds_in_shape.append(1)
+#     for idx, pt in enumerate(np.array([xs, ys, zs]).T):
+#         xs_in_shape.append(xs[idx])
+#         ys_in_shape.append(ys[idx])
+#         zs_in_shape.append(zs[idx])
+#         if check_pt_in_shape(pt, vertices):
+#             preds_in_shape.append(preds[idx])
 #         else:
-#             preds_in_shape.append(0)
-# print(preds)
-# xs = np.array(xs_in_shape)
-# ys = np.array(ys_in_shape)
-# zs = np.array(zs_in_shape)
-# preds = np.array(preds_in_shape)
-#############################################
+#             preds_in_shape.append(-1)
+
+#     xs = np.array(xs_in_shape)
+#     ys = np.array(ys_in_shape)
+#     zs = np.array(zs_in_shape)
+#     preds = np.array(preds_in_shape)
+
+#     with open('research/xs_2_2.pkl', 'wb') as file:
+#         pickle.dump(xs, file)
+
+#     with open('research/ys_2_2.pkl', 'wb') as file:
+#         pickle.dump(ys, file)
+
+#     with open('research/zs_2_2.pkl', 'wb') as file:
+#         pickle.dump(zs, file)
+
+#     with open('research/preds_2_2.pkl', 'wb') as file:
+#         pickle.dump(preds, file)
+
+# with open('research/xs_2_2.pkl', 'rb') as file:
+#     xs = pickle.load(file)
+
+# with open('research/ys_2_2.pkl', 'rb') as file:
+#     ys = pickle.load(file)
+
+# with open('research/zs_2_2.pkl', 'rb') as file:
+#     zs = pickle.load(file)
+
+# with open('research/preds_2_2.pkl', 'rb') as file:
+#     preds = pickle.load(file)
+
+# # xs_in_shape = []
+# # ys_in_shape = []
+# # zs_in_shape = []
+# # preds_in_shape = []
+
+# # for idx, pt in enumerate(np.array([xs, ys, zs]).T):
+# #     # x = xs[idx]
+# #     # y = ys[idx]
+# #     # z = zs[idx]
+# #     x_c, y_c, z_c = centroid
+
+# #     if ((pt[0] - x_c) ** 2
+# #             + (pt[1] - y_c) ** 2
+# #             + (pt[2] - z_c) ** 2
+# #             > radius ** 2):
+# #         # xs_in_shape.append(xs[idx])
+# #         # ys_in_shape.append(ys[idx])
+# #         # zs_in_shape.append(zs[idx])
+# #         # preds_in_shape.append(preds[idx])
+# #         preds_in_shape.append(-1)
+# #         # preds[idx] = -1
+# #     else:
+# #         if preds[idx]:
+# #             preds_in_shape.append(1)
+# #         else:
+# #             preds_in_shape.append(0)
+# # print(preds)
+# # xs = np.array(xs_in_shape)
+# # ys = np.array(ys_in_shape)
+# # zs = np.array(zs_in_shape)
+# # preds = np.array(preds_in_shape)
+# #############################################
 
 fig = go.Figure(data=[
     go.Scatter3d(
@@ -417,9 +417,9 @@ fig = go.Figure(data=[
         opacity=0.4,
         value=preds.astype(int),
         # value=preds,
-        isomin=0,
-        isomax=1,
-        surface_count=3,
+        # isomin=0,
+        # isomax=1,
+        # surface_count=3,
         # caps=dict(x_show=False, y_show=False),
         # value=preds.astype(int),
         colorscale=['magenta', 'cyan'],
