@@ -22,7 +22,8 @@ class Oracle:
         num_points = refinement
         reducer = PCA(n_components=dimensions)
         X_transformed = reducer.fit_transform(X)
-
+        # don't need individual components here,
+        # can just return X_transformed or X_transformed.T
         component_x, component_y, *rest = X_transformed.T
         component_z = rest[0] if rest else []
         all_coords = np.concatenate((component_x, component_y, component_z))
@@ -39,11 +40,8 @@ class Oracle:
             num_points
         ) for component in centroid]
         # generalize everything below for # of dims!!!!!!!!!
-        xx, yy, zz = np.meshgrid(*lins)
-        xs = xx.flatten()
-        ys = yy.flatten()
-        zs = zz.flatten()
-
-        reduced = np.array([xs, ys, zs]).T
+        unflattened = np.meshgrid(*lins)
+        flattened = [arr.flatten() for arr in unflattened]
+        reduced = np.array(flattened).T
         unreduced = reducer.inverse_transform(reduced)
         preds = self.predict(unreduced)
