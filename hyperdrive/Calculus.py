@@ -9,12 +9,16 @@ class Calculator:
         return sum(xs) / len(xs)
 
     def calc_centroid(self, points, method='mean'):
-        x, y, z = points.T
+        components = points.T
         if method != 'mean':
-            x = [min(x), max(x)]
-            y = [min(y), max(y)]
-            z = [min(z), max(z)]
-        return self.avg(x), self.avg(y), self.avg(z)
+            components = [
+                [
+                    min(component),
+                    max(component)
+                ]
+                for component in components
+            ]
+        return [self.avg(component) for component in components]
 
     def delta(self, series):
         return series / series.shift() - 1
