@@ -22,11 +22,7 @@ class Oracle:
         num_points = refinement
         reducer = PCA(n_components=dimensions)
         X_transformed = reducer.fit_transform(X)
-        # don't need individual components here,
-        # can just return X_transformed or X_transformed.T
-        component_x, component_y, *rest = X_transformed.T
-        component_z = rest[0] if rest else []
-        all_coords = np.concatenate((component_x, component_y, component_z))
+        all_coords = np.concatenate(X_transformed)
         # or method='mean'
         centroid = self.calc.calc_centroid(X_transformed, method='extrema')
         super_min = min(all_coords)
@@ -39,9 +35,9 @@ class Oracle:
             component + radius,
             num_points
         ) for component in centroid]
-        # generalize everything below for # of dims!!!!!!!!!
         unflattened = np.meshgrid(*lins)
         flattened = [arr.flatten() for arr in unflattened]
         reduced = np.array(flattened).T
         unreduced = reducer.inverse_transform(reduced)
         preds = self.predict(unreduced)
+        return X_transformed, centroid, radius, flattened, preds
