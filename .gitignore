@@ -2,6 +2,8 @@
 *.json
 .ipynb*
 *.ipynb
+*.pkl
+*:Zone.Identifier
 __pycache__
 img/
 robinhood.pickle

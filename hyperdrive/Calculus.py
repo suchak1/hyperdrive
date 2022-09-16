@@ -8,6 +8,14 @@ class Calculator:
     def avg(self, xs):
         return sum(xs) / len(xs)
 
+    def calc_centroid(self, points, method='mean'):
+        x, y, z = points.T
+        if method != 'mean':
+            x = [min(x), max(x)]
+            y = [min(y), max(y)]
+            z = [min(z), max(z)]
+        return self.avg(x), self.avg(y), self.avg(z)
+
     def delta(self, series):
         return series / series.shift() - 1
 
