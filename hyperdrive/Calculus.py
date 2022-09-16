@@ -5,6 +5,9 @@ from scipy.signal import savgol_filter
 
 
 class Calculator:
+    def avg(self, xs):
+        return sum(xs) / len(xs)
+
     def delta(self, series):
         return series / series.shift() - 1
 
