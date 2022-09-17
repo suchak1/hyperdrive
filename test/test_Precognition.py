@@ -24,11 +24,12 @@ class TestOracle:
         assert actual == expected
 
     def test_save_model_pickle(self):
-        assert oracle.save_model_pickle(name, 'test')
+        assert oracle.save_model_pickle(name, {})
         assert oracle.reader.check_file_exists(actual)
 
     def test_load_model_pickle(self):
-        pass
+        assert oracle.load_model_pickle(name) == {}
+        oracle.writer.remove_files([actual])
 
     def test_predict(self):
         pass
