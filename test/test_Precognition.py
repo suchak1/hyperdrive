@@ -1,4 +1,3 @@
-import os
 import sys
 sys.path.append('hyperdrive')
 from Precognition import Oracle  # noqa autopep8
@@ -32,7 +31,11 @@ class TestOracle:
         oracle.writer.remove_files([actual])
 
     def test_predict(self):
-        pass
+        metadata = oracle.reader.load_json('models/latest/metadata.json')
+        num_features = len(metadata['features'])
+        data = [1] * num_features
+        pred = oracle.predict(data)
+        assert type(pred) == bool
 
     def test_visualize(self):
         pass
