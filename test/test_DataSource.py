@@ -9,6 +9,7 @@ from DataSource import MarketData, IEXCloud, Polygon, \
                         StockTwits, LaborStats, Glassnode  # noqa autopep8
 import Constants as C  # noqa autopep8
 from Workflow import Flow  # noqa autopep8
+from Utils import SwissArmyKnife  # noqa autopep8
 
 
 md = MarketData()
@@ -20,23 +21,15 @@ twit.token = ''
 bls = LaborStats()
 glass = Glassnode()
 flow = Flow()
+knife = SwissArmyKnife()
 
-
-def use_dev_bucket(data_src_obj):
-    data_src_obj.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    data_src_obj.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    return data_src_obj
-
-
-if not C.CI:
-    iex = use_dev_bucket(iex)
-    iex_intra = use_dev_bucket(iex_intra)
-    md = use_dev_bucket(md)
-    poly = use_dev_bucket(poly)
-    twit = use_dev_bucket(twit)
-    bls = use_dev_bucket(bls)
-    glass = use_dev_bucket(glass)
-    # or simply make DevStore class that has s3 dev bucket name
+iex = knife.use_dev(iex)
+iex_intra = knife.use_dev(iex_intra)
+md = knife.use_dev(md)
+poly = knife.use_dev(poly)
+twit = knife.use_dev(twit)
+bls = knife.use_dev(bls)
+glass = knife.use_dev(glass)
 
 exp_symbols = ['AMZN', 'META', 'NFLX']
 retries = 10

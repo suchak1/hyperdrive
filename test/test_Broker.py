@@ -5,11 +5,12 @@ from datetime import datetime
 sys.path.append('hyperdrive')
 from Broker import Robinhood  # noqa autopep8
 import Constants as C  # noqa autopep8
+from Utils import SwissArmyKnife  # noqa autopep8
 
+knife = SwissArmyKnife()
 rh = Robinhood()
-if not C.CI:
-    rh.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    rh.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
+rh = knife.use_dev(rh)
+
 exp_symbols = ['AMZN', 'META', 'NFLX']
 
 
