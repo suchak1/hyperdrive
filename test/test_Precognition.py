@@ -1,4 +1,5 @@
 import sys
+import numpy as np
 sys.path.append('hyperdrive')
 from Precognition import Oracle  # noqa autopep8
 from Utils import SwissArmyKnife  # noqa autopep8
@@ -38,4 +39,28 @@ class TestOracle:
         assert type(pred) == bool
 
     def test_visualize(self):
-        pass
+        X = oracle.load_model_pickle('X')
+
+        # 2D
+        (
+            actual_2D,
+            centroid_2D,
+            radius_2D,
+            grid_2D,
+            preds_2D
+        ) = oracle.visualize(X=X, dimensions=2, refinement=4)
+        assert len(actual_2D.T) == len(centroid_2D) == len(grid_2D) == 2
+        type(radius_2D) == float
+        assert preds_2D.dtype == np.dtype('bool')
+
+        # 3D
+        (
+            actual_3D,
+            centroid_3D,
+            radius_3D,
+            grid_3D,
+            preds_3D
+        ) = oracle.visualize(X=X, dimensions=3, refinement=4)
+        assert len(actual_3D.T) == len(centroid_3D) == len(grid_3D) == 3
+        type(radius_3D) == float
+        assert preds_3D.dtype == np.dtype('bool')
