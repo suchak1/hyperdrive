@@ -33,10 +33,10 @@ class TestOracle:
 
     def test_predict(self):
         metadata = oracle.reader.load_json('models/latest/metadata.json')
-        num_features = len(metadata['features'])
-        data = [1] * num_features
+        num_features = metadata['num_pca'] or len(metadata['features'])
+        data = np.full((1, num_features), 1)
         pred = oracle.predict(data)
-        assert type(pred) == bool
+        assert pred.dtype == np.dtype(bool)
 
     def test_visualize(self):
         X = oracle.load_model_pickle('X')
@@ -52,7 +52,7 @@ class TestOracle:
         ) = oracle.visualize(X=X, y=y, dimensions=2, refinement=4)
         assert len(actual_2D) == len(centroid_2D) == len(grid_2D) == 2
         type(radius_2D) == float
-        assert preds_2D.dtype == np.dtype('int')
+        assert preds_2D.dtype == np.dtype(int)
 
         # 3D
         (
@@ -64,4 +64,4 @@ class TestOracle:
         ) = oracle.visualize(X=X, y=y, dimensions=3, refinement=4)
         assert len(actual_3D) == len(centroid_3D) == len(grid_3D) == 3
         type(radius_3D) == float
-        assert preds_3D.dtype == np.dtype('int')
+        assert preds_3D.dtype == np.dtype(int)
