@@ -2,6 +2,7 @@ import os
 from binance import Client
 from binance.helpers import round_step_size
 from dotenv import load_dotenv, find_dotenv
+import Constants as C
 load_dotenv(find_dotenv('config.env'))
 
 
@@ -32,7 +33,7 @@ class Binance:
         params = {'symbol': pair, 'type': order_type}
         symbol_info = self.client.get_symbol_info(pair)
 
-        if side == 'SELL':
+        if side == C.SELL:
             side = self.client.SIDE_SELL
             balance_label = base
             quantity_label = 'quantity'
@@ -40,7 +41,7 @@ class Binance:
             for filter in filters:
                 if filter['filterType'] == 'LOT_SIZE':
                     step_size = float(filter['stepSize'])
-        elif side == 'BUY':
+        elif side == C.BUY:
             side = self.client.SIDE_BUY
             balance_label = quote
             quantity_label = 'quoteOrderQty'
@@ -51,7 +52,7 @@ class Binance:
         balance = float(self.client.get_asset_balance(balance_label)['free'])
         amount = spend_ratio * balance
 
-        if side == 'BUY':
+        if side == C.BUY:
             quantity = "{:0.0{}f}".format(amount, precision)
         else:
             quantity = round_step_size(amount, step_size)

@@ -40,6 +40,7 @@ class TestOracle:
 
     def test_visualize(self):
         X = oracle.load_model_pickle('X')
+        y = oracle.load_model_pickle('y')
 
         # 2D
         (
@@ -48,10 +49,10 @@ class TestOracle:
             radius_2D,
             grid_2D,
             preds_2D
-        ) = oracle.visualize(X=X, dimensions=2, refinement=4)
-        assert len(actual_2D.T) == len(centroid_2D) == len(grid_2D) == 2
+        ) = oracle.visualize(X=X, y=y, dimensions=2, refinement=4)
+        assert len(actual_2D) == len(centroid_2D) == len(grid_2D) == 2
         type(radius_2D) == float
-        assert preds_2D.dtype == np.dtype('bool')
+        assert preds_2D.dtype == np.dtype('int')
 
         # 3D
         (
@@ -60,7 +61,7 @@ class TestOracle:
             radius_3D,
             grid_3D,
             preds_3D
-        ) = oracle.visualize(X=X, dimensions=3, refinement=4)
-        assert len(actual_3D.T) == len(centroid_3D) == len(grid_3D) == 3
+        ) = oracle.visualize(X=X, y=y, dimensions=3, refinement=4)
+        assert len(actual_3D) == len(centroid_3D) == len(grid_3D) == 3
         type(radius_3D) == float
-        assert preds_3D.dtype == np.dtype('bool')
+        assert preds_3D.dtype == np.dtype('int')

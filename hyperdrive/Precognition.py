@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.decomposition import PCA
 from FileOps import FileReader, FileWriter
 from Calculus import Calculator
+import Constants as C
 
 
 class Oracle:
@@ -25,7 +26,7 @@ class Oracle:
         model = self.load_model_pickle('model')
         return model.predict(data)
 
-    def visualize(self, X, dimensions, refinement, increase_percent=0):
+    def visualize(self, X, y, dimensions, refinement, increase_percent=0):
         # recommended in the range [4, 100]
         num_points = refinement
         reducer = PCA(n_components=dimensions)
@@ -47,5 +48,16 @@ class Oracle:
         flattened = [arr.flatten() for arr in unflattened]
         reduced = np.array(flattened).T
         unreduced = reducer.inverse_transform(reduced)
-        preds = self.predict(unreduced)
-        return X_transformed, centroid, radius, flattened, preds
+        preds = self.predict(unreduced).astype(int)
+        components = X_transformed.T
+        actual = []
+        for component in components:
+            actual_buy = []
+            actual_sell = []
+            for idx, datum in enumerate(component):
+                if y[idx]:
+                    actual_buy.append(datum)
+                else:
+                    actual_sell.append(datum)
+            actual.append({C.BUY: actual_buy, C.SELL: actual_sell})
+        return actual, centroid, radius, flattened, preds

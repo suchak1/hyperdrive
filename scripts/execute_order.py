@@ -26,7 +26,7 @@ if should_order:
     spend_ratio = 0.01 if C.TEST else 1
 
     order = bn.order(
-        base, quote, 'BUY' if signal else 'SELL', spend_ratio, C.TEST
+        base, quote, C.BUY if signal else C.SELL, spend_ratio, C.TEST
     )
     order_df = pd.json_normalize(order)
 
