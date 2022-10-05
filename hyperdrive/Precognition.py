@@ -50,14 +50,14 @@ class Oracle:
         unreduced = reducer.inverse_transform(reduced)
         preds = self.predict(unreduced).astype(int)
         components = X_transformed.T
-        actual = []
-        for component in components:
-            actual_buy = []
-            actual_sell = []
-            for idx, datum in enumerate(component):
-                if y[idx]:
-                    actual_buy.append(datum)
-                else:
-                    actual_sell.append(datum)
-            actual.append({C.BUY: actual_buy, C.SELL: actual_sell})
+        actual = [
+            {
+                C.BUY: [
+                    datum for idx, datum in enumerate(component) if y[idx]
+                ],
+                C.SELL: [
+                    datum for idx, datum in enumerate(component) if not y[idx]
+                ]
+            } for component in components
+        ]
         return actual, centroid, radius, flattened, preds
