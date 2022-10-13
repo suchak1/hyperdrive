@@ -27,6 +27,22 @@ oracle.save_model_pickle('2D/radius', radius_2D)
 oracle.save_model_pickle('2D/grid', grid_2D)
 oracle.save_model_pickle('2D/preds', preds_2D)
 
+# 3D
+(
+    actual_3D,
+    centroid_3D,
+    radius_3D,
+    grid_3D,
+    preds_3D
+) = oracle.visualize(X=X, y=y, dimensions=3, refinement=10)
+
+
+oracle.save_model_pickle('3D/actual', actual_3D)
+oracle.save_model_pickle('3D/centroid', centroid_3D)
+oracle.save_model_pickle('3D/radius', radius_3D)
+oracle.save_model_pickle('3D/grid', grid_3D)
+oracle.save_model_pickle('3D/preds', preds_3D)
+
 
 # Don't actually need to save the radius => just need to use it to modify points that plot will use ultimately
 # Need to save final data plot will use after deciding shapes and processing
