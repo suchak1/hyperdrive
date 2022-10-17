@@ -34,45 +34,9 @@ center = np.array([0, 0, 0])
 p1 = np.array([1.25, 1.25, 1.25])
 p2 = np.array([1.25, 1.25, -1.25])
 
-plane = calc.find_plane(center, p1, p2)
-print(plane)
-normal = np.array(plane[0:3])
-
-unit_normal = normal / math.dist((0, 0, 0), normal)
-
-print(unit_normal)
-print(math.dist((0, 0, 0), unit_normal))
-unit_normal = normal / norm(normal)
-print(unit_normal)
-print(math.dist((0, 0, 0), unit_normal))
-unit_normal = normal / np.sqrt(np.sum(normal**2))
-print(unit_normal)
-print(math.dist((0, 0, 0), unit_normal))
-q1 = p1
-q2 = center + np.cross(unit_normal, p1 - center)
-angles = np.linspace(0, 2 * math.pi, 360)
-xs = [center[0] + math.cos(theta) * (p1[0] - center[0]) +
-      math.sin(theta) * (q2[0] - center[0]) for theta in angles]
-ys = [center[1] + math.cos(theta) * (p1[1] - center[1]) +
-      math.sin(theta) * (q2[1] - center[1]) for theta in angles]
-zs = [center[2] + math.cos(theta) * (p1[2] - center[2]) +
-      math.sin(theta) * (q2[2] - center[2]) for theta in angles]
-
 circle = calc.get_3d_circle(center, p1, p2)
 
 xs, ys, zs = circle
-# method 2: https://math.stackexchange.com/a/73242
-# radius = math.dist(center, p1)
-
-# q1 = q1 / math.dist(center, q1)
-# q2 = center + np.cross(q1, unit_normal)
-
-# xs = [center[0] + radius *
-#       math.cos(theta) * q1[0] + radius * math.sin(theta) * q2[0] for theta in angles]
-# ys = [center[1] + radius *
-#       math.cos(theta) * q1[1] + radius * math.sin(theta) * q2[1] for theta in angles]
-# zs = [center[2] + radius *
-#       math.cos(theta) * q1[2] + radius * math.sin(theta) * q2[2] for theta in angles]
 
 
 fig = go.Figure(data=[

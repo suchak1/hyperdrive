@@ -105,3 +105,17 @@ class TestCalculator:
         vertices = calc.generate_octahedron(1, (0.1, 0.1, 0.1))
         assert calc.check_pt_in_shape((0, 0, 0), vertices)
         assert not calc.check_pt_in_shape((3, 3, 3), vertices)
+
+    def test_get_3d_circle(self):
+        # center = (0, 0, 0)
+        center = np.array([0, 0, 0])
+        p1 = np.array([1.25, 1.25, 1.25])
+        p2 = np.array([1.25, 1.25, -1.25])
+        circle = calc.get_3d_circle(center, p1, p2)
+        centroids = np.array([calc.find_centroid(pt) for pt in circle.T])
+        centroid = [calc.avg(component) for component in centroids.T]
+        assert np.isclose(centroid, center, atol=0.01).all()
+        num_pts = len(circle[0])
+        assert num_pts == 360
+        assert np.isclose(circle.T[0], p1).all()
+        assert np.isclose(circle.T[int(num_pts / 2)], -p1, atol=0.02).all()

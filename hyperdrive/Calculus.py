@@ -10,7 +10,7 @@ from scipy.signal import savgol_filter
 
 class Calculator:
     def avg(self, xs):
-        return sum(xs) / len(xs)
+        return np.mean(xs)
 
     def find_centroid(self, points, method='mean'):
         components = points.T
@@ -152,7 +152,7 @@ class Calculator:
         return vertices
     # 4 more!
 
-    def get_3d_circle(self, center, pt1, pt2):
+    def get_3d_circle(self, center, pt1, pt2, refinement=360):
         # method 1: https://math.stackexchange.com/a/2375120
         # method 2: https://math.stackexchange.com/a/73242 - CHOSEN
 
@@ -163,7 +163,7 @@ class Calculator:
         q1 = pt1 / norm(pt1)
         q2 = center + np.cross(q1, unit_normal)
         # 0 -> 360 degrees in radians
-        angles = np.linspace(0, 2 * math.pi, 360)
+        angles = np.linspace(0, 2 * math.pi, refinement)
 
         radius = math.dist(center, pt1)
 
@@ -177,7 +177,9 @@ class Calculator:
                 radius * math.sin(theta) * q2[idx]
             )
 
-        xs = [convert_to_xyz(theta, 0) for theta in angles]
-        ys = [convert_to_xyz(theta, 1) for theta in angles]
-        zs = [convert_to_xyz(theta, 2) for theta in angles]
-        return xs, ys, zs
+        circle = np.array([
+            [convert_to_xyz(theta, idx)
+             for theta in angles]
+            for idx in [0, 1, 2]
+        ])
+        return circle
