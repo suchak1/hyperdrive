@@ -2,6 +2,9 @@
 import math
 import numpy as np
 import pandas as pd
+from numpy.linalg import norm
+from icosphere import icosphere
+from itertools import permutations
 from scipy.signal import savgol_filter
 
 
@@ -58,20 +61,16 @@ class Calculator:
             return self.fib(n - 1) + [lst[-1] + lst[-2]]
 
     def find_plane(self, pt1, pt2, pt3):
-        x1, y1, z1 = pt1
-        x2, y2, z2 = pt2
-        x3, y3, z3 = pt3
+        pt1, pt2, pt3 = [
+            np.array(pt) for pt in [pt1, pt2, pt3]
+        ]
+        u = pt2 - pt1
+        v = pt3 - pt1
 
-        a1 = x2 - x1
-        b1 = y2 - y1
-        c1 = z2 - z1
-        a2 = x3 - x1
-        b2 = y3 - y1
-        c2 = z3 - z1
-        a = b1 * c2 - b2 * c1
-        b = a2 * c1 - a1 * c2
-        c = a1 * b2 - b1 * a2
-        d = (- a * x1 - b * y1 - c * z1)
+        point = np.array(pt1)
+        normal = np.cross(u, v)
+        a, b, c = normal
+        d = -point.dot(normal)
 
         return a, b, c, d
 
@@ -94,4 +93,65 @@ class Calculator:
         )
         return plane_side
 
+    def get_plane_pts(self, points):
+        points = [tuple(point) for point in points]
+        shortest_dist = self.find_shortest_dist(points)
+        plane_sets = set()
+        for i, pt1 in enumerate(points):
+            for j, pt2 in enumerate(points):
+                for k, pt3 in enumerate(points):
+                    # further optimizations by making sure k >= j and j >= i
+                    if i == j or j == k or i == k or k < j or j < i:
+                        continue
+                    A_2_B = math.dist(pt1, pt2)
+                    B_2_C = math.dist(pt2, pt3)
+                    C_2_A = math.dist(pt3, pt1)
+
+                    is_planar_set = (
+                        np.isclose(A_2_B, B_2_C)
+                        and np.isclose(B_2_C, C_2_A)
+                        and np.isclose(A_2_B, C_2_A)
+                        and np.isclose(A_2_B, shortest_dist)
+                    )
+                    if is_planar_set:
+                        plane_set = (pt1, pt2, pt3)
+                        perms = permutations(plane_set)
+                        if any([perm in plane_sets for perm in perms]):
+                            continue
+                        plane_sets.add(plane_set)
+
+        return np.array(list(plane_sets))
+
+    def check_pt_in_shape(self, point, vertices):
+        # only works with triangular faces
+        centroid = self.find_centroid(vertices)
+        plane_pts = self.get_plane_pts(vertices)
+        planes = [self.find_plane(*pts) for pts in plane_pts]
+        for plane in planes:
+            if not self.same_plane_side(centroid, point, plane):
+                return False
+        return True
+
+    def generate_icosphere(self, radius, center, refinement):
+        vertices, faces = icosphere(refinement)
+        length = norm(vertices, axis=1).reshape((-1, 1))
+        vertices = vertices / length * radius + center
+        return vertices, faces
+
+    def generate_octahedron(self, radius, center):
+        vertices = np.array([
+            (0, 0, -1),
+            (0, +1, 0),
+            (0, 0, +1),
+            (0, -1, 0),
+            (-1, 0, 0),
+            (+1, 0, 0)
+        ]).astype(float)
+        vertices *= radius
+        vertices += center
+        return vertices
     # 4 more!
+
+    def get_3d_circle(self, center, pt1, pt2):
+        plane = self.find_plane(center, pt1, pt2)
+        normal = np.array(plane[0:3])

@@ -49,9 +49,9 @@ class TestCalculator:
 
     def test_find_plane(self):
         # x = 0
-        pt1 = (0, 0, 0)
-        pt2 = (0, 0, 1)
-        pt3 = (0, 1, 0)
+        pt1 = np.array((0, 0, 0))
+        pt2 = np.array((0, 0, 1))
+        pt3 = np.array((0, 1, 0))
         plane = calc.find_plane(pt1, pt2, pt3)
         assert (abs(np.array(plane)) == (
             1, 0, 0, 0)).all()
@@ -59,17 +59,16 @@ class TestCalculator:
         # y = z
         # -y - z = 0
         # y + z = 0
-        pt2 = (0, 1, -1)
-        pt3 = (1, 1, -1)
+        pt2 = np.array((0, 1, -1))
+        pt3 = np.array((1, 1, -1))
         plane = calc.find_plane(pt1, pt2, pt3)
-        print(plane)
         assert (abs(np.array(plane)) == (0, 1, 1, 0)).all()
 
         # y + z = 1
         # y + z - 1 = 0
-        pt1 = (1, 0.5, 0.5)
-        pt2 = (0, 1, 0)
-        pt3 = (0, 0, 1)
+        pt1 = np.array((1, 0.5, 0.5))
+        pt2 = np.array((0, 1, 0))
+        pt3 = np.array((0, 0, 1))
         plane = calc.find_plane(pt1, pt2, pt3)
         assert plane == (0, 1, 1, -1)
 
@@ -95,3 +94,14 @@ class TestCalculator:
         assert not calc.same_plane_side(pt1, pt2, plane)
         pt2 = (1, 0, 0)
         assert calc.same_plane_side(pt1, pt2, plane)
+
+    def test_check_pt_in_shape(self):
+        # refinement=1 ensures triangular faces
+        # check_pt_in_shape fx only works with triangular faces
+        vertices, _ = calc.generate_icosphere(2, (0.1, 0.1, 0.1), 1)
+        assert calc.check_pt_in_shape(np.array((1, 1, 1)), vertices)
+        assert not calc.check_pt_in_shape(np.array((3, 3, 3)), vertices)
+
+        vertices = calc.generate_octahedron(1, (0.1, 0.1, 0.1))
+        assert calc.check_pt_in_shape(np.array((0, 0, 0)), vertices)
+        assert not calc.check_pt_in_shape(np.array((3, 3, 3)), vertices)
