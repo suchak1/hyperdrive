@@ -154,33 +154,30 @@ class Calculator:
 
     def get_3d_circle(self, center, pt1, pt2):
         # method 1: https://math.stackexchange.com/a/2375120
+        # method 2: https://math.stackexchange.com/a/73242 - CHOSEN
+
         plane = self.find_plane(center, pt1, pt2)
         normal = np.array(plane[0:3])
         unit_normal = normal / norm(normal)
 
-        q1 = pt1
-        q2 = center + np.cross(unit_normal, pt1 - center)
+        q1 = pt1 / norm(pt1)
+        q2 = center + np.cross(q1, unit_normal)
         # 0 -> 360 degrees in radians
         angles = np.linspace(0, 2 * math.pi, 360)
 
+        radius = math.dist(center, pt1)
+
+        q1 /= norm(q1)
+        q2 = center + np.cross(q1, unit_normal)
+
         def convert_to_xyz(theta, idx):
             return (
-                center[idx] + math.cos(theta) * (q1[idx] - center[idx]) +
-                math.sin(theta) * (q2[idx] - center[idx])
+                center[idx] +
+                radius * math.cos(theta) * q1[idx] +
+                radius * math.sin(theta) * q2[idx]
             )
+
         xs = [convert_to_xyz(theta, 0) for theta in angles]
         ys = [convert_to_xyz(theta, 1) for theta in angles]
         zs = [convert_to_xyz(theta, 2) for theta in angles]
         return xs, ys, zs
-        # method 2: https://math.stackexchange.com/a/73242
-        # radius = math.dist(center, p1)
-
-        # q1 = q1 / math.dist(center, q1)
-        # q2 = center + np.cross(q1, unit_normal)
-
-        # xs = [center[0] + radius *
-        #       math.cos(theta) * q1[0] + radius * math.sin(theta) * q2[0] for theta in angles]
-        # ys = [center[1] + radius *
-        #       math.cos(theta) * q1[1] + radius * math.sin(theta) * q2[1] for theta in angles]
-        # zs = [center[2] + radius *
-        #       math.cos(theta) * q1[2] + radius * math.sin(theta) * q2[2] for theta in angles]
