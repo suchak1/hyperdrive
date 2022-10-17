@@ -7,20 +7,9 @@ from numpy.linalg import norm
 import plotly.graph_objects as go
 from itertools import permutations
 sys.path.append('hyperdrive')
+from Calculus import Calculator  # noqa
 
-
-def avg(x):
-    return sum(x) / len(x)
-
-
-def calc_centroid(points, method='mean'):
-    # points = np.array(points)
-    x, y, z = points.T
-    if method != 'mean':
-        x = [min(x), max(x)]
-        y = [min(y), max(y)]
-        z = [min(z), max(z)]
-    return avg(x), avg(y), avg(z)
+calc = Calculator()
 
 
 def mesh_plot(vertices, faces):
@@ -80,38 +69,9 @@ def get_plane_pts(points):
     return list(plane_sets)
 
 
-def eq_plane(pt1, pt2, pt3):
-    # this one seems to work
-    x1, y1, z1 = pt1
-    x2, y2, z2 = pt2
-    x3, y3, z3 = pt3
-
-    a1 = x2 - x1
-    b1 = y2 - y1
-    c1 = z2 - z1
-    a2 = x3 - x1
-    b2 = y3 - y1
-    c2 = z3 - z1
-    a = b1 * c2 - b2 * c1
-    b = a2 * c1 - a1 * c2
-    c = a1 * b2 - b1 * a2
-    d = (- a * x1 - b * y1 - c * z1)
-    # print(a * pt1[0] + b * pt1[1] + c * pt1[2] + d)
-    # print(a * pt2[0] + b * pt2[1] + c * pt2[2] + d)
-    # print(a * pt3[0] + b * pt3[1] + c * pt3[2] + d)
-    # ax + by + cz + d = 0
-    return a, b, c, d
-
-
-def calc_plane(pt, coeffs):
-    x, y, z = pt
-    a, b, c, d = coeffs
-    return a * x + b * y + c * z + d
-
-
 def same_plane_side(pt1, pt2, coeffs):
-    pt1_side = calc_plane(pt1, coeffs)
-    pt2_side = calc_plane(pt2, coeffs)
+    pt1_side = calc.eval_plane(pt1, coeffs)
+    pt2_side = calc.eval_plane(pt2, coeffs)
     plane_side = (
         pt1_side == abs(pt1_side)) == (
         pt2_side == abs(pt2_side)
@@ -120,9 +80,9 @@ def same_plane_side(pt1, pt2, coeffs):
 
 
 def check_pt_in_shape(point, vertices):
-    centroid = calc_centroid(vertices)
+    centroid = calc.find_centroid(vertices)
     plane_pts = get_plane_pts(vertices)
-    planes = [eq_plane(*pts) for pts in plane_pts]
+    planes = [calc.find_plane(*pts) for pts in plane_pts]
     for plane in planes:
         if not same_plane_side(centroid, point, plane):
             return False
@@ -160,7 +120,7 @@ z = [2.15, 1.25, 0.1, -1.25, -2.15]
 center = np.array([0, 0, 0])
 p1 = np.array([1.25, 1.25, 1.25])
 p2 = np.array([1.25, 1.25, -1.25])
-plane = eq_plane(center, p1, p2)
+plane = calc.find_plane(center, p1, p2)
 print(plane)
 normal = np.array(plane[0:3])
 unit_normal = normal / math.dist(center, normal)
