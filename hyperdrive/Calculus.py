@@ -1,4 +1,5 @@
 
+import math
 import numpy as np
 import pandas as pd
 from scipy.signal import savgol_filter
@@ -78,3 +79,19 @@ class Calculator:
         x, y, z = pt
         a, b, c, d = coeffs
         return a * x + b * y + c * z + d
+
+    def find_shortest_dist(self, points):
+        point1 = points[0]
+        dists = [math.dist(point1, point) for point in points[1:]]
+        return min(dists)
+
+    def same_plane_side(self, pt1, pt2, plane):
+        pt1_side = self.eval_plane(pt1, plane)
+        pt2_side = self.eval_plane(pt2, plane)
+        plane_side = (
+            pt1_side == abs(pt1_side)) == (
+            pt2_side == abs(pt2_side)
+        )
+        return plane_side
+
+    # 4 more!

@@ -33,15 +33,9 @@ def wireframe_plot(vertices, faces):
     return gm
 
 
-def calc_shortest_dist(points):
-    point1 = points[0]
-    dists = [math.dist(point1, point) for point in points[1:]]
-    return min(dists)
-
-
 def get_plane_pts(points):
     points = [tuple(point) for point in points]
-    shortest_dist = calc_shortest_dist(points)
+    shortest_dist = calc.find_shortest_dist(points)
     plane_sets = set()
     for i, pt1 in enumerate(points):
         for j, pt2 in enumerate(points):
@@ -69,22 +63,12 @@ def get_plane_pts(points):
     return list(plane_sets)
 
 
-def same_plane_side(pt1, pt2, coeffs):
-    pt1_side = calc.eval_plane(pt1, coeffs)
-    pt2_side = calc.eval_plane(pt2, coeffs)
-    plane_side = (
-        pt1_side == abs(pt1_side)) == (
-        pt2_side == abs(pt2_side)
-    )
-    return plane_side
-
-
 def check_pt_in_shape(point, vertices):
     centroid = calc.find_centroid(vertices)
     plane_pts = get_plane_pts(vertices)
     planes = [calc.find_plane(*pts) for pts in plane_pts]
     for plane in planes:
-        if not same_plane_side(centroid, point, plane):
+        if not calc.same_plane_side(centroid, point, plane):
             return False
     return True
 

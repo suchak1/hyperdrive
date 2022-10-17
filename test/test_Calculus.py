@@ -74,4 +74,24 @@ class TestCalculator:
         assert plane == (0, 1, 1, -1)
 
     def test_eval_plane(self):
-        pass
+        pt = (1, 2, 3)
+        coeffs = (4, 5, 6, 7)
+        eval = calc.eval_plane(pt, coeffs)
+        assert eval == 39
+
+    def test_find_shortest_dist(self):
+        pts = [(0, 0, 0), (0, 0, 1), (1, 1, 1)]
+        min_dist = calc.find_shortest_dist(pts)
+        assert min_dist == 1
+
+    def test_same_plane_side(self):
+        pt1 = (0, 2, 0)
+        pt2 = (0, 0, 2)
+        # y + z = 1
+        # y + z - 1 = 0
+        plane = (0, 1, 1, -1)
+        assert calc.same_plane_side(pt1, pt2, plane)
+        pt1 = (0, 0, 0)
+        assert not calc.same_plane_side(pt1, pt2, plane)
+        pt2 = (1, 0, 0)
+        assert calc.same_plane_side(pt1, pt2, plane)
