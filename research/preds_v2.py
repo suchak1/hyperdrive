@@ -1,3 +1,4 @@
+import sys
 import math
 import pickle
 import numpy as np
@@ -8,6 +9,8 @@ import plotly.graph_objects as go
 from itertools import permutations
 from sklearn.decomposition import PCA
 from plotly.subplots import make_subplots
+sys.path.append('hyperdrive')
+from Precognition import Oracle  # noqa
 
 
 def avg(x):
@@ -32,15 +35,27 @@ with open('research/y.pkl', 'rb') as file:
 
 new_write = True
 
+oracle = Oracle()
+X = oracle.load_model_pickle('X')
+y = oracle.load_model_pickle('y')
+num_points = 5
+(
+    actual_3D,
+    centroid_3D,
+    radius_3D,
+    grid_3D,
+    preds_3D
+) = oracle.visualize(X=X, y=y, dimensions=3, refinement=num_points)
+
 if new_write:
     def predict(data):
-        filename = 'research/models/latest/model.pkl'
+        # filename = 'research/models/latest/model.pkl'
 
-        with open(filename, 'rb') as file:
-            model = pickle.load(file)
-            return model.predict(data)
+        # with open(filename, 'rb') as file:
+        #     model = pickle.load(file)
+        #     return model.predict(data)
+        return oracle.predict(data)
 
-    num_points = 4
     reducer = PCA(n_components=3)
     X_transformed = reducer.fit_transform(X)
     component_x, component_y, component_z = X_transformed.T
@@ -361,6 +376,9 @@ fig = go.Figure(data=[
         x=[datum for idx, datum in enumerate(component_x) if y[idx]],
         y=[datum for idx, datum in enumerate(component_y) if y[idx]],
         z=[datum for idx, datum in enumerate(component_z) if y[idx]],
+        # x=actual_3D[0]['BUY'],
+        # y=actual_3D[1]['BUY'],
+        # z=actual_3D[2]['BUY'],
         mode='markers',
         marker_color='cyan',
         marker={'line': {'color': 'black', 'width': 1},
@@ -373,6 +391,9 @@ fig = go.Figure(data=[
         x=[datum for idx, datum in enumerate(component_x) if not y[idx]],
         y=[datum for idx, datum in enumerate(component_y) if not y[idx]],
         z=[datum for idx, datum in enumerate(component_z) if not y[idx]],
+        # x=actual_3D[0]['SELL'],
+        # y=actual_3D[1]['SELL'],
+        # z=actual_3D[2]['SELL'],
         mode='markers',
         marker_color='magenta',
         marker={'line': {'color': 'black', 'width': 1},
@@ -411,12 +432,15 @@ fig = go.Figure(data=[
     #     # name='BUY'
     # ),
     go.Volume(
+        # x=grid_3D[0],
+        # y=grid_3D[1],
+        # z=grid_3D[2],
         x=xs,
         y=ys,
         z=zs,
         opacity=0.4,
+        # value=preds_3D,
         value=preds.astype(int),
-        # value=preds,
         # isomin=0,
         # isomax=1,
         # surface_count=3,
