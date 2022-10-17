@@ -120,7 +120,7 @@ class Calculator:
                             continue
                         plane_sets.add(plane_set)
 
-        return np.array(list(plane_sets))
+        return list(plane_sets)
 
     def check_pt_in_shape(self, point, vertices):
         # only works with triangular faces
