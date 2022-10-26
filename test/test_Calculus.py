@@ -106,11 +106,11 @@ class TestCalculator:
         assert calc.check_pt_in_shape((0, 0, 0), vertices)
         assert not calc.check_pt_in_shape((3, 3, 3), vertices)
 
-    def test_get_3d_circle(self):
+    def test_get_3D_circle(self):
         center = np.array([0, 0, 0])
         p1 = np.array([1.25, 1.25, 1.25])
         p2 = np.array([1.25, 1.25, -1.25])
-        circle = calc.get_3d_circle(center, p1, p2)
+        circle = calc.get_3D_circle(center, p1, p2)
         centroids = np.array([calc.find_centroid(pt) for pt in circle.T])
         centroid = [calc.avg(component) for component in centroids.T]
         assert np.isclose(centroid, center, atol=0.01).all()

@@ -152,7 +152,7 @@ class Calculator:
         return vertices
     # 4 more!
 
-    def get_3d_circle(self, center, pt1, pt2, refinement=360):
+    def get_3D_circle(self, center, pt1, pt2, refinement=360):
         # method 1: https://math.stackexchange.com/a/2375120
         # method 2: https://math.stackexchange.com/a/73242 - CHOSEN
 

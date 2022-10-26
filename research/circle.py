@@ -34,7 +34,7 @@ center = np.array([0, 0, 0])
 p1 = np.array([1.25, 1.25, 1.25])
 p2 = np.array([1.25, 1.25, -1.25])
 
-circle = calc.get_3d_circle(center, p1, p2)
+circle = calc.get_3D_circle(center, p1, p2)
 
 xs, ys, zs = circle
 
