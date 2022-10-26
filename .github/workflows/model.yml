@@ -61,3 +61,6 @@ jobs:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
         run: |
           python encrypted/create_model.py
+
+      # Add step to create visualization after automating model creation
+      # Should be able to copy step from visualize.yml

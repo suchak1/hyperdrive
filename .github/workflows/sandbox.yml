@@ -103,6 +103,9 @@ jobs:
       - name: Create model
         run: python encrypted/create_model.py
 
+      - name: Create visualization
+        run: python scripts/visualize.py
+
       - name: Predict signal
         run: python encrypted/predict_signal.py
 

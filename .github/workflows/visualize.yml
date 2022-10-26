@@ -4,9 +4,6 @@
 name: Visualization
 
 on:
-  push:
-    branches:
-      - feature/3d
   workflow_dispatch:
 
 jobs:
@@ -40,6 +37,6 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          S3_BUCKET: ${{ secrets.S3_DEV_BUCKET }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
         run: |
           python scripts/visualize.py

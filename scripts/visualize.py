@@ -3,9 +3,7 @@ sys.path.append('hyperdrive')
 from FileOps import FileReader  # noqa
 from Precognition import Oracle  # noqa
 
-# calc = Calculator()
 oracle = Oracle()
-# reader = FileReader()
 
 
 X = oracle.load_model_pickle('X')
