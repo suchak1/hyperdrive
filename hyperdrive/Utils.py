@@ -20,8 +20,7 @@ class SwissArmyKnife:
     def use_dev(self, obj):
         # or simply make DevStore class that has s3 dev bucket name
         dev_obj = obj
-        if not C.CI or C.TEST:
-            dev_bucket = os.environ.get(
-                'S3_DEV_BUCKET') or os.environ['S3_DEV_BUCKET']
+        if not C.CI:
+            dev_bucket = os.environ['S3_DEV_BUCKET']
             dev_obj = self.replace_attr(obj, 'bucket_name', dev_bucket)
         return dev_obj
