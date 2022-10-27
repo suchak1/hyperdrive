@@ -4,15 +4,17 @@ import pandas as pd
 sys.path.append('hyperdrive')
 from FileOps import FileReader, FileWriter  # noqa autopep8
 import Constants as C  # noqa autopep8
+from Utils import SwissArmyKnife  # noqa autopep8
 
+knife = SwissArmyKnife()
 reader = FileReader()
 writer = FileWriter()
 
+reader = knife.use_dev(reader)
+writer = knife.use_dev(writer)
+
 run_id = ''
-if not C.CI:
-    reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
-else:
+if C.CI:
     run_id = os.environ['RUN_ID']
 
 symbols_path = reader.store.finder.get_symbols_path()

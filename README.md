@@ -276,7 +276,6 @@ Available data collection functions:
 
 ---
 
-<!-- need to create an oracle -->
 <!-- extra -->
 <!-- 3. auto update model monthly -->
 <!-- abstract away undersample fx from preprocess fx, and buy and sell from order fx, make oracle class -->

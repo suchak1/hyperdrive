@@ -10,7 +10,7 @@ twit = StockTwits()
 no_auth_twit = StockTwits()
 no_auth_twit.token = ''
 symbols = twit.get_symbols()
-crypto_symbols = ['BTC-X', 'ETH-X', 'LTC-X', 'XMR-X', 'IOT-X']
+crypto_symbols = ['BTC-X', 'ETH-X', 'LTC-X', 'XMR-X', 'MIOTA-X']
 if C.TEST:
     symbols = crypto_symbols
     twit.token = ''

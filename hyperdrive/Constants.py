@@ -91,6 +91,8 @@ SOPR = 'SOPR'
 
 # Oracle
 SIG = 'Sig'
+BUY = 'BUY'
+SELL = 'SELL'
 
 # API
 BAL = 'Bal'

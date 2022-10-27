@@ -1,14 +1,12 @@
-import os
 import sys
 sys.path.append('hyperdrive')
 from Algotrader import HyperDrive  # noqa autopep8
 import Constants as C  # noqa autopep8
+from Utils import SwissArmyKnife  # noqa autopep8
 
-
+knife = SwissArmyKnife()
 drive = HyperDrive()
-if not C.CI:
-    drive.broker.writer.store.bucket_name = os.environ['S3_DEV_BUCKET']
-    drive.broker.reader.store.bucket_name = os.environ['S3_DEV_BUCKET']
+drive = knife.use_dev(drive)
 
 
 class TestHyperDrive:

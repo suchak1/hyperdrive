@@ -7,14 +7,15 @@ from dotenv import load_dotenv, find_dotenv
 sys.path.append('hyperdrive')
 from Storage import Store  # noqa autopep8
 import Constants as C  # noqa autopep8
+from Utils import SwissArmyKnife  # noqa autopep8
 
 load_dotenv(find_dotenv('config.env'))
+knife = SwissArmyKnife()
 store = Store()
+store = knife.use_dev(store)
 
 run_id = ''
-if not C.CI:
-    store.bucket_name = os.environ['S3_DEV_BUCKET']
-else:
+if C.CI:
     run_id = os.environ['RUN_ID']
 
 symbols_path = store.finder.get_symbols_path()
