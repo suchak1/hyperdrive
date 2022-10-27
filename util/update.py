@@ -7,7 +7,13 @@ filename = 'requirements.txt'
 new_packages = []
 # we skip these because models may act unpredictably between versions
 # must be updated manually
-packages_to_skip = ['scikit-learn', 'auto-sklearn', 'imbalanced-learn']
+packages_to_skip = [
+    'scikit-learn',  # not supported - https://github.com/automl/auto-sklearn/blob/development/requirements.txt#L9
+    'auto-sklearn',
+    # requires scikit-learn v1 - https://imbalanced-learn.org/stable/whats_new.html#version-0-9-0
+    'imbalanced-learn',
+    'pynisher'  # not supported - https://github.com/automl/auto-sklearn/issues/1582
+]
 
 with open(filename, 'r') as file:
     pattern = r'(\S*)\s?==\s?(\S*)'
