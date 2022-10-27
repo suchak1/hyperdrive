@@ -349,7 +349,7 @@ class TestIEXCloud:
     def test_get_splits(self):
         df1, df2 = [], []
         for i in range(retries):
-            if not(len(df1) or len(df2)):
+            if not (len(df1) or len(df2)):
                 df1 = iex.get_splits(symbol='AAPL', timeframe='5y')
                 df2 = iex.get_splits(symbol='NFLX', timeframe='5y')
                 if not i:
