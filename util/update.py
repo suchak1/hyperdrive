@@ -8,12 +8,14 @@ new_packages = []
 # we skip these because models may act unpredictably between versions
 # must be updated manually
 packages_to_skip = [
-    'scikit-learn',  # not supported - https://github.com/automl/auto-sklearn/blob/7eb667967c9f81de7cde5975024c858dd26982e2/requirements.txt#L9
+    # not supported - https://github.com/automl/auto-sklearn/blob/7eb667967c9f81de7cde5975024c858dd26982e2/requirements.txt#L9
+    'scikit-learn',
     'auto-sklearn',
     # requires scikit-learn v1 - https://imbalanced-learn.org/stable/whats_new.html#version-0-9-0
     'imbalanced-learn',
-    'pynisher'  # not supported - https://github.com/automl/auto-sklearn/issues/1582
+    # not supported - https://github.com/automl/auto-sklearn/issues/1582
     # https://github.com/automl/auto-sklearn/blob/7eb667967c9f81de7cde5975024c858dd26982e2/requirements.txt#L19
+    'pynisher'
 ]
 
 with open(filename, 'r') as file:
