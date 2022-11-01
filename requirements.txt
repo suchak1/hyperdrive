@@ -13,4 +13,4 @@ ta == 0.10.2
 python-binance == 1.0.16
 imbalanced-learn == 0.8.1
 icosphere == 0.1.3
-pynisher == 0.6.4
+pynisher == 1.0.0
