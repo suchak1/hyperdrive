@@ -108,11 +108,11 @@ class Kraken(CEX):
         balance_label = base
         precision_label = 'lot_decimals'
 
-        if side == 'buy':
+        if side.upper() == C.BUY:
             oflags.append('viqc')
             balance_label = quote
             precision_label = 'cost_decimals'
-        elif side != 'sell':
+        elif side.upper() != C.SELL:
             raise Exception('Need to specify BUY or SELL side for order')
 
         balance = float(self.get_balance()[balance_label])
@@ -190,18 +190,23 @@ class Kraken(CEX):
         std['orderId'] = order['order_id']
         std['transactTime'] = int(
             (order['closetm'] + order['opentm']) / 2 * 1000)
-        std['price'] = round(1 / float(order['price']), 10)
-        std['origQty'] = float(order['vol'])
+        std['price'] = round(float(order['price']), 10)
+        side = order['descr']['type'].upper()
+        origQty = float(order['vol'])
+        if side == C.BUY:
+            # other test would be [if 'viqc' in order['oflags'].split(','):]
+            origQty = round(origQty / std['price'], 10)
+        std['origQty'] = origQty
         std['executedQty'] = float(order['vol_exec'])
         std['cummulativeQuoteQty'] = round(
             std['price'] * std['executedQty'], 10)
         std['status'] = order['status'].upper()
         std['type'] = order['descr']['ordertype'].upper()
-        std['side'] = order['descr']['type'].upper()
+        std['side'] = side
 
         def standardize_trade(trade):
             std_trade = OrderedDict()
-            std_trade['price'] = str(round(1 / float(trade['price']), 10))
+            std_trade['price'] = str(round(float(trade['price']), 10))
             std_trade['qty'] = trade['vol']
             std_trade['commission'] = trade['fee']
             std_trade['tradeId'] = trade['trade_id']
