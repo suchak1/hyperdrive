@@ -39,13 +39,12 @@ class Kraken:
         headers['API-Key'] = self.key
         # get_kraken_signature() as defined in the 'Authentication' section
         headers['API-Sign'] = self.get_signature(uri_path, data)
-        req = requests.post(
+        response = requests.post(
             (self.api_url + uri_path),
             headers=headers,
             data=data
         )
-        res = req.json()
-        return self.handle_response(res)
+        return self.handle_response(response)
 
     def gen_nonce(self):
         return str(int(1000 * time.time()))
@@ -78,7 +77,8 @@ class Kraken:
         url = '/'.join(parts)
         params = {'pair': pair}
         response = requests.get(url, params=params)
-        return response[pair]
+        result = self.handle_response(response)[pair]
+        return result
 
     def order(self, base, quote, side, spend_ratio=1, test=False):
         pair = f'{base}{quote}'
@@ -127,6 +127,7 @@ class Kraken:
         return response
 
     def handle_response(self, response):
+        response = response.json()
         error = response['error']
         if error:
             raise Exception(error)
