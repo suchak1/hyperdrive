@@ -1,4 +1,10 @@
 import os
+import time
+import hmac
+import base64
+import hashlib
+import requests
+import urllib.parse
 from binance import Client
 from binance.helpers import round_step_size
 from dotenv import load_dotenv, find_dotenv
@@ -6,9 +12,93 @@ import Constants as C
 load_dotenv(find_dotenv('config.env'))
 
 
+# class Coinbase:
+#     def __init__(self):
+#         pass
+
+# https://api-public.sandbox.exchange.coinbase.com
+class Kraken:
+    def __init__(self):
+        self.api_url = 'https://api.kraken.com'
+        self.version = '0'
+        self.key = os.environ['KRAKEN_KEY']
+        self.secret = os.environ['KRAKEN_SECRET']
+
+    def get_kraken_signature(self, urlpath, data):
+        postdata = urllib.parse.urlencode(data)
+        encoded = (str(data['nonce']) + postdata).encode()
+        message = urlpath.encode() + hashlib.sha256(encoded).digest()
+
+        mac = hmac.new(base64.b64decode(self.secret), message, hashlib.sha512)
+        sigdigest = base64.b64encode(mac.digest())
+        return sigdigest.decode()
+
+    def kraken_request(self, uri_path, data):
+        headers = {}
+        headers['API-Key'] = self.key
+        # get_kraken_signature() as defined in the 'Authentication' section
+        headers['API-Sign'] = self.get_kraken_signature(uri_path, data)
+        req = requests.post(
+            (self.api_url + uri_path),
+            headers=headers,
+            data=data
+        )
+        return req
+
+    def gen_nonce(self):
+        return str(int(1000*time.time()))
+
+    def get_balance(self):
+        access = 'private'
+        endpoint = 'Balance'
+        parts = [
+            '',
+            self.version,
+            access,
+            endpoint,
+        ]
+        url = '/'.join(parts)
+        data = {
+            "nonce": self.gen_nonce()
+        }
+        response = self.kraken_request(url, data)
+        return response.json()
+
+    def get_asset_pair(self, pair):
+        access = 'public'
+        endpoint = 'AssetPairs'
+        parts = [
+            self.api_url,
+            self.version,
+            access,
+            endpoint,
+        ]
+        url = '/'.join(parts)
+        params = {'pair': pair}
+        response = requests.get(url, params=params)
+        return response.json()
+
+    def order(self, base, quote, side):
+        access = 'private'
+        endpoint = 'AddOrder'
+        parts = [
+            '',
+            self.version,
+            access,
+            endpoint,
+        ]
+        url = '/'.join(parts)
+        data = {
+            "nonce": self.gen_nonce(),
+            'ordertype': 'market',
+            'type': side.lower()
+        }
+        response = self.kraken_request(url, data)
+        return response.json()
+
+
 class Binance:
     def __init__(self, key=None, secret=None, testnet=False):
-        load_dotenv(find_dotenv('config.env'))
         self.key = key
         self.secret = secret
         if not key:
@@ -60,9 +150,7 @@ class Binance:
         params[quantity_label] = quantity
 
         params['side'] = side
-        fx = self.client.create_order
-        if test:
-            fx = self.client.create_test_order
+        fx = self.client.create_test_order if test else self.client.create_order
 
         order = fx(**params)
         return order
