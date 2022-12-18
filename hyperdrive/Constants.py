@@ -120,6 +120,10 @@ FEW = 3
 FEW_DAYS = str(FEW) + 'd'
 SCRIPT_FAILURE_THRESHOLD = 0.95
 
+# Exchanges
+BINANCE = 'BINANCE'
+KRAKEN = 'KRAKEN'
+
 
 class PathFinder:
     def make_path(self, path):

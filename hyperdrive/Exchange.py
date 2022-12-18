@@ -5,6 +5,7 @@ import base64
 import hashlib
 import requests
 import urllib.parse
+from collections import OrderedDict
 from binance import Client
 from binance.helpers import round_step_size
 from dotenv import load_dotenv, find_dotenv
@@ -38,10 +39,11 @@ class Kraken:
             headers=headers,
             data=data
         )
-        return req
+        res = req.json()
+        return self.handle_response(res)
 
     def gen_nonce(self):
-        return str(int(1000*time.time()))
+        return str(int(1000 * time.time()))
 
     def get_balance(self):
         access = 'private'
@@ -57,7 +59,7 @@ class Kraken:
             "nonce": self.gen_nonce()
         }
         response = self.make_auth_req(url, data)
-        return response.json()['result']
+        return response
 
     def get_asset_pair(self, pair):
         access = 'public'
@@ -71,12 +73,13 @@ class Kraken:
         url = '/'.join(parts)
         params = {'pair': pair}
         response = requests.get(url, params=params)
-        return response.json()['result'][pair]
+        return response[pair]
 
     def order(self, base, quote, side, spend_ratio=1, test=False):
-        # uncomment this to account for fees
-        # fee = self.get_asset_pair(pair)['fees'][0][1] / 100
         pair = f'{base}{quote}'
+        pair_info = self.get_asset_pair(pair)
+        # uncomment this to account for fees
+        # fee = pair_info['fees'][0][1] / 100
         # uncomment this to account for fees
         spend_ratio = spend_ratio  # - fee
         side = side.lower()
@@ -89,19 +92,23 @@ class Kraken:
             endpoint,
         ]
         url = '/'.join(parts)
-        balance_label = base
+
         oflags = ['nompp']
+        balance_label = base
+        precision_label = 'lot_decimals'
+
         if side == 'buy':
             oflags.append('viqc')
             balance_label = quote
+            precision_label = 'cost_decimals'
+        elif side != 'sell':
+            raise Exception('Need to specify BUY or SELL side for order')
+
         balance = float(self.get_balance()[balance_label])
         amount = spend_ratio * balance
-        if side == 'buy':
-            volume = "{:0.0{}f}".format(amount, precision)
-        else:
-            volume = round_step_size(amount, step_size)
-        # volume = str(spend_ratio * balance)
-        print(volume)
+        precision = pair_info[precision_label]
+        volume = "{:0.0{}f}".format(amount, precision)
+
         data = {
             "nonce": self.gen_nonce(),
             'ordertype': 'market',
@@ -112,7 +119,84 @@ class Kraken:
             'validate': test
         }
         response = self.make_auth_req(url, data)
-        return response.json()
+        return response
+
+    def handle_response(self, response):
+        error = response['error']
+        if error:
+            raise Exception(error)
+        return response['result']
+
+    def get_order(self, order_id):
+        access = 'private'
+        endpoint = 'QueryOrders'
+        parts = [
+            '',
+            self.version,
+            access,
+            endpoint,
+        ]
+        url = '/'.join(parts)
+        data = {
+            "nonce": self.gen_nonce(),
+            'txid': order_id,
+            'trades': True
+        }
+        response = self.make_auth_req(url, data)
+        order = response[order_id]
+        order['order_id'] = order_id
+        return order
+
+    def get_trades(self, trade_ids):
+        access = 'private'
+        endpoint = 'QueryTrades'
+        parts = [
+            '',
+            self.version,
+            access,
+            endpoint,
+        ]
+        url = '/'.join(parts)
+        data = {
+            "nonce": self.gen_nonce(),
+            'txid': ','.join(trade_ids),
+            'trades': True
+        }
+        response = self.make_auth_req(url, data)
+        trades = [
+            {
+                **response[trade_id],
+                **{'trade_id': trade_id}
+            }
+            for trade_id in trade_ids
+        ]
+        return trades
+
+    def standardize_order(self, order, trades):
+        std = OrderedDict()
+        std['symbol'] = order['descr']['pair']
+        std['orderId'] = order['order_id']
+        std['transactTime'] = int(
+            (order['closetm'] + order['opentm']) / 2 * 1000)
+        std['price'] = round(1 / float(order['price']), 10)
+        std['origQty'] = float(order['vol'])
+        std['executedQty'] = float(order['vol_exec'])
+        std['cummulativeQuoteQty'] = round(
+            std['price'] * std['executedQty'], 10)
+        std['status'] = order['status'].upper()
+        std['type'] = order['descr']['ordertype'].upper()
+        std['side'] = order['descr']['type'].upper()
+
+        def standardize_trade(trade):
+            std_trade = OrderedDict()
+            std_trade['price'] = str(round(1 / float(trade['price']), 10))
+            std_trade['qty'] = trade['vol']
+            std_trade['commission'] = trade['fee']
+            std_trade['tradeId'] = trade['trade_id']
+            return std_trade
+        fills = [standardize_trade(trade) for trade in trades]
+        std['fills'] = fills
+        return std
 
 
 class Binance:
