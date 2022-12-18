@@ -21,12 +21,11 @@ signals_df = md.reader.load_csv(signals_path)
 last_two_signals = signals_df[C.SIG].tail(2).to_numpy()
 num_unique_signals = len(set(last_two_signals))
 signal = last_two_signals[-1]
-pref_exchange = os.environ.get('PREF_EXCHANGE').upper()
 should_order = num_unique_signals > 1
 
 if should_order:
     side = C.BUY if signal else C.SELL
-    if pref_exchange == C.BINANCE:
+    if C.PREF_EXCHANGE == C.BINANCE:
         base = 'BTC'
         quote = 'USDT' if test else 'USD'
         spend_ratio = 0.01 if test else 1

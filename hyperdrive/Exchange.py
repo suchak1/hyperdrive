@@ -13,8 +13,14 @@ import Constants as C
 load_dotenv(find_dotenv('config.env'))
 
 
-class Kraken:
+class CEX:
+    def create_pair(self, base, quote):
+        return f'{base}{quote}'
+
+
+class Kraken(CEX):
     def __init__(self, key=None, secret=None, test=False):
+        super().__init__()
         self.key = key
         self.secret = secret
         self.test = test
@@ -81,7 +87,7 @@ class Kraken:
         return result
 
     def order(self, base, quote, side, spend_ratio=1, test=False):
-        pair = f'{base}{quote}'
+        pair = self.create_pair(base, quote)
         pair_info = self.get_asset_pair(pair)
         # uncomment this to account for fees
         # fee = pair_info['fees'][0][1] / 100
@@ -205,8 +211,9 @@ class Kraken:
         return std
 
 
-class Binance:
+class Binance(CEX):
     def __init__(self, key=None, secret=None, testnet=False):
+        super().__init__()
         self.key = key
         self.secret = secret
         if not key:
@@ -223,9 +230,8 @@ class Binance:
 
     def order(self, base, quote, side, spend_ratio=1, test=False):
         # fee is 0.1%, so max spend_ratio is 99.9%
-        fee = 0.001
-        spend_ratio = spend_ratio - fee
-        pair = f'{base}{quote}'
+        spend_ratio = spend_ratio - C.BINANCE_FEE
+        pair = self.create_pair(base, quote)
         side = side.upper()
         order_type = self.client.ORDER_TYPE_MARKET
         params = {'symbol': pair, 'type': order_type}

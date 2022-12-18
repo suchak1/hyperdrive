@@ -6,6 +6,7 @@ sys.path.append('hyperdrive')
 from DataSource import MarketData  # noqa autopep8
 from History import Historian  # noqa autopep8
 import Constants as C  # noqa autopep8
+from Exchange import Kraken  # noqa autopep8
 
 
 def transform_stats(stats, metrics):
@@ -19,7 +20,7 @@ def transform_stats(stats, metrics):
 md = MarketData()
 md.provider = 'polygon'
 hist = Historian()
-
+kr = Kraken(test=True)
 symbol = os.environ['SYMBOL']
 signals_path = md.finder.get_signals_path()
 signals = md.reader.load_csv(signals_path)
@@ -49,8 +50,16 @@ def create_portfolio_preview(close, signals, invert):
     holding_signals = np.full(len(signals), not invert)
 
     holding_pf = hist.create_portfolio(close, holding_signals, init_cash)
+    if C.PREF_EXCHANGE == C.BINANCE:
+        fee = C.BINANCE_FEE
+    else:
+        base = C.KRAKEN_SYMBOLS['BTC']
+        quote = C.KRAKEN_SYMBOLS['USD']
+        pair = kr.create_pair(base, quote)
+        pair_info = kr.get_asset_pair(pair)
+        fee = pair_info['fees'][0][1] / 100
     hyper_pf = hist.create_portfolio(
-        close, ~signals if invert else signals, init_cash, 0.001)
+        close, ~signals if invert else signals, init_cash, fee)
 
     holding_values = holding_pf.value()
     hyper_values = hyper_pf.value()
