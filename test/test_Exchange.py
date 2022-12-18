@@ -100,7 +100,7 @@ class TestKraken:
         balance = float(kr.get_balance()[base])
         min_order = float(pair_info['ordermin'])
         side = 'buy' if balance < min_order else 'sell'
-        kr.order(base, quote, side, 0.01, test=True)
+        kr.order(base, quote, side, 0.0001, test=True)
 
     def test_standardize_order(self):
         order = kr.get_order('OD74VW-UPIQ7-A47XCN')
