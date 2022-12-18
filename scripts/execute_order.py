@@ -7,8 +7,10 @@ from DataSource import MarketData  # noqa
 from Exchange import Binance, Kraken  # noqa autopep8
 import Constants as C  # noqa
 
-bn = Binance(testnet=C.TEST)
-kr = Kraken()
+test = C.TEST or C.DEV
+
+bn = Binance(testnet=test)
+kr = Kraken(test=test)
 md = MarketData()
 md.provider = 'polygon'
 
@@ -26,13 +28,12 @@ if should_order:
     side = C.BUY if signal else C.SELL
     if pref_exchange == C.BINANCE:
         base = 'BTC'
-        quote = 'USDT' if C.TEST else 'USD'
-        spend_ratio = 0.01 if C.TEST else 1
+        quote = 'USDT' if test else 'USD'
+        spend_ratio = 0.01 if test else 1
 
-        order = bn.order(base, quote, side, spend_ratio, C.TEST)
+        order = bn.order(base, quote, side, spend_ratio, test)
         order['exchange'] = C.BINANCE
     else:
-        test = C.TEST or C.DEV
         base = 'XXBT'
         quote = 'ZUSD'
         spend_ratio = 1

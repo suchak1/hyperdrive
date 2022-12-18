@@ -14,11 +14,16 @@ load_dotenv(find_dotenv('config.env'))
 
 
 class Kraken:
-    def __init__(self):
+    def __init__(self, key, secret, test=False):
+        self.key = key
+        self.secret = secret
+        self.test = test
+        if not key:
+            self.key = os.environ['KRAKEN_KEY']
+        if not secret:
+            self.secret = os.environ['KRAKEN_SECRET']
         self.api_url = 'https://api.kraken.com'
         self.version = '0'
-        self.key = os.environ['KRAKEN_KEY']
-        self.secret = os.environ['KRAKEN_SECRET']
 
     def get_signature(self, urlpath, data):
         postdata = urllib.parse.urlencode(data)
@@ -116,7 +121,7 @@ class Kraken:
             'pair': pair,
             'oflags': ','.join(oflags),
             'volume': volume,
-            'validate': test
+            'validate': test or self.test
         }
         response = self.make_auth_req(url, data)
         return response
