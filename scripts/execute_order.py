@@ -30,14 +30,18 @@ if should_order:
         spend_ratio = 0.01 if C.TEST else 1
 
         order = bn.order(base, quote, side, spend_ratio, C.TEST)
+        order['exchange'] = C.BINANCE
     else:
+        test = C.TEST or C.DEV
         base = 'XXBT'
         quote = 'ZUSD'
         spend_ratio = 1
 
-        order = kr.order(base, quote, side, spend_ratio, C.TEST)
-        trades = kr.get_trades(order['trades'])
-        order = kr.standardize_order(order, trades)
+        order = kr.order(base, quote, side, spend_ratio, test)
+        if not test:
+            trades = kr.get_trades(order['trades'])
+            order = kr.standardize_order(order, trades)
+        order['exchange'] = C.KRAKEN
 
     order_df = pd.json_normalize(order)
 

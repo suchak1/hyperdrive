@@ -1,7 +1,9 @@
 import sys
+from collections import OrderedDict
 sys.path.append('hyperdrive')
 from Exchange import Binance  # noqa autopep8
 bn = Binance(testnet=True)
+kr = Kraken()
 
 
 class TestBinance:
@@ -80,3 +82,160 @@ class TestBinance:
     #  'quotePrecision': 4,
     #  'status': 'TRADING',
     #  'symbol': 'BTCUSD'}
+
+    class TestKraken:
+        def test_init(self):
+            assert type(kr).__name__ == 'Kraken'
+            assert hasattr(bn, 'key')
+            assert hasattr(bn, 'secret')
+            assert hasattr(bn, 'version')
+            assert hasattr(bn, 'api_url')
+
+        def test_order(self):
+            base = 'XXBT'
+            quote = 'ZUSD'
+            pair = f'{base}{quote}'
+            pair_info = kr.get_asset_pair(pair)
+            balance = float(kr.get_balance()[base])
+            min_order = float(pair_info['ordermin'])
+            side = 'buy' if balance < min_order else 'sell'
+            kr.order(base, quote, side, 0.01, test=True)
+
+        def test_standardize_order(self):
+            order = kr.get_order('OD74VW-UPIQ7-A47XCN')
+            trades = kr.get_trades(order['trades'])
+            std_order = kr.standardize_order(order, trades)
+            expected = OrderedDict([('symbol', 'USDCUSD'),
+                                    ('orderId', 'OD74VW-UPIQ7-A47XCN'),
+                                    ('transactTime', 1671356188514),
+                                    ('price', 1.00010001),
+                                    ('origQty', 5.41394641),
+                                    ('executedQty', 5.41394641),
+                                    ('cummulativeQuoteQty', 5.4144878588),
+                                    ('status', 'CLOSED'),
+                                    ('type', 'MARKET'),
+                                    ('side', 'SELL'),
+                                    ('fills',
+                                     [OrderedDict([('price', '1.00010001'),
+                                                   ('qty', '5.41394641'),
+                                                   ('commission', '0.01082681'),
+                                                   ('tradeId', 'TZX2YO-WCZN5-6GIH3E')])])])
+            assert std_order == expected
+
+
+# pprint(kr.get_trade('TZX2YO-WCZN5-6GIH3E'))
+
+# {
+#     'cost': '5.41340502',
+#     'fee': '0.01082681',
+#     'margin': '0.00000000',
+#     'misc': '',
+#     'ordertxid': 'OD74VW-UPIQ7-A47XCN',
+#     'ordertype': 'market',
+#     'pair': 'USDCUSD',
+#     'postxid': 'TKH2SE-M7IF5-CFI7LT',
+#     'price': '0.99990000',
+#     'time': 1671356188.5147705,
+#     'type': 'sell',
+#     'vol': '5.41394641'
+# }
+
+
+# pprint(kr.get_order('OD74VW-UPIQ7-A47XCN'))
+# w trades
+# {
+#     'closetm': 1671356188.5147808,
+#     'cost': '5.41340502',
+#     'descr': {
+#         'close': '',
+#         'leverage': 'none',
+#         'order': 'sell 5.41394641 USDCUSD @ market',
+#         'ordertype': 'market',
+#         'pair': 'USDCUSD',
+#         'price': '0',
+#         'price2': '0',
+#         'type': 'sell'
+#     },
+#     'expiretm': 0,
+#     'fee': '0.01082681',
+#     'limitprice': '0.00000000',
+#     'misc': '',
+#     'oflags': 'fciq,nompp',
+#     'opentm': 1671356188.5141125,
+#     'price': '0.9999',
+#     'reason': None,
+#     'refid': None,
+#     'starttm': 0,
+#     'status': 'closed',
+#     'stopprice': '0.00000000',
+#     'trades': ['TZX2YO-WCZN5-6GIH3E'],
+#     'userref': 0,
+#     'vol': '5.41394641',
+#     'vol_exec': '5.41394641'
+# }
+
+# pprint(kr.order('USDC', 'USD', 'sell', spend_ratio=0.00017, test=False))
+
+# {
+#     'descr': {'order': 'sell 5.41394641 USDCUSD @ market'},
+#     'txid': ['OD74VW-UPIQ7-A47XCN']
+# }
+
+# pprint(kr.get_balance())
+
+# {'BCH': '0.0000000000',
+#  'ETH2': '9.6955774510',
+#  'ETH2.S': '100.6050600000',
+#  'ETHW': '0.0000035',
+#  'NANO': '0.0000000000',
+#  'USDC': '31846.74358400',
+#  'XETH': '0.4304932490',
+#  'XLTC': '0.0000075300',
+#  'XXBT': '-0.0000000010',
+#  'XXMR': '0.0000041900',
+#  'ZUSD': '0.0001'}
+
+# pprint(kr.get_asset_pair('XXBTZUSD'))
+
+# {'aclass_base': 'currency',
+#  'aclass_quote': 'currency',
+#  'altname': 'XBTUSD',
+#  'base': 'XXBT',
+#  'cost_decimals': 5,
+#  'costmin': '0.5',
+#  'fee_volume_currency': 'ZUSD',
+#  'fees': [[0, 0.26],
+#           [50000, 0.24],
+#           [100000, 0.22],
+#           [250000, 0.2],
+#           [500000, 0.18],
+#           [1000000, 0.16],
+#           [2500000, 0.14],
+#           [5000000, 0.12],
+#           [10000000, 0.1],
+#           [100000000, 0.08]],
+#  'fees_maker': [[0, 0.16],
+#                 [50000, 0.14],
+#                 [100000, 0.12],
+#                 [250000, 0.1],
+#                 [500000, 0.08],
+#                 [1000000, 0.06],
+#                 [2500000, 0.04],
+#                 [5000000, 0.02],
+#                 [10000000, 0.0],
+#                 [100000000, 0.0]],
+#  'leverage_buy': [2, 3, 4, 5],
+#  'leverage_sell': [2, 3, 4, 5],
+#  'long_position_limit': 270,
+#  'lot': 'unit',
+#  'lot_decimals': 8,
+#  'lot_multiplier': 1,
+#  'margin_call': 80,
+#  'margin_stop': 40,
+#  'ordermin': '0.0001',
+#  'pair_decimals': 1,
+#  'quote': 'ZUSD',
+#  'short_position_limit': 180,
+#  'status': 'online',
+#  'tick_size': '0.1',
+#  'wsname': 'XBT/USD'}

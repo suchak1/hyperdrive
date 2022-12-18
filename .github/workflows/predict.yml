@@ -68,5 +68,7 @@ jobs:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
           BINANCE_KEY: ${{ secrets.BINANCE_KEY }}
           BINANCE_SECRET: ${{ secrets.BINANCE_SECRET }}
+          KRAKEN_KEY: ${{ secrets.KRAKEN_KEY }}
+          KRAKEN_SECRET: ${{ secrets.KRAKEN_SECRET }}
         run: |
           python scripts/execute_order.py
