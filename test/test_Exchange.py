@@ -83,44 +83,45 @@ class TestBinance:
     #  'status': 'TRADING',
     #  'symbol': 'BTCUSD'}
 
-    class TestKraken:
-        def test_init(self):
-            assert type(kr).__name__ == 'Kraken'
-            assert hasattr(bn, 'key')
-            assert hasattr(bn, 'secret')
-            assert hasattr(bn, 'version')
-            assert hasattr(bn, 'api_url')
 
-        def test_order(self):
-            base = 'XXBT'
-            quote = 'ZUSD'
-            pair = f'{base}{quote}'
-            pair_info = kr.get_asset_pair(pair)
-            balance = float(kr.get_balance()[base])
-            min_order = float(pair_info['ordermin'])
-            side = 'buy' if balance < min_order else 'sell'
-            kr.order(base, quote, side, 0.01, test=True)
+class TestKraken:
+    def test_init(self):
+        assert type(kr).__name__ == 'Kraken'
+        assert hasattr(kr, 'key')
+        assert hasattr(kr, 'secret')
+        assert hasattr(kr, 'version')
+        assert hasattr(kr, 'api_url')
 
-        def test_standardize_order(self):
-            order = kr.get_order('OD74VW-UPIQ7-A47XCN')
-            trades = kr.get_trades(order['trades'])
-            std_order = kr.standardize_order(order, trades)
-            expected = OrderedDict([('symbol', 'USDCUSD'),
-                                    ('orderId', 'OD74VW-UPIQ7-A47XCN'),
-                                    ('transactTime', 1671356188514),
-                                    ('price', 1.00010001),
-                                    ('origQty', 5.41394641),
-                                    ('executedQty', 5.41394641),
-                                    ('cummulativeQuoteQty', 5.4144878588),
-                                    ('status', 'CLOSED'),
-                                    ('type', 'MARKET'),
-                                    ('side', 'SELL'),
-                                    ('fills',
-                                     [OrderedDict([('price', '1.00010001'),
-                                                   ('qty', '5.41394641'),
-                                                   ('commission', '0.01082681'),
-                                                   ('tradeId', 'TZX2YO-WCZN5-6GIH3E')])])])
-            assert std_order == expected
+    def test_order(self):
+        base = 'XXBT'
+        quote = 'ZUSD'
+        pair = f'{base}{quote}'
+        pair_info = kr.get_asset_pair(pair)
+        balance = float(kr.get_balance()[base])
+        min_order = float(pair_info['ordermin'])
+        side = 'buy' if balance < min_order else 'sell'
+        kr.order(base, quote, side, 0.01, test=True)
+
+    def test_standardize_order(self):
+        order = kr.get_order('OD74VW-UPIQ7-A47XCN')
+        trades = kr.get_trades(order['trades'])
+        std_order = kr.standardize_order(order, trades)
+        expected = OrderedDict([('symbol', 'USDCUSD'),
+                                ('orderId', 'OD74VW-UPIQ7-A47XCN'),
+                                ('transactTime', 1671356188514),
+                                ('price', 1.00010001),
+                                ('origQty', 5.41394641),
+                                ('executedQty', 5.41394641),
+                                ('cummulativeQuoteQty', 5.4144878588),
+                                ('status', 'CLOSED'),
+                                ('type', 'MARKET'),
+                                ('side', 'SELL'),
+                                ('fills',
+                                    [OrderedDict([('price', '1.00010001'),
+                                                  ('qty', '5.41394641'),
+                                                  ('commission', '0.01082681'),
+                                                  ('tradeId', 'TZX2YO-WCZN5-6GIH3E')])])])
+        assert std_order == expected
 
 
 # pprint(kr.get_trade('TZX2YO-WCZN5-6GIH3E'))
