@@ -14,7 +14,7 @@ load_dotenv(find_dotenv('config.env'))
 
 
 class Kraken:
-    def __init__(self, key, secret, test=False):
+    def __init__(self, key=None, secret=None, test=False):
         self.key = key
         self.secret = secret
         self.test = test
