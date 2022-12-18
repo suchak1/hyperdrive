@@ -1,7 +1,7 @@
 import sys
 from collections import OrderedDict
 sys.path.append('hyperdrive')
-from Exchange import Binance  # noqa autopep8
+from Exchange import Binance, Kraken  # noqa autopep8
 bn = Binance(testnet=True)
 kr = Kraken()
 
