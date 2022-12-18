@@ -12,11 +12,6 @@ import Constants as C
 load_dotenv(find_dotenv('config.env'))
 
 
-# class Coinbase:
-#     def __init__(self):
-#         pass
-
-# https://api-public.sandbox.exchange.coinbase.com
 class Kraken:
     def __init__(self):
         self.api_url = 'https://api.kraken.com'
@@ -24,7 +19,7 @@ class Kraken:
         self.key = os.environ['KRAKEN_KEY']
         self.secret = os.environ['KRAKEN_SECRET']
 
-    def get_kraken_signature(self, urlpath, data):
+    def get_signature(self, urlpath, data):
         postdata = urllib.parse.urlencode(data)
         encoded = (str(data['nonce']) + postdata).encode()
         message = urlpath.encode() + hashlib.sha256(encoded).digest()
@@ -33,11 +28,11 @@ class Kraken:
         sigdigest = base64.b64encode(mac.digest())
         return sigdigest.decode()
 
-    def kraken_request(self, uri_path, data):
+    def make_auth_req(self, uri_path, data):
         headers = {}
         headers['API-Key'] = self.key
         # get_kraken_signature() as defined in the 'Authentication' section
-        headers['API-Sign'] = self.get_kraken_signature(uri_path, data)
+        headers['API-Sign'] = self.get_signature(uri_path, data)
         req = requests.post(
             (self.api_url + uri_path),
             headers=headers,
@@ -61,8 +56,8 @@ class Kraken:
         data = {
             "nonce": self.gen_nonce()
         }
-        response = self.kraken_request(url, data)
-        return response.json()
+        response = self.make_auth_req(url, data)
+        return response.json()['result']
 
     def get_asset_pair(self, pair):
         access = 'public'
@@ -76,9 +71,15 @@ class Kraken:
         url = '/'.join(parts)
         params = {'pair': pair}
         response = requests.get(url, params=params)
-        return response.json()
+        return response.json()['result'][pair]
 
-    def order(self, base, quote, side):
+    def order(self, base, quote, side, spend_ratio=1, test=False):
+        # uncomment this to account for fees
+        # fee = self.get_asset_pair(pair)['fees'][0][1] / 100
+        pair = f'{base}{quote}'
+        # uncomment this to account for fees
+        spend_ratio = spend_ratio  # - fee
+        side = side.lower()
         access = 'private'
         endpoint = 'AddOrder'
         parts = [
@@ -88,12 +89,29 @@ class Kraken:
             endpoint,
         ]
         url = '/'.join(parts)
+        balance_label = base
+        oflags = ['nompp']
+        if side == 'buy':
+            oflags.append('viqc')
+            balance_label = quote
+        balance = float(self.get_balance()[balance_label])
+        amount = spend_ratio * balance
+        if side == 'buy':
+            volume = "{:0.0{}f}".format(amount, precision)
+        else:
+            volume = round_step_size(amount, step_size)
+        # volume = str(spend_ratio * balance)
+        print(volume)
         data = {
             "nonce": self.gen_nonce(),
             'ordertype': 'market',
-            'type': side.lower()
+            'type': side.lower(),
+            'pair': pair,
+            'oflags': ','.join(oflags),
+            'volume': volume,
+            'validate': test
         }
-        response = self.kraken_request(url, data)
+        response = self.make_auth_req(url, data)
         return response.json()
 
 
