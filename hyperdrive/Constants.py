@@ -120,6 +120,16 @@ FEW = 3
 FEW_DAYS = str(FEW) + 'd'
 SCRIPT_FAILURE_THRESHOLD = 0.95
 
+# Exchanges
+BINANCE = 'BINANCE'
+KRAKEN = 'KRAKEN'
+PREF_EXCHANGE = os.environ.get(
+    'PREF_EXCHANGE') and os.environ['PREF_EXCHANGE'].upper()
+
+# fee is 0.1%
+BINANCE_FEE = 0.001
+KRAKEN_SYMBOLS = {'BTC': 'XXBT', 'USD': 'ZUSD'}
+
 
 class PathFinder:
     def make_path(self, path):
