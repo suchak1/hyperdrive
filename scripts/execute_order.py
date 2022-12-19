@@ -34,7 +34,7 @@ if should_order:
     else:
         base = 'XXBT'
         quote = 'ZUSD'
-        spend_ratio = 1
+        spend_ratio = 0.0005 if test else 1
 
         order = kr.order(base, quote, side, spend_ratio, test)
         if not test:
