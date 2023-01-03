@@ -281,7 +281,6 @@ Available data collection functions:
 <!-- abstract away undersample fx from preprocess fx, and buy and sell from order fx, make oracle class -->
 <!-- 4. automate saving model and preprocessors (every 2 weeks ) -->
 <!-- 5. add live results on website / model vs buying and holding like alphahub - use dash or plotly? use pca visualization, tsne for higher dimensions, roc curve, etc-->
-<!-- 6. add authentication and business like report style like in dash example -->
 
 ```
 
