@@ -80,7 +80,7 @@ def create_portfolio_preview(close, signals, invert):
         metrics.append(new_metric)
 
     dates = list(df[C.TIME].dt.strftime('%m/%d/%Y'))
-    full_signals = list(df[C.SIG]);
+    full_signals = list(df[C.SIG])
     signals = hist.unfill(full_signals)
     records = []
 
@@ -96,7 +96,7 @@ def create_portfolio_preview(close, signals, invert):
             C.TIME: date,
             C.BAL: hyper_balances[idx],
             C.SIG: signals[idx],
-            f"FULL_{C.SIG}": full_signals[idx] 
+            f"FULL_{C.SIG}": full_signals[idx]
         })
 
     stats = []
