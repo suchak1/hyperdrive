@@ -96,7 +96,7 @@ def create_portfolio_preview(close, signals, invert):
             C.TIME: date,
             C.BAL: hyper_balances[idx],
             C.SIG: signals[idx],
-            f"FULL_{C.SIG}": full_signals[idx]
+            f"Full_{C.SIG}": full_signals[idx]
         })
 
     stats = []
