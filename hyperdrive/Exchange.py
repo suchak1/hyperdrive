@@ -185,7 +185,7 @@ class Kraken(CEX):
         return trades
 
     def standardize_order(self, order, trades):
-        std = OrderedDict()
+        std = {}
         std['symbol'] = order['descr']['pair']
         std['orderId'] = order['order_id']
         std['transactTime'] = int(
@@ -205,7 +205,7 @@ class Kraken(CEX):
         std['side'] = side
 
         def standardize_trade(trade):
-            std_trade = OrderedDict()
+            std_trade = {}
             std_trade['price'] = str(round(float(trade['price']), 10))
             std_trade['qty'] = trade['vol']
             std_trade['commission'] = trade['fee']
