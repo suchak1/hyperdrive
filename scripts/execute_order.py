@@ -35,20 +35,24 @@ if should_order:
         base = 'XXBT'
         quote = 'ZUSD'
         spend_ratio = 0.0005 if test else 1
+        if test:
+            side = kr.get_test_side(base, quote)
 
         order = kr.order(base, quote, side, spend_ratio, test)
         if not test:
+            order = kr.get_order(order['txid'])
             trades = kr.get_trades(order['trades'])
             order = kr.standardize_order(order, trades)
         order['exchange'] = C.KRAKEN
 
     order_df = pd.json_normalize(order)
-
+    # to keep track of multiple orders (from multiple exchanges),
+    # order_df = pd.concat(bin_order_df, kr_order_df)
     yesterday = (
         datetime.utcnow().date() -
         timedelta(days=1)
     ).strftime(C.DATE_FMT)
-    order_df[C.TIME] = [yesterday]
+    order_df[C.TIME] = [yesterday for _ in range(len(order_df))]
 
     orders = md.reader.update_df(orders_path, order_df, C.TIME, C.DATE_FMT)
     md.writer.update_csv(orders_path, orders)

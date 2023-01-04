@@ -5,7 +5,6 @@ import base64
 import hashlib
 import requests
 import urllib.parse
-from collections import OrderedDict
 from binance import Client
 from binance.helpers import round_step_size
 from dotenv import load_dotenv, find_dotenv
@@ -185,7 +184,7 @@ class Kraken(CEX):
         return trades
 
     def standardize_order(self, order, trades):
-        std = OrderedDict()
+        std = {}
         std['symbol'] = order['descr']['pair']
         std['orderId'] = order['order_id']
         std['transactTime'] = int(
@@ -205,7 +204,7 @@ class Kraken(CEX):
         std['side'] = side
 
         def standardize_trade(trade):
-            std_trade = OrderedDict()
+            std_trade = {}
             std_trade['price'] = str(round(float(trade['price']), 10))
             std_trade['qty'] = trade['vol']
             std_trade['commission'] = trade['fee']
@@ -214,6 +213,14 @@ class Kraken(CEX):
         fills = [standardize_trade(trade) for trade in trades]
         std['fills'] = fills
         return std
+
+    def get_test_side(self, base, quote):
+        pair = f'{base}{quote}'
+        pair_info = self.get_asset_pair(pair)
+        balance = float(self.get_balance()[base])
+        min_order = float(pair_info['ordermin'])
+        side = 'buy' if balance < min_order else 'sell'
+        return side
 
 
 class Binance(CEX):
