@@ -5,7 +5,6 @@ import base64
 import hashlib
 import requests
 import urllib.parse
-from collections import OrderedDict
 from binance import Client
 from binance.helpers import round_step_size
 from dotenv import load_dotenv, find_dotenv
