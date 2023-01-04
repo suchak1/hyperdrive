@@ -95,11 +95,7 @@ class TestKraken:
     def test_order(self):
         base = 'XXBT'
         quote = 'ZUSD'
-        pair = f'{base}{quote}'
-        pair_info = kr.get_asset_pair(pair)
-        balance = float(kr.get_balance()[base])
-        min_order = float(pair_info['ordermin'])
-        side = 'buy' if balance < min_order else 'sell'
+        side = kr.get_test_side(base, quote)
         kr.order(base, quote, side, 0.0005, test=True)
 
     def test_standardize_order(self):

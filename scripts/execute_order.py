@@ -36,11 +36,7 @@ if should_order:
         quote = 'ZUSD'
         spend_ratio = 0.0005 if test else 1
         if test:
-            pair = f'{base}{quote}'
-            pair_info = kr.get_asset_pair(pair)
-            balance = float(kr.get_balance()[base])
-            min_order = float(pair_info['ordermin'])
-            side = 'buy' if balance < min_order else 'sell'
+            side = kr.get_test_side(base, quote)
 
         order = kr.order(base, quote, side, spend_ratio, test)
         if not test:

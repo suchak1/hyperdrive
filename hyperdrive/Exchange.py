@@ -214,6 +214,14 @@ class Kraken(CEX):
         std['fills'] = fills
         return std
 
+    def get_test_side(self, base, quote):
+        pair = f'{base}{quote}'
+        pair_info = self.get_asset_pair(pair)
+        balance = float(self.get_balance()[base])
+        min_order = float(pair_info['ordermin'])
+        side = 'buy' if balance < min_order else 'sell'
+        return side
+
 
 class Binance(CEX):
     def __init__(self, key=None, secret=None, testnet=False):
