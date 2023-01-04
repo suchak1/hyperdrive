@@ -44,12 +44,13 @@ if should_order:
         order['exchange'] = C.KRAKEN
 
     order_df = pd.json_normalize(order)
-
+    # to keep track of multiple orders (from multiple exchanges),
+    # order_df = pd.concat(bin_order_df, kr_order_df)
     yesterday = (
         datetime.utcnow().date() -
         timedelta(days=1)
     ).strftime(C.DATE_FMT)
-    order_df[C.TIME] = [yesterday]
+    order_df[C.TIME] = [yesterday for _ in range(len(order_df))]
 
     orders = md.reader.update_df(orders_path, order_df, C.TIME, C.DATE_FMT)
     md.writer.update_csv(orders_path, orders)
