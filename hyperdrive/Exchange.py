@@ -66,6 +66,8 @@ class Kraken(CEX):
         ]
         url = '/'.join(parts)
         response = self.make_auth_req(url)
+        for asset in response:
+            response[asset] = float(response[asset])
         return response
 
     def get_asset_pair(self, pair):
@@ -78,13 +80,11 @@ class Kraken(CEX):
             endpoint,
         ]
         url = '/'.join(parts)
-        data = {
+        params = {
             'pair': pair
         }
-        response = self.make_auth_req(url, data)
-        result = response[pair]
-        # response = requests.get(url, params=params)
-        # result = self.handle_response(response)[pair]
+        response = requests.get(url, params=params)
+        result = self.handle_response(response)[pair]
         return result
 
     def order(self, base, quote, side, spend_ratio=1, test=False):
@@ -114,7 +114,7 @@ class Kraken(CEX):
         elif side.upper() != C.SELL:
             raise Exception('Need to specify BUY or SELL side for order')
 
-        balance = float(self.get_balance()[balance_label])
+        balance = self.get_balance()[balance_label]
         amount = spend_ratio * balance
         precision = pair_info[precision_label]
         volume = "{:0.0{}f}".format(amount, precision)
@@ -238,7 +238,7 @@ class Kraken(CEX):
         fee = float(response['fees'][pair]['fee'])
         return fee
 
-    def get_ticker(self, pair):
+    def get_ticker(self, pair=None):
         access = 'public'
         endpoint = 'Ticker'
         parts = [
@@ -250,9 +250,14 @@ class Kraken(CEX):
         url = '/'.join(parts)
         data = {
             "pair": pair
-        }
+        } if pair else {}
         response = self.make_auth_req(url, data)
         return response
+
+    def get_price(self, pair):
+        ticker = self.get_ticker(pair)
+        price = float(ticker[pair]['c'][0])
+        return price
 
 
 class Binance(CEX):
