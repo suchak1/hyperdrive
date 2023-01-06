@@ -39,7 +39,8 @@ class Kraken(CEX):
         sigdigest = base64.b64encode(mac.digest())
         return sigdigest.decode()
 
-    def make_auth_req(self, uri_path, data):
+    def make_auth_req(self, uri_path, data = {}):
+        data['nonce'] = self.gen_nonce()
         headers = {}
         headers['API-Key'] = self.key
         # get_kraken_signature() as defined in the 'Authentication' section
@@ -64,10 +65,7 @@ class Kraken(CEX):
             endpoint,
         ]
         url = '/'.join(parts)
-        data = {
-            "nonce": self.gen_nonce()
-        }
-        response = self.make_auth_req(url, data)
+        response = self.make_auth_req(url)
         return response
 
     def get_asset_pair(self, pair):
@@ -80,9 +78,13 @@ class Kraken(CEX):
             endpoint,
         ]
         url = '/'.join(parts)
-        params = {'pair': pair}
-        response = requests.get(url, params=params)
-        result = self.handle_response(response)[pair]
+        data = {
+            'pair': pair
+        }
+        response = self.make_auth_req(url, data)
+        result = response[pair]
+        # response = requests.get(url, params=params)
+        # result = self.handle_response(response)[pair]
         return result
 
     def order(self, base, quote, side, spend_ratio=1, test=False):
@@ -118,7 +120,6 @@ class Kraken(CEX):
         volume = "{:0.0{}f}".format(amount, precision)
 
         data = {
-            "nonce": self.gen_nonce(),
             'ordertype': 'market',
             'type': side.lower(),
             'pair': pair,
@@ -147,7 +148,6 @@ class Kraken(CEX):
         ]
         url = '/'.join(parts)
         data = {
-            "nonce": self.gen_nonce(),
             'txid': order_id,
             'trades': True
         }
@@ -167,7 +167,6 @@ class Kraken(CEX):
         ]
         url = '/'.join(parts)
         data = {
-            "nonce": self.gen_nonce(),
             'txid': ','.join(trade_ids),
             'trades': True
         }
@@ -217,6 +216,8 @@ class Kraken(CEX):
         pair_info = self.get_asset_pair(pair)
         balance = float(self.get_balance()[base])
         min_order = float(pair_info['ordermin'])
+        print(balance)
+        print(min_order)
         side = 'buy' if balance < min_order else 'sell'
         return side
 
@@ -231,12 +232,27 @@ class Kraken(CEX):
         ]
         url = '/'.join(parts)
         data = {
-            "nonce": self.gen_nonce(),
             "pair": pair
         }
         response = self.make_auth_req(url, data)
         fee = float(response['fees'][pair]['fee'])
         return fee
+
+    def get_ticker(self, pair):
+        access = 'public'
+        endpoint = 'Ticker'
+        parts = [
+            '',
+            self.version,
+            access,
+            endpoint,
+        ]
+        url = '/'.join(parts)
+        data = {
+            "pair": pair
+        }
+        response = self.make_auth_req(url, data)
+        return response
 
 
 class Binance(CEX):
