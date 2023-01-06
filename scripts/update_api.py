@@ -56,8 +56,7 @@ def create_portfolio_preview(close, signals, invert):
         base = C.KRAKEN_SYMBOLS['BTC']
         quote = C.KRAKEN_SYMBOLS['USD']
         pair = kr.create_pair(base, quote)
-        pair_info = kr.get_asset_pair(pair)
-        fee = pair_info['fees'][0][1] / 100
+        fee = kr.get_fee(pair) / 100
     hyper_pf = hist.create_portfolio(
         close, ~signals if invert else signals, init_cash, fee)
 

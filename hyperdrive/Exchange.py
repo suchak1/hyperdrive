@@ -88,8 +88,7 @@ class Kraken(CEX):
     def order(self, base, quote, side, spend_ratio=1, test=False):
         pair = self.create_pair(base, quote)
         pair_info = self.get_asset_pair(pair)
-        # if sufficient funds error, change fee = pair_info['fees'][0][0] / 100
-        fee = pair_info['fees'][0][1] / 100
+        fee = self.get_fee(pair) / 100
         spend_ratio = spend_ratio - fee
         side = side.lower()
         access = 'private'
@@ -220,6 +219,24 @@ class Kraken(CEX):
         min_order = float(pair_info['ordermin'])
         side = 'buy' if balance < min_order else 'sell'
         return side
+
+    def get_fee(self, pair):
+        access = 'private'
+        endpoint = 'TradeVolume'
+        parts = [
+            '',
+            self.version,
+            access,
+            endpoint,
+        ]
+        url = '/'.join(parts)
+        data = {
+            "nonce": self.gen_nonce(),
+            "pair": pair
+        }
+        response = self.make_auth_req(url, data)
+        fee = float(response['fees'][pair]['fee'])
+        return fee
 
 
 class Binance(CEX):
