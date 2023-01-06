@@ -88,10 +88,9 @@ class Kraken(CEX):
     def order(self, base, quote, side, spend_ratio=1, test=False):
         pair = self.create_pair(base, quote)
         pair_info = self.get_asset_pair(pair)
-        # uncomment this to account for fees
-        # fee = pair_info['fees'][0][1] / 100
-        # uncomment this to account for fees
-        spend_ratio = spend_ratio  # - fee
+        # if sufficient funds error, change fee = pair_info['fees'][0][0] / 100
+        fee = pair_info['fees'][0][1] / 100
+        spend_ratio = spend_ratio - fee
         side = side.lower()
         access = 'private'
         endpoint = 'AddOrder'
