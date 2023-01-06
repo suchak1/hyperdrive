@@ -213,12 +213,12 @@ class Kraken(CEX):
 
     def get_test_side(self, base, quote):
         pair = f'{base}{quote}'
-        pair_info = self.get_asset_pair(pair)
-        balance = float(self.get_balance()[base])
-        min_order = float(pair_info['ordermin'])
-        print(balance)
-        print(min_order)
-        side = 'buy' if balance < min_order else 'sell'
+        balances = self.get_balance()
+        base_bal = balances[base]
+        quote_bal = balances[quote]
+        price = self.get_price(pair)
+        base_val = base_bal * price
+        side = 'buy' if quote_bal > base_val else 'sell'
         return side
 
     def get_fee(self, pair):
