@@ -39,7 +39,7 @@ class Kraken(CEX):
         sigdigest = base64.b64encode(mac.digest())
         return sigdigest.decode()
 
-    def make_auth_req(self, uri_path, data = {}):
+    def make_auth_req(self, uri_path, data={}):
         data['nonce'] = self.gen_nonce()
         headers = {}
         headers['API-Key'] = self.key

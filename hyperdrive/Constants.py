@@ -132,6 +132,7 @@ KRAKEN_SYMBOLS = {'BTC': 'XXBT', 'USD': 'ZUSD'}
 BINANCE_TEST_SPEND = 0.01
 KRAKEN_TEST_SPEND = 0.005
 
+
 class PathFinder:
     def make_path(self, path):
         Path(path).parent.mkdir(parents=True, exist_ok=True)
