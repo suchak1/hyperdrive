@@ -2,6 +2,9 @@ import sys
 from collections import OrderedDict
 sys.path.append('hyperdrive')
 from Exchange import Binance, Kraken  # noqa autopep8
+import Constants as C  # noqa
+
+
 bn = Binance(testnet=True)
 kr = Kraken(test=True)
 
@@ -17,7 +20,7 @@ class TestBinance:
         # https://testnet.binance.vision/
         base = 'BTC'
         quote = 'USDT'
-        bn.order(base, quote, 'buy', 0.01, test=True)
+        bn.order(base, quote, 'buy', C.BINANCE_TEST_SPEND, test=True)
 
     # selling btc response
     # {'symbol': 'BTCUSD', 'orderId': 664894061, 'orderListId': -1,
@@ -96,7 +99,7 @@ class TestKraken:
         base = 'XXBT'
         quote = 'ZUSD'
         side = kr.get_test_side(base, quote)
-        kr.order(base, quote, side, 0.0005, test=True)
+        kr.order(base, quote, side, C.KRAKEN_TEST_SPEND, test=True)
 
     def test_standardize_order(self):
         order = kr.get_order('OD74VW-UPIQ7-A47XCN')

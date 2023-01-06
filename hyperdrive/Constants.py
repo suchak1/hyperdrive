@@ -129,6 +129,8 @@ PREF_EXCHANGE = os.environ.get(
 # fee is 0.1%
 BINANCE_FEE = 0.001
 KRAKEN_SYMBOLS = {'BTC': 'XXBT', 'USD': 'ZUSD'}
+BINANCE_TEST_SPEND = 0.01
+KRAKEN_TEST_SPEND = 0.005
 
 
 class PathFinder:

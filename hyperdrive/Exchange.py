@@ -39,7 +39,8 @@ class Kraken(CEX):
         sigdigest = base64.b64encode(mac.digest())
         return sigdigest.decode()
 
-    def make_auth_req(self, uri_path, data):
+    def make_auth_req(self, uri_path, data={}):
+        data['nonce'] = self.gen_nonce()
         headers = {}
         headers['API-Key'] = self.key
         # get_kraken_signature() as defined in the 'Authentication' section
@@ -64,10 +65,9 @@ class Kraken(CEX):
             endpoint,
         ]
         url = '/'.join(parts)
-        data = {
-            "nonce": self.gen_nonce()
-        }
-        response = self.make_auth_req(url, data)
+        response = self.make_auth_req(url)
+        for asset in response:
+            response[asset] = float(response[asset])
         return response
 
     def get_asset_pair(self, pair):
@@ -80,7 +80,9 @@ class Kraken(CEX):
             endpoint,
         ]
         url = '/'.join(parts)
-        params = {'pair': pair}
+        params = {
+            'pair': pair
+        }
         response = requests.get(url, params=params)
         result = self.handle_response(response)[pair]
         return result
@@ -88,10 +90,8 @@ class Kraken(CEX):
     def order(self, base, quote, side, spend_ratio=1, test=False):
         pair = self.create_pair(base, quote)
         pair_info = self.get_asset_pair(pair)
-        # uncomment this to account for fees
-        # fee = pair_info['fees'][0][1] / 100
-        # uncomment this to account for fees
-        spend_ratio = spend_ratio  # - fee
+        fee = self.get_fee(pair) / 100
+        spend_ratio = spend_ratio - fee
         side = side.lower()
         access = 'private'
         endpoint = 'AddOrder'
@@ -114,13 +114,12 @@ class Kraken(CEX):
         elif side.upper() != C.SELL:
             raise Exception('Need to specify BUY or SELL side for order')
 
-        balance = float(self.get_balance()[balance_label])
+        balance = self.get_balance()[balance_label]
         amount = spend_ratio * balance
         precision = pair_info[precision_label]
         volume = "{:0.0{}f}".format(amount, precision)
 
         data = {
-            "nonce": self.gen_nonce(),
             'ordertype': 'market',
             'type': side.lower(),
             'pair': pair,
@@ -149,7 +148,6 @@ class Kraken(CEX):
         ]
         url = '/'.join(parts)
         data = {
-            "nonce": self.gen_nonce(),
             'txid': order_id,
             'trades': True
         }
@@ -169,7 +167,6 @@ class Kraken(CEX):
         ]
         url = '/'.join(parts)
         data = {
-            "nonce": self.gen_nonce(),
             'txid': ','.join(trade_ids),
             'trades': True
         }
@@ -216,11 +213,51 @@ class Kraken(CEX):
 
     def get_test_side(self, base, quote):
         pair = f'{base}{quote}'
-        pair_info = self.get_asset_pair(pair)
-        balance = float(self.get_balance()[base])
-        min_order = float(pair_info['ordermin'])
-        side = 'buy' if balance < min_order else 'sell'
+        balances = self.get_balance()
+        base_bal = balances[base]
+        quote_bal = balances[quote]
+        price = self.get_price(pair)
+        base_val = base_bal * price
+        side = 'buy' if quote_bal > base_val else 'sell'
         return side
+
+    def get_fee(self, pair):
+        access = 'private'
+        endpoint = 'TradeVolume'
+        parts = [
+            '',
+            self.version,
+            access,
+            endpoint,
+        ]
+        url = '/'.join(parts)
+        data = {
+            "pair": pair
+        }
+        response = self.make_auth_req(url, data)
+        fee = float(response['fees'][pair]['fee'])
+        return fee
+
+    def get_ticker(self, pair=None):
+        access = 'public'
+        endpoint = 'Ticker'
+        parts = [
+            '',
+            self.version,
+            access,
+            endpoint,
+        ]
+        url = '/'.join(parts)
+        data = {
+            "pair": pair
+        } if pair else {}
+        response = self.make_auth_req(url, data)
+        return response
+
+    def get_price(self, pair):
+        ticker = self.get_ticker(pair)
+        price = float(ticker[pair]['c'][0])
+        return price
 
 
 class Binance(CEX):

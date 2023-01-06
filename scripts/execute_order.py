@@ -27,14 +27,14 @@ if should_order:
     if C.PREF_EXCHANGE == C.BINANCE:
         base = 'BTC'
         quote = 'USDT' if test else 'USD'
-        spend_ratio = 0.01 if test else 1
+        spend_ratio = C.BINANCE_TEST_SPEND if test else 1
 
         order = bn.order(base, quote, side, spend_ratio, test)
         order['exchange'] = C.BINANCE
     else:
         base = 'XXBT'
         quote = 'ZUSD'
-        spend_ratio = 0.0005 if test else 1
+        spend_ratio = C.KRAKEN_TEST_SPEND if test else 1
         if test:
             side = kr.get_test_side(base, quote)
 
