@@ -103,6 +103,10 @@ BAL = 'Bal'
 NAME = 'Name'
 ABS_TOL = vbt.utils.math_.abs_tol
 
+# Model
+MAX_MODEL_AGE_DAYS = 90  # 3 months
+MIN_MODEL_ACCURACY = 0.95
+
 # Misc
 POLY_CRYPTO_SYMBOLS = [
     'X%3ABTCUSD', 'X%3AETHUSD',

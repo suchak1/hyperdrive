@@ -8,6 +8,9 @@ on:
     branches:
       - feature/update-model
   workflow_dispatch:
+  schedule:
+    # daily at 00:00 UTC
+    - cron: "0 0 * * *"
 
 jobs:
   build:
