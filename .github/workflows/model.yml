@@ -15,8 +15,8 @@ jobs:
     strategy:
       matrix:
         trial: [1, 2, 3, 4, 5]
-        window: [7, 14]
-        order: [2, 3]
+        window: [14, 21]
+        order: [1, 2]
       fail-fast: false
     steps:
       - name: Checkout repo
@@ -50,6 +50,7 @@ jobs:
 
       - name: Create model
         env:
+          # EVENT: ${{ github.event_name }}
           ORDER: ${{ matrix.order }}
           WINDOW: ${{ matrix.window }}
           TRIAL: ${{ matrix.trial }}
