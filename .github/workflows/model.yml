@@ -4,22 +4,22 @@
 name: Model Creation
 
 on:
-  push:
-    branches:
-      - feature/update-model
   workflow_dispatch:
   schedule:
-    # daily at 00:00 UTC
-    - cron: "0 0 * * *"
+    # every hour on the 15th of each month
+    # - cron: "0 * 15 * *"
+    # try every 90 mins of the 15th?
+    # so no overlap between runs
+    - cron: "*/90 * 15 * *"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        trial: [1, 2, 3, 4, 5]
-        window: [14, 21]
-        order: [1, 2]
+        # trial: [1, 2, 3, 4, 5]
+        window: [14]
+        order: [2]
       fail-fast: false
     steps:
       - name: Checkout repo
@@ -56,7 +56,7 @@ jobs:
           # EVENT: ${{ github.event_name }}
           ORDER: ${{ matrix.order }}
           WINDOW: ${{ matrix.window }}
-          TRIAL: ${{ matrix.trial }}
+          # TRIAL: ${{ matrix.trial }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
