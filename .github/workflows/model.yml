@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # trial: [1, 2, 3, 4, 5]
-        window: [14]
         order: [2]
+        window: [14]
+        # trial: [1, 2, 3, 4, 5]
       fail-fast: false
     steps:
       - name: Checkout repo
