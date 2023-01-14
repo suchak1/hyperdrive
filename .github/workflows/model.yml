@@ -4,9 +4,9 @@
 name: Model Creation
 
 on:
-  # push:
-  #   branches:
-  #     - feature/update-model
+  push:
+    branches:
+      - feature/update-model
   workflow_dispatch:
 
 jobs:
@@ -15,12 +15,13 @@ jobs:
     strategy:
       matrix:
         include:
-          # - pca: 2
-          # - pca: 3
-          - pca: None
-          - pca: 5
-          - pca: 7
-          # - pca: 9
+          - trial: 1
+          - trial: 2
+          - trial: 3
+          - trial: 4
+          - trial: 5
+          - folds: 5
+          - folds: 10
       fail-fast: false
     steps:
       - name: Checkout repo
@@ -29,7 +30,7 @@ jobs:
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: "3.9"
 
       - name: Cache pip dependencies
         uses: actions/cache@v3
@@ -54,7 +55,8 @@ jobs:
 
       - name: Create model
         env:
-          PCA: ${{ matrix.pca }}
+          FOLDS: ${{ matrix.folds }}
+          TRIAL: ${{ matrix.trial }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
