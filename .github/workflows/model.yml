@@ -14,9 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-          - trial: [1, 2, 3, 4, 5]
-          - folds: [5, 10]
+        trial: [1, 2, 3, 4, 5]
+        folds: [5, 10]
       fail-fast: false
     steps:
       - name: Checkout repo
