@@ -1,5 +1,7 @@
 import sys
+from time import sleep
 import pandas as pd
+from pprint import pprint
 from datetime import datetime, timedelta
 sys.path.append('hyperdrive')
 from DataSource import MarketData  # noqa
@@ -40,7 +42,8 @@ if should_order:
 
         order = kr.order(base, quote, side, spend_ratio, test)
         if not test:
-            order = kr.get_order(order['txid'])
+            order_id = order['txid'][0]
+            order = kr.get_order(order_id)
             trades = kr.get_trades(order['trades'])
             order = kr.standardize_order(order, trades)
         order['exchange'] = C.KRAKEN
