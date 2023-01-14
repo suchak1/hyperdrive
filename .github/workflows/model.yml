@@ -15,7 +15,8 @@ jobs:
     strategy:
       matrix:
         trial: [1, 2, 3, 4, 5]
-        folds: [5, 10]
+        window: [7, 14]
+        order: [2, 3]
       fail-fast: false
     steps:
       - name: Checkout repo
@@ -49,7 +50,8 @@ jobs:
 
       - name: Create model
         env:
-          FOLDS: ${{ matrix.folds }}
+          ORDER: ${{ matrix.order }}
+          WINDOW: ${{ matrix.window }}
           TRIAL: ${{ matrix.trial }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
