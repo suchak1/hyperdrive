@@ -15,13 +15,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - trial: 1
-          - trial: 2
-          - trial: 3
-          - trial: 4
-          - trial: 5
-          - folds: 5
-          - folds: 10
+          - trial: [1, 2, 3, 4, 5]
+          - folds: [5, 10]
       fail-fast: false
     steps:
       - name: Checkout repo
