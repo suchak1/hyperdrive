@@ -1,6 +1,5 @@
 import sys
 sys.path.append('hyperdrive')
-from FileOps import FileReader  # noqa
 from Precognition import Oracle  # noqa
 
 oracle = Oracle()
