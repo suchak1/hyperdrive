@@ -99,7 +99,15 @@ class TestKraken:
         base = 'XXBT'
         quote = 'ZUSD'
         side = kr.get_test_side(base, quote)
-        kr.order(base, quote, side, C.KRAKEN_TEST_SPEND, test=True)
+        try:
+            kr.order(base, quote, side, C.KRAKEN_TEST_SPEND, test=True)
+        except Exception as e:
+            # if Kraken balance is low/zero, then tests may fail
+            exception_name = e.__str__()
+            vol_error = "['EGeneral:Invalid arguments:volume']"
+            binance_preferred = C.PREF_EXCHANGE == C.BINANCE
+            if not (exception_name == vol_error and binance_preferred):
+                raise e
 
     def test_standardize_order(self):
         order = kr.get_order('OD74VW-UPIQ7-A47XCN')
