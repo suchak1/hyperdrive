@@ -2,7 +2,7 @@ import os
 import sys
 from dotenv import load_dotenv, find_dotenv
 sys.path.append('hyperdrive')
-from Crypto import Cryptographer  # noqa autopep8
+from Crypt import Cryptographer  # noqa autopep8
 
 
 load_dotenv(find_dotenv('config.env'))
