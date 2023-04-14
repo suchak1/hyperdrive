@@ -47,4 +47,5 @@ jobs:
           SYMBOL: ${{ secrets.SYMBOL }}
           KRAKEN_KEY: ${{ secrets.KRAKEN_KEY }}
           KRAKEN_SECRET: ${{ secrets.KRAKEN_SECRET }}
+          PREF_EXCHANGE: ${{ secrets.PREF_EXCHANGE }}
         run: python scripts/update_api.py
