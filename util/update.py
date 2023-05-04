@@ -15,7 +15,12 @@ packages_to_skip = [
     'imbalanced-learn',
     # not supported - https://github.com/automl/auto-sklearn/issues/1582
     # https://github.com/automl/auto-sklearn/blob/7eb667967c9f81de7cde5975024c858dd26982e2/requirements.txt#L19
-    'pynisher'
+    'pynisher',
+    # numpy >= 1.24 does not have attribute warnings
+    # https://stackoverflow.com/questions/74863592/attributeerror-module-numpy-has-no-attribute-warnings
+    'numpy',
+    # 'DataFrame' object has no attribute 'iteritems' => with pandas >= 2
+    'pandas'
 ]
 
 with open(filename, 'r') as file:
