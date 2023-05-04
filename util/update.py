@@ -18,7 +18,9 @@ packages_to_skip = [
     'pynisher',
     # numpy >= 1.24 does not have attribute warnings
     # https://stackoverflow.com/questions/74863592/attributeerror-module-numpy-has-no-attribute-warnings
-    'numpy'
+    'numpy',
+    # 'DataFrame' object has no attribute 'iteritems' => with pandas >= 2
+    'pandas'
 ]
 
 with open(filename, 'r') as file:
