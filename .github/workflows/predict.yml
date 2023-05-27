@@ -57,6 +57,7 @@ jobs:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
           POLYGON: ${{ secrets.POLYGON }}
           GLASSNODE: ${{ secrets.GLASSNODE }}
+          EMIT_SECRET: ${{ secrets.EMIT_SECRET }}
         run: |
           python encrypted/predict_signal.py
 

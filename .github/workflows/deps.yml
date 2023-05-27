@@ -122,6 +122,8 @@ jobs:
         run: python scripts/visualize.py
 
       - name: Predict signal
+        env:
+          EMIT_SECRET: ${{ secrets.DEV_EMIT_SECRET }}
         run: python encrypted/predict_signal.py
 
       - name: Execute order
