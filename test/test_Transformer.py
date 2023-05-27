@@ -40,7 +40,13 @@ class TestNumpyEncoder:
         assert json.dumps(NumpyEncoder().default(
             val)) == '{"real": 1.0, "imag": 2.0}'
 
-        # none
+        # void
+        dt = np.dtype([('x', np.int64)])
+        x = np.array([(0)], dtype=dt)
+        val = x[0]
+        with pytest.raises(TypeError):
+            json.dumps(val)
+        assert json.dumps(NumpyEncoder().default(val)) == 'null'
 
         # other
         arr = []
