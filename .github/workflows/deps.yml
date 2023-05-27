@@ -28,6 +28,8 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+  PREF_EXCHANGE: ${{ secrets.PREF_EXCHANGE }}
+  TEST: true
 
 jobs:
   build:
@@ -79,6 +81,51 @@ jobs:
 
       - name: Generate test coverage report
         run: coverage report -m -i --fail-under=95
+
+      - name: Update symbols
+        run: python scripts/update_symbols.py
+
+      # - name: Update dividends
+      #   run: python scripts/update_dividends.py
+
+      # - name: Update splits
+      #   run: python scripts/update_splits.py
+
+      # - name: Update OHLC
+      #   run: python scripts/update_ohlc.py
+
+      - name: Update social sentiment
+        run: python scripts/update_sentiment.py
+
+      # - name: Update intraday
+      #   run: python scripts/update_intraday.py
+
+      - name: Update unemployment
+        run: python scripts/update_unrate.py
+
+      - name: Update API
+        env:
+          SYMBOL: ${{ secrets.SYMBOL }}
+        run: python scripts/update_api.py
+
+      - name: Decrypt scripts
+        env:
+          SALT: ${{ secrets.SALT }}
+        run: |
+          python util/decrypt.py encrypted/create_model.py
+          python util/decrypt.py encrypted/predict_signal.py
+
+      - name: Create model
+        run: python encrypted/create_model.py
+
+      - name: Create visualization
+        run: python scripts/visualize.py
+
+      - name: Predict signal
+        run: python encrypted/predict_signal.py
+
+      - name: Execute order
+        run: python scripts/execute_order.py
 
       - name: Commit new file(s)
         uses: stefanzweifel/git-auto-commit-action@v4
