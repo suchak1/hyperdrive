@@ -35,12 +35,12 @@ class TestNumpyEncoder:
         #     json.dumps(val)
         # assert json.dumps(NumpyEncoder().default(val)) == '0.5'
 
-        # # complex
-        # val = np.complex64(1 + 2j)
-        # with pytest.raises(TypeError):
-        #     json.dumps(arr)
-        # assert json.dumps(NumpyEncoder().default(val)
-        #                   ) == '{"real": 1, "imag": 2}'
+        # complex
+        val = np.complex64(1 + 2j)
+        with pytest.raises(TypeError):
+            json.dumps(val)
+        assert json.dumps(NumpyEncoder().default(
+            val)) == '{"real": 1.0, "imag": 2.0}'
 
         # none
 
