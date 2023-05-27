@@ -30,10 +30,8 @@ class TestNumpyEncoder:
         assert json.dumps(NumpyEncoder().default(val)) == '1'
 
         # # float
-        # val = np.float64(0.5)
-        # with pytest.raises(TypeError):
-        #     json.dumps(val)
-        # assert json.dumps(NumpyEncoder().default(val)) == '0.5'
+        val = np.float64(0.5)
+        assert json.dumps(NumpyEncoder().default(val)) == '0.5'
 
         # complex
         val = np.complex64(1 + 2j)
