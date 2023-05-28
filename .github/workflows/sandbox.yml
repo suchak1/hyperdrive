@@ -111,6 +111,7 @@ jobs:
 
       - name: Predict signal
         env:
+          SALT: ${{ secrets.SALT }}
           EMIT_SECRET: ${{ secrets.DEV_EMIT_SECRET }}
         run: python encrypted/predict_signal.py
 

@@ -58,6 +58,8 @@ jobs:
           POLYGON: ${{ secrets.POLYGON }}
           GLASSNODE: ${{ secrets.GLASSNODE }}
           EMIT_SECRET: ${{ secrets.EMIT_SECRET }}
+          SALT: ${{ secrets.SALT }}
+          RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
         run: |
           python encrypted/predict_signal.py
 
