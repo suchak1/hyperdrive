@@ -1020,8 +1020,6 @@ class Glassnode(MarketData):
         if self.use_cookies:
             headers = self.headers
             cookies = self.cookies
-            response = requests.get(
-                url, headers=self.headers, cookies=self.cookies)
         else:
             params['api_key']: self.token
             headers = {}
