@@ -1,4 +1,5 @@
 import os
+import json
 import requests
 from time import sleep, time
 import pandas as pd
@@ -8,6 +9,12 @@ from FileOps import FileReader, FileWriter
 from TimeMachine import TimeTraveller
 from Constants import PathFinder
 import Constants as C
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 
 class MarketData:
@@ -954,12 +961,61 @@ class LaborStats(MarketData):
 
 
 class Glassnode(MarketData):
-    def __init__(self):
+    def __init__(self, use_cookies=False):
         super().__init__()
         self.base = 'https://api.glassnode.com'
         self.version = 'v1'
         self.token = os.environ.get('GLASSNODE')
         self.provider = 'glassnode'
+        self.use_cookies = use_cookies
+        if self.use_cookies:
+            self.use_auth()
+
+    def use_auth(self):
+        options = ChromeOptions()
+        options.set_capability('goog:loggingPrefs', {"performance": "ALL"})
+
+        driver = webdriver.Chrome(options=options)
+        driver.get('https://studio.glassnode.com/auth/login')
+        delay = 10
+
+        def get_element(id):
+            return WebDriverWait(driver, delay).until(
+                EC.presence_of_element_located((By.ID, id)))
+
+        email = get_element('email')
+        email.send_keys(os.environ['RH_USERNAME'])
+        password = get_element('current-password')
+        password.send_keys(os.environ['GLASSNODE_PASS'])
+        password.send_keys(Keys.ENTER)
+        sleep(15)
+        driver.get('https://studio.glassnode.com/metrics')
+        sleep(5)
+        url = "https://api.glassnode.com/v1/metrics/market/price_usd_close?a=BTC&i=24h&referer=charts"
+        driver.get(url)
+        sleep(5)  # wait for the requests to take place
+
+        # extract requests from logs
+        raw_logs = driver.get_log("performance")
+        logs = [json.loads(raw_log["message"])["message"]
+                for raw_log in raw_logs]
+
+        def log_filter(log_):
+            return log_["method"] == "Network.requestWillBeSent" and log_['params']['request']['url'] == url and log_['params']['request']['method'] == 'GET'
+
+        self.headers = [log['params']['request']['headers']
+                        for log in filter(log_filter, logs)][-1]
+        self.cookies = {cookie['name']: cookie['value']
+                        for cookie in driver.get_cookies()}
+
+    def make_request(self, url):
+        params = {'a': 'BTC', 'api_key': self.token}
+        if self.use_cookies:
+            response = requests.get(
+                url, headers=self.headers, cookies=self.cookies)
+        else:
+            response = requests.get(url, params=params)
+        return response
 
     def get_s2f_ratio(self, **kwargs):
         def _get_s2f_ratio(timeframe):
@@ -972,8 +1028,7 @@ class Glassnode(MarketData):
             ]
             url = '/'.join(parts)
             empty = pd.DataFrame()
-            response = requests.get(
-                url, params={'a': 'BTC', 'api_key': self.token})
+            response = self.make_request(url)
 
             if response.ok:
                 data = response.json()
@@ -1002,8 +1057,7 @@ class Glassnode(MarketData):
             ]
             url = '/'.join(parts)
             empty = pd.DataFrame()
-            response = requests.get(
-                url, params={'a': 'BTC', 'api_key': self.token})
+            response = self.make_request(url)
 
             if response.ok:
                 data = response.json()
@@ -1032,8 +1086,7 @@ class Glassnode(MarketData):
             ]
             url = '/'.join(parts)
             empty = pd.DataFrame()
-            response = requests.get(
-                url, params={'a': 'BTC', 'api_key': self.token})
+            response = self.make_request(url)
 
             if response.ok:
                 data = response.json()
