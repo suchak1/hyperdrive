@@ -1016,12 +1016,18 @@ class Glassnode(MarketData):
                         for cookie in driver.get_cookies()}
 
     def make_request(self, url):
-        params = {'a': 'BTC', 'api_key': self.token}
+        params = {'a': 'BTC'}
         if self.use_cookies:
+            headers = self.headers
+            cookies = self.cookies
             response = requests.get(
                 url, headers=self.headers, cookies=self.cookies)
         else:
-            response = requests.get(url, params=params)
+            params['api_key']: self.token
+            headers = {}
+            cookies = {}
+        response = requests.get(
+            url, params=params, headers=headers, cookies=cookies)
         return response
 
     def get_s2f_ratio(self, **kwargs):
