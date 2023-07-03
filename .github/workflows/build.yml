@@ -27,6 +27,7 @@ env:
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
   PREF_EXCHANGE: ${{ secrets.PREF_EXCHANGE }}
+  GLASSNODE_PASS: ${{ secrets.GLASSNODE_PASS }}
 
 jobs:
   build:
@@ -61,6 +62,10 @@ jobs:
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
+
+      - uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
 
       - name: Run all unit tests
         env:
