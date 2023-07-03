@@ -6,7 +6,7 @@ from Constants import PathFinder  # noqa autopep8
 import Constants as C  # noqa autopep8
 
 counter = 0
-glass = Glassnode()
+glass = Glassnode(use_cookies=True)
 
 try:
     filename = glass.save_s2f_ratio(

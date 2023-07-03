@@ -19,7 +19,7 @@ poly = Polygon()
 twit = StockTwits()
 twit.token = ''
 bls = LaborStats()
-glass = Glassnode()
+glass = Glassnode(use_cookies=True)
 flow = Flow()
 knife = SwissArmyKnife()
 
