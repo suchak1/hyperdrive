@@ -973,6 +973,9 @@ class Glassnode(MarketData):
 
     def use_auth(self):
         options = ChromeOptions()
+        options.add_argument('--headless')
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
         options.set_capability('goog:loggingPrefs', {"performance": "ALL"})
 
         driver = webdriver.Chrome(options=options)
