@@ -21,6 +21,7 @@ class TestBinance:
         base = 'BTC'
         quote = 'USDT'
         bn.order(base, quote, 'buy', C.BINANCE_TEST_SPEND, test=True)
+        bn.order(base, quote, 'sell', 1, test=True)
 
     # selling btc response
     # {'symbol': 'BTCUSD', 'orderId': 664894061, 'orderListId': -1,
