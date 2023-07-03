@@ -13,8 +13,13 @@ class SwissArmyKnife:
             attrs = [attr for attr in dir(obj) if not (
                 attr.startswith('__') and attr.endswith('__'))]
             for key in attrs:
-                setattr(obj, key, self.replace_attr(
-                    getattr(obj, key), find_key, replace_val))
+                try:
+                    setattr(obj, key, self.replace_attr(
+                        getattr(obj, key), find_key, replace_val))
+                except AttributeError:
+                    # This happens for read-only attributes
+                    # like capitalize attr for a str obj
+                    pass
             return obj
 
     def use_dev(self, obj):
