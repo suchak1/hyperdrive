@@ -22,17 +22,14 @@ packages_to_skip = [
     # 'DataFrame' object has no attribute 'iteritems' => with pandas >= 2
     'pandas'
 ]
+pattern = r'(\S*)\s?==\s?(\S*)'
 
 with open(filename, 'r') as file:
     for line in file:
-        
-    pattern = r'^(\S*)(\s?==\s?)?(\S*)$'
-    packages = re.findall(pattern, file.read())
-    for package in packages:
-        if len(package) == 1:
-            new_packages.append((package))
-        else:
-            package, _, version = package
+        match = re.match(pattern, line)
+        line = line.strip()
+        if match:
+            package, version = match.groups()
             response = requests.get(f'https://pypi.org/pypi/{package}/json')
             keys = response.json()['releases'].keys()
             releases = [key for key in keys if key.replace('.', '').isdigit()]
@@ -46,18 +43,17 @@ with open(filename, 'r') as file:
                 CI = os.environ.get('CI')
                 python = 'python' if CI else 'python3'
                 cmd = f'{python} -m pip install {package}=={latest}'
-                # code = subprocess.run(cmd, shell=True).returncode
-                # if code:
-                #     exit(code)
+                code = subprocess.run(cmd, shell=True).returncode
+                if code:
+                    exit(code)
                 version = latest
 
-            new_packages.append((package, version))
-print(new_packages)
+            new_packages.append({'package': package, 'version': version})
+        elif line:
+            new_packages.append({'package': line})
+
 with open(filename, 'w') as file:
     for package in new_packages:
-        print(package)
-        if len(package) == 1:
-            file.write(f'{package}\n')
-        else:
-            package, _, version = package
-            file.write(f'{package} == {version}\n')
+        prefix = package['package']
+        suffix = f"{' == ' + package['version'] if 'version' in package else ''}\n"
+        file.write(f"{prefix}{suffix}")
