@@ -1001,7 +1001,11 @@ class Glassnode(MarketData):
                 for raw_log in raw_logs]
 
         def log_filter(log_):
-            return log_["method"] == "Network.requestWillBeSent" and log_['params']['request']['url'] == url and log_['params']['request']['method'] == 'GET'
+            return (
+                log_["method"] == "Network.requestWillBeSent" and
+                log_['params']['request']['url'] == url and
+                log_['params']['request']['method'] == 'GET'
+            )
 
         self.headers = [log['params']['request']['headers']
                         for log in filter(log_filter, logs)][-1]
