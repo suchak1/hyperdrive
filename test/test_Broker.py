@@ -55,7 +55,7 @@ class TestRobinhood:
         df = rh.reader.load_csv(symbols_path)
         assert 'AMZN' in list(df[C.SYMBOL])
 
-    def get_holdings(self):
+    def test_get_holdings(self):
         holdings = rh.get_holdings()
         for symbol in exp_symbols:
             assert symbol in holdings

@@ -1,5 +1,6 @@
 import os
 import sys
+import pytest
 sys.path.append('hyperdrive')
 from Utils import SwissArmyKnife  # noqa autopep8
 import Constants as C  # noqa autopep8
@@ -22,6 +23,9 @@ class TestSwissArmyKnife:
         assert ex.var == 'old'
         knife.replace_attr(ex, 'var', 'new')
         assert ex.var == 'new'
+        knife.replace_attr(ex, 'absent', 'present')
+        with pytest.raises(AttributeError):
+            getattr(ex, 'absent')
 
     def test_use_dev(self):
         assert ex.bucket_name == 'random'

@@ -57,6 +57,8 @@ jobs:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
           POLYGON: ${{ secrets.POLYGON }}
           GLASSNODE: ${{ secrets.GLASSNODE }}
+          RH_USERNAME: ${{ secrets.RH_USERNAME }}
+          GLASSNODE_PASS: ${{ secrets.GLASSNODE_PASS }}
           EMIT_SECRET: ${{ secrets.EMIT_SECRET }}
           SALT: ${{ secrets.SALT }}
           RH_PASSWORD: ${{ secrets.RH_PASSWORD }}

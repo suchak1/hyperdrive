@@ -11,6 +11,11 @@ traveller = TimeTraveller()
 
 
 class TestTimeTraveller:
+    def test_get_delta(self):
+        d1 = '2020-01-01'
+        d2 = '2020-01-03'
+        assert traveller.get_delta(d1, d2) == timedelta(days=2)
+
     def test_convert_delta(self):
         assert traveller.convert_delta('1d') == timedelta(days=1)
         assert traveller.convert_delta('3d') == timedelta(days=3)
