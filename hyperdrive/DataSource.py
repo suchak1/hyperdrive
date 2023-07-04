@@ -3,6 +3,7 @@ import json
 import requests
 from time import sleep, time
 import pandas as pd
+from random import random
 from polygon import RESTClient, exceptions
 from dotenv import load_dotenv, find_dotenv
 from FileOps import FileReader, FileWriter
@@ -1016,7 +1017,7 @@ class Glassnode(MarketData):
                         for cookie in driver.get_cookies()}
 
     def make_request(self, url):
-        params = {'a': 'BTC'}
+        params = {'a': 'BTC', 'c': 'native', 'i': '24h', 'referer': 'charts'}
         if self.use_cookies:
             headers = self.headers
             cookies = self.cookies
@@ -1026,6 +1027,7 @@ class Glassnode(MarketData):
             cookies = {}
         response = requests.get(
             url, params=params, headers=headers, cookies=cookies)
+        sleep(random() * 5)
         return response
 
     def get_s2f_ratio(self, **kwargs):
