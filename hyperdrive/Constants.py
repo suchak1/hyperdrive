@@ -31,6 +31,7 @@ SPLT_DIR = 'splits'
 OHLC_DIR = 'ohlc'
 SENT_DIR = 'sentiment'
 INTRA_DIR = 'intraday'
+IDX_DIR = 'indices'
 # providers
 IEX_DIR = 'iexcloud'
 POLY_DIR = 'polygon'
@@ -246,6 +247,13 @@ class PathFinder:
             DATA_DIR,
             API_DIR,
             f'{endpoint}.json',
+        )
+
+    def get_ndx_path(self):
+        return os.path.join(
+            DATA_DIR,
+            IDX_DIR,
+            'ndx.csv'
         )
 
     def get_all_paths(self, path, truncate=False):

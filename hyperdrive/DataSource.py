@@ -2,6 +2,7 @@ import os
 import json
 import requests
 from time import sleep, time
+from bs4 import BeautifulSoup
 import pandas as pd
 from random import random
 from polygon import RESTClient, exceptions
@@ -10,6 +11,7 @@ from FileOps import FileReader, FileWriter
 from TimeMachine import TimeTraveller
 from Constants import PathFinder
 import Constants as C
+from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.support.ui import WebDriverWait
@@ -25,7 +27,7 @@ class MarketData:
         self.reader = FileReader()
         self.finder = PathFinder()
         self.traveller = TimeTraveller()
-        self.provider = 'iexcloud'
+        self.provider = 'polygon'
 
     def get_indexer(self, s1, s2):
         return list(s1.intersection(s2))
@@ -448,209 +450,69 @@ class MarketData:
             return filename
     # def handle_request(self, url, err_msg):
 
+    # def get_ndx(self, date=datetime.now()):
+    #     if type(date) == str:
+    #         date = datetime.strptime(date, C.DATE_FMT)
 
-class IEXCloud(MarketData):
-    def __init__(self, test=False):
+    #     df = self.reader.load_csv(
+    #         self.finder.get_ndx_path())
+
+    #     df = df[df[C.DELTA] == '+'].drop_duplicates().sort_values(
+    #         by=[C.TIME]).tail(100).reset_index(drop=True)
+    #     return df
+    def get_ndx(self, date=datetime.now()):
+        if type(date) == str:
+            date = datetime.strptime(date, C.DATE_FMT)
+
+        df = self.reader.load_csv(
+            self.finder.get_ndx_path())
+
+        df = df[(df[C.TIME] <= date) & (df[C.DELTA] == '+')].drop_duplicates().sort_values(
+            by=[C.TIME]).tail(100).reset_index(drop=True)
+        return df
+
+
+class Indices(MarketData):
+    def __init__(self):
         super().__init__()
-        self.version = 'v1'
-        self.provider = 'iexcloud'
 
-        if test:
-            self.base = 'https://sandbox.iexapis.com'
-            self.token = os.environ['IEXCLOUD_SANDBOX']
-        else:
-            self.base = 'https://cloud.iexapis.com'
-            self.token = os.environ['IEXCLOUD']
+    def get_ndx(self, date=datetime.now()):
+        url = "https://en.wikipedia.org/wiki/Nasdaq-100#Components"
+        # alternatives:
+        # https://www.nasdaq.com/solutions/nasdaq-100/companies
+        # https://www.cnbc.com/nasdaq-100/
+        res = requests.get(url)
+        soup = BeautifulSoup(res.text, 'html.parser')
+        html = soup.select("table#constituents")[0]
+        df = pd.read_html(str(html))[0]
+        symbols = df[C.SYMBOL]
+        today = datetime.today().strftime(C.DATE_FMT)
+        df = pd.DataFrame({
+            C.TIME: len(symbols) * [today],
+            C.SYMBOL: symbols,
+            C.DELTA: len(symbols) * ['+']
+        })
+        return df
 
-    def get_dividends(self, **kwargs):
-        # given a symbol, return the dividend history
-        def _get_dividends(symbol, timeframe='3m'):
-            category = 'stock'
-            dataset = 'dividends'
-            parts = [
-                self.base,
-                self.version,
-                category,
-                symbol.lower(),
-                dataset,
-                timeframe
-            ]
-            url = '/'.join(parts)
-            params = {'token': self.token}
-            response = requests.get(url, params=params)
-            empty = pd.DataFrame()
+    def get_saved_table(self):
+        df = pd.DataFrame()
+        full_mapping = dict(
+            zip(
+                [C.TIME, C.SYMBOL, C.DELTA],
+                [C.TIME, C.SYMBOL, C.DELTA]
+            )
+        )
+        filename = self.finder.get_ndx_path()
+        return self.standardize(
+            df,
+            full_mapping,
+            filename,
+            [C.TIME, C.DELTA],
+            '+'
+        )
 
-            if response.ok:
-                data = [datum for datum in response.json() if datum['flag']
-                        == 'Cash' and datum['currency'] == 'USD']
-            else:
-                raise Exception(
-                    f'Invalid response from IEX for {symbol} dividends.')
-
-            if data == []:
-                return empty
-
-            df = self.standardize_dividends(symbol, pd.DataFrame(data))
-            return self.reader.data_in_timeframe(df, C.EX, timeframe)
-
-        return self.try_again(func=_get_dividends, **kwargs)
-
-    def get_splits(self, **kwargs):
-        # given a symbol, return the stock splits
-        def _get_splits(symbol, timeframe='3m'):
-            category = 'stock'
-            dataset = 'splits'
-            parts = [
-                self.base,
-                self.version,
-                category,
-                symbol.lower(),
-                dataset,
-                timeframe
-            ]
-            url = '/'.join(parts)
-            params = {'token': self.token}
-            response = requests.get(url, params=params)
-            empty = pd.DataFrame()
-
-            if response.ok:
-                data = response.json()
-            else:
-                raise Exception(
-                    f'Invalid response from IEX for {symbol} splits.')
-
-            if data == []:
-                return empty
-
-            df = self.standardize_splits(symbol, pd.DataFrame(data))
-            return self.reader.data_in_timeframe(df, C.EX, timeframe)
-
-        return self.try_again(func=_get_splits, **kwargs)
-
-    def get_ohlc(self, **kwargs):
-        def _get_prev_ohlc(symbol):
-            category = 'stock'
-            dataset = 'previous'
-            parts = [
-                self.base,
-                self.version,
-                category,
-                symbol.lower(),
-                dataset
-            ]
-            url = '/'.join(parts)
-            params = {'token': self.token}
-            response = requests.get(url, params=params)
-            empty = pd.DataFrame()
-
-            if response.ok:
-                data = response.json()
-            else:
-                raise Exception(
-                    f'Invalid response from IEX for {symbol} OHLC.')
-
-            if data == []:
-                return empty
-
-            df = pd.DataFrame([data])
-            return self.standardize_ohlc(symbol, df)
-
-        def _get_ohlc(symbol, timeframe='1m'):
-            if timeframe == '1d':
-                return _get_prev_ohlc(symbol)
-
-            category = 'stock'
-            dataset = 'chart'
-            parts = [
-                self.base,
-                self.version,
-                category,
-                symbol.lower(),
-                dataset,
-                timeframe
-            ]
-            url = '/'.join(parts)
-            params = {'token': self.token}
-            response = requests.get(url, params=params)
-            empty = pd.DataFrame()
-
-            if response.ok:
-                data = response.json()
-            else:
-                raise Exception(
-                    f'Invalid response from IEX for {symbol} OHLC.')
-
-            if data == []:
-                return empty
-
-            df = self.standardize_ohlc(symbol, pd.DataFrame(data))
-            return self.reader.data_in_timeframe(df, C.TIME, timeframe)
-
-        return self.try_again(func=_get_ohlc, **kwargs)
-
-    # extra_hrs should be True if possible
-    def get_intraday(self, **kwargs):
-        def _get_intraday(symbol, min=1, timeframe='max', extra_hrs=True):
-            # pass min directly into hist prices endpoint
-            # to get 1, 5, 30, 60 min granularity if possible
-            # and get extra hrs if possible
-            category = 'stock'
-            dataset = 'chart'
-
-            dates = self.traveller.dates_in_range(timeframe)
-            if dates == []:
-                raise Exception(f'No dates in timeframe: {timeframe}.')
-
-            for date in dates:
-                parts = [
-                    self.base,
-                    self.version,
-                    category,
-                    symbol.lower(),
-                    dataset,
-                    'date',
-                    date.replace('-', '')
-                ]
-
-                url = '/'.join(parts)
-                params = {'token': self.token}
-                response = requests.get(url, params=params)
-
-                if response.ok:
-                    data = response.json()
-                else:
-                    raise Exception(
-                        f'Invalid response from IEX for {symbol} intraday.')
-
-                if data == []:
-                    continue
-
-                df = pd.DataFrame(data)
-                df['date'] = pd.to_datetime(df['date'] + ' ' + df['minute'])
-
-                # if all values are na except time, then skip
-                num_data_rows = len(
-                    df.drop(columns=['date', 'minute']).dropna(how='all'))
-                if (num_data_rows == 0):
-                    continue
-
-                res_cols = ['date', 'minute', 'marketOpen', 'marketHigh',
-                            'marketLow', 'marketClose', 'marketVolume',
-                            'marketAverage', 'marketNumberOfTrades']
-                std_cols = ['date', 'minute', 'open', 'high', 'low',
-                            'close', 'volume', 'average', 'trades']
-
-                columns = dict(zip(res_cols, std_cols))
-
-                df = df[res_cols].rename(columns=columns)
-                df.drop(columns='minute', inplace=True)
-
-                filename = self.finder.get_intraday_path(
-                    symbol, date, self.provider)
-                df = self.standardize_ohlc(symbol, df, filename)
-                yield df
-
-        return self.try_again(func=_get_intraday, **kwargs)
+    def save_table(self):
+        filename = self.finder.get_ndx_path()
 
 
 class Polygon(MarketData):
