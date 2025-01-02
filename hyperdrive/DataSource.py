@@ -450,26 +450,70 @@ class MarketData:
             return filename
     # def handle_request(self, url, err_msg):
 
-    # def get_ndx(self, date=datetime.now()):
-    #     if type(date) == str:
-    #         date = datetime.strptime(date, C.DATE_FMT)
-
-    #     df = self.reader.load_csv(
-    #         self.finder.get_ndx_path())
-
-    #     df = df[df[C.DELTA] == '+'].drop_duplicates().sort_values(
-    #         by=[C.TIME]).tail(100).reset_index(drop=True)
-    #     return df
-    def get_ndx(self, date=datetime.now()):
-        if type(date) == str:
-            date = datetime.strptime(date, C.DATE_FMT)
-
-        df = self.reader.load_csv(
-            self.finder.get_ndx_path())
-
-        df = df[(df[C.TIME] <= date) & (df[C.DELTA] == '+')].drop_duplicates().sort_values(
-            by=[C.TIME]).tail(100).reset_index(drop=True)
+    def standardize_ndx(self, df):
+        df.sort_values(
+            by=[C.TIME]
+        ).drop_duplicates(C.SYMBOL, 'last')
+        df = df[df[C.DELTA] == '+'].tail(100).reset_index(drop=True)
         return df
+
+    def get_saved_ndx(self):
+        df = self.reader.load_csv(self.finder.get_ndx_path())
+        return df
+
+    def get_ndx(self, date=datetime.now()):
+        date = self.traveller.convert_date(date)
+        df = self.get_saved_ndx()
+        return self.standardize_ndx(df[df[C.TIME] <= date])
+
+    def get_latest_ndx(self, **kwargs):
+        def _get_latest_ndx():
+            url = "https://en.wikipedia.org/wiki/Nasdaq-100#Components"
+            # alternatives:
+            # https://www.nasdaq.com/solutions/nasdaq-100/companies
+            # https://www.cnbc.com/nasdaq-100/
+            res = requests.get(url)
+            soup = BeautifulSoup(res.text, 'html.parser')
+            html = soup.select("table#constituents")[0]
+            df = pd.read_html(str(html))[0]
+            symbols = df[C.SYMBOL]
+            today = datetime.today().strftime(C.DATE_FMT)
+            df = pd.DataFrame({
+                C.TIME: len(symbols) * [today],
+                C.SYMBOL: symbols,
+                C.DELTA: len(symbols) * ['+']
+            })
+            return df
+        return self.try_again(func=_get_latest_ndx, **kwargs)
+
+    def save_ndx(self, **kwargs):
+        filename = self.finder.get_ndx_path()
+
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        # from parent this is nasdaq 100 from saved on specific date (default latest)
+        # from child this is nasdaq 100 from latest on specific date (default latest)
+        # df = self.get_ndx(**kwargs)
+
+        # what is needed is total history
+        saved = self.get_saved_ndx()
+        before = set(self.standardize_ndx(saved)[C.SYMBOL])
+        after = set(self.get_latest_ndx(**kwargs)[C.SYMBOL])
+        today = datetime.now().strftime(C.DATE_FMT)
+        minus = before.difference(after)
+        plus = after.difference(before)
+        union = list(minus.union(plus))
+        to_append = pd.DataFrame({
+            C.TIME: [today] * len(union),
+            C.SYMBOL: union,
+            C.DELTA: ['+' if u in plus else '-' for u in union]
+        })
+        df = saved.concat(to_append).sort_values(C.TIME).reset_index(drop=True)
+        self.writer.update_csv(filename, df)
+
+        if os.path.exists(filename):
+            return filename
 
 
 class Indices(MarketData):
@@ -477,42 +521,12 @@ class Indices(MarketData):
         super().__init__()
 
     def get_ndx(self, date=datetime.now()):
-        url = "https://en.wikipedia.org/wiki/Nasdaq-100#Components"
-        # alternatives:
-        # https://www.nasdaq.com/solutions/nasdaq-100/companies
-        # https://www.cnbc.com/nasdaq-100/
-        res = requests.get(url)
-        soup = BeautifulSoup(res.text, 'html.parser')
-        html = soup.select("table#constituents")[0]
-        df = pd.read_html(str(html))[0]
-        symbols = df[C.SYMBOL]
-        today = datetime.today().strftime(C.DATE_FMT)
-        df = pd.DataFrame({
-            C.TIME: len(symbols) * [today],
-            C.SYMBOL: symbols,
-            C.DELTA: len(symbols) * ['+']
-        })
-        return df
-
-    def get_saved_table(self):
-        df = pd.DataFrame()
-        full_mapping = dict(
-            zip(
-                [C.TIME, C.SYMBOL, C.DELTA],
-                [C.TIME, C.SYMBOL, C.DELTA]
-            )
-        )
-        filename = self.finder.get_ndx_path()
-        return self.standardize(
-            df,
-            full_mapping,
-            filename,
-            [C.TIME, C.DELTA],
-            '+'
-        )
-
-    def save_table(self):
-        filename = self.finder.get_ndx_path()
+        old = super().get_ndx(date)
+        date = self.traveller.convert_date(date)
+        new = self.get_latest_ndx()
+        new = new[new[C.TIME] <= date]
+        df = pd.concat([old, new])
+        return self.standardize_ndx(df)
 
 
 class Polygon(MarketData):

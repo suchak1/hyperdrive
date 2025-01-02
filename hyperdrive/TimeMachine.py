@@ -84,3 +84,6 @@ class TimeTraveller:
             curr = datetime.utcnow()
             diff = self.get_diff(curr, sched) if sched > curr else 0
             sleep(diff)
+
+    def convert_date(self, date):
+        date if type(date) == str else datetime.strptime(date, DATE_FMT)
