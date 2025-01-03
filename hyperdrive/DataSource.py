@@ -733,7 +733,9 @@ class LaborStats(MarketData):
                     )
             else:
                 raise Exception(
-                    'Invalid response from BLS for unemployment rate')
+                    'Invalid response from BLS for unemployment rate',
+                    response
+                )
 
             df = pd.DataFrame(data)
             df['time'] = df['year'] + '-' + \
@@ -806,7 +808,7 @@ class Glassnode(MarketData):
             headers = self.headers
             cookies = self.cookies
         else:
-            params['api_key']: self.token
+            params['api_key'] = self.token
             headers = {}
             cookies = {}
         response = requests.get(
@@ -831,7 +833,7 @@ class Glassnode(MarketData):
                 data = response.json()
             else:
                 raise Exception(
-                    'Invalid response from Glassnode for S2F Ratio')
+                    'Invalid response from Glassnode for S2F Ratio', response)
 
             if data == []:
                 return empty
@@ -860,7 +862,9 @@ class Glassnode(MarketData):
                 data = response.json()
             else:
                 raise Exception(
-                    'Invalid response from Glassnode for Difficulty Ribbon')
+                    'Invalid response from Glassnode for Difficulty Ribbon',
+                    response
+                )
 
             if data == []:
                 return empty
@@ -889,7 +893,7 @@ class Glassnode(MarketData):
                 data = response.json()
             else:
                 raise Exception(
-                    'Invalid response from Glassnode for SOPR')
+                    'Invalid response from Glassnode for SOPR', response)
 
             if data == []:
                 return empty
