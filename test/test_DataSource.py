@@ -244,7 +244,7 @@ class TestMarketData:
             os.remove(path)
 
     def test_get_ohlc(self):
-        df = md.get_ohlc('NFLX', '2m')
+        df = md.get_ohlc('AAPL', '2m')
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 0
