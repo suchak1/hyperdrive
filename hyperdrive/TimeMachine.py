@@ -5,9 +5,9 @@ from Constants import TZ, DATE_FMT, TIME_FMT, PRECISE_TIME_FMT
 
 class TimeTraveller:
     def get_delta(self, d1, d2, format=DATE_FMT):
-        if type(d1) == str:
+        if isinstance(d1, str):
             d1 = datetime.strptime(d1, format)
-        if type(d2) == str:
+        if isinstance(d2, str):
             d2 = datetime.strptime(d2, format)
 
         return abs(d2 - d1)
@@ -86,4 +86,4 @@ class TimeTraveller:
             sleep(diff)
 
     def convert_date(self, date):
-        return date if type(date) == str else date.strftime(DATE_FMT)
+        return date if isinstance(date, str) else date.strftime(DATE_FMT)
