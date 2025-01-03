@@ -451,10 +451,12 @@ class MarketData:
     # def handle_request(self, url, err_msg):
 
     def standardize_ndx(self, df):
+        if df.empty:
+            df = pd.DataFrame(columns=[C.TIME, C.SYMBOL, C.DELTA])
         df.sort_values(
-            by=[C.TIME]
+            by=[C.TIME, C.SYMBOL]
         ).drop_duplicates(C.SYMBOL, 'last')
-        df = df[df[C.DELTA] == '+'].tail(100).reset_index(drop=True)
+        df = df[df[C.DELTA] == '+'].reset_index(drop=True)
         return df
 
     def get_saved_ndx(self):
@@ -464,7 +466,8 @@ class MarketData:
     def get_ndx(self, date=datetime.now()):
         date = self.traveller.convert_date(date)
         df = self.get_saved_ndx()
-        return self.standardize_ndx(df[df[C.TIME] <= date])
+        return self.standardize_ndx(
+            df[df[C.TIME] <= date] if C.TIME in df else df)
 
     def get_latest_ndx(self, **kwargs):
         def _get_latest_ndx():
@@ -498,22 +501,31 @@ class MarketData:
 
         # what is needed is total history
         saved = self.get_saved_ndx()
+        print("saved", saved)
         before = set(self.standardize_ndx(saved)[C.SYMBOL])
+        print("before", before)
         after = set(self.get_latest_ndx(**kwargs)[C.SYMBOL])
+        print("after", after)
         today = datetime.now().strftime(C.DATE_FMT)
         minus = before.difference(after)
+        print("minus", minus)
         plus = after.difference(before)
+        print("plus", plus)
         union = list(minus.union(plus))
+        print("union", union)
         to_append = pd.DataFrame({
             C.TIME: [today] * len(union),
             C.SYMBOL: union,
             C.DELTA: ['+' if u in plus else '-' for u in union]
         })
-        df = saved.concat(to_append).sort_values(C.TIME).reset_index(drop=True)
+        print("to_append", to_append)
+        df = pd.concat([saved, to_append], ignore_index=True).sort_values(
+            by=[C.TIME, C.SYMBOL]).reset_index(drop=True)
+        print("df", df)
         self.writer.update_csv(filename, df)
 
         if os.path.exists(filename):
-            return filename
+            return filename, saved, before, after, minus, plus, union, to_append, df
 
 
 class Indices(MarketData):

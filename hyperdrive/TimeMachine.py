@@ -86,4 +86,4 @@ class TimeTraveller:
             sleep(diff)
 
     def convert_date(self, date):
-        date if type(date) == str else datetime.strptime(date, DATE_FMT)
+        return date if type(date) == str else date.strftime(DATE_FMT)
