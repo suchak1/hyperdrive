@@ -5,7 +5,7 @@ from time import sleep, time
 from random import choice
 import pandas as pd
 sys.path.append('hyperdrive')
-from DataSource import MarketData, IEXCloud, Polygon, \
+from DataSource import MarketData, Polygon, \
                         StockTwits, LaborStats, Glassnode  # noqa autopep8
 import Constants as C  # noqa autopep8
 from Workflow import Flow  # noqa autopep8
@@ -13,8 +13,6 @@ from Utils import SwissArmyKnife  # noqa autopep8
 
 
 md = MarketData()
-iex = IEXCloud(test=True)
-iex_intra = IEXCloud()
 poly = Polygon()
 twit = StockTwits()
 twit.token = ''
@@ -23,8 +21,6 @@ glass = Glassnode(use_cookies=True)
 flow = Flow()
 knife = SwissArmyKnife()
 
-iex = knife.use_dev(iex)
-iex_intra = knife.use_dev(iex_intra)
 md = knife.use_dev(md)
 poly = knife.use_dev(poly)
 twit = knife.use_dev(twit)
@@ -85,7 +81,7 @@ class TestMarketData:
             os.rename(div_path, temp_path)
 
         for _ in range(retries):
-            iex.save_dividends(
+            poly.save_dividends(
                 symbol=symbol, timeframe='5y', retries=1, delay=0)
             if not md.reader.check_file_exists(div_path):
                 delay = choice(range(5, 10))
@@ -132,7 +128,7 @@ class TestMarketData:
             os.rename(splt_path, temp_path)
 
         for _ in range(retries):
-            iex.save_splits(symbol=symbol, timeframe='5y', retries=1, delay=0)
+            poly.save_splits(symbol=symbol, timeframe='5y', retries=1, delay=0)
             if not md.reader.check_file_exists(splt_path):
                 delay = choice(range(5, 10))
                 sleep(delay)
@@ -235,7 +231,7 @@ class TestMarketData:
             os.rename(ohlc_path, temp_path)
 
         for _ in range(retries):
-            iex.save_ohlc(symbol=symbol, timeframe='1m', retries=1, delay=0)
+            poly.save_ohlc(symbol=symbol, timeframe='1m', retries=1, delay=0)
             if not md.reader.check_file_exists(ohlc_path):
                 delay = choice(range(5, 10))
                 sleep(delay)
@@ -258,7 +254,7 @@ class TestMarketData:
         dates = md.traveller.dates_in_range(timeframe)
         intra_paths = [md.finder.get_intraday_path(
             symbol, date) for date in dates]
-        filenames = set(iex_intra.save_intraday(
+        filenames = set(poly.save_intraday(
             symbol=symbol, timeframe=timeframe))
         intersection = filenames.intersection(intra_paths)
         assert intersection
@@ -314,58 +310,6 @@ class TestMarketData:
 
     def test_save_sopr(self):
         assert 'sopr.csv' in md.save_sopr()
-
-
-class TestIEXCloud:
-    def test_init(self):
-        assert type(iex).__name__ == 'IEXCloud'
-        assert hasattr(iex, 'base')
-        assert hasattr(iex, 'version')
-        assert hasattr(iex, 'token')
-        assert hasattr(iex, 'provider')
-
-    def test_get_dividends(self):
-        df = []
-
-        for i in range(retries):
-            if not len(df):
-                df = iex.get_dividends(symbol='AAPL', timeframe='5y')
-                if not i:
-                    delay = choice(range(5, 10))
-                    sleep(delay)
-            else:
-                break
-
-        assert len(df) > 0
-        assert {C.EX, C.PAY, C.DEC, C.DIV}.issubset(df.columns)
-
-    def test_get_splits(self):
-        df1, df2 = [], []
-        for i in range(retries):
-            if not (len(df1) or len(df2)):
-                df1 = iex.get_splits(symbol='AAPL', timeframe='5y')
-                df2 = iex.get_splits(symbol='NFLX', timeframe='5y')
-                if not i:
-                    delay = choice(range(5, 10))
-                    sleep(delay)
-            else:
-                break
-
-        assert len(df1) or len(df2)
-        assert {C.EX, C.DEC, C.RATIO}.issubset(
-            df1.columns) or {C.EX, C.DEC, C.RATIO}.issubset(df2.columns)
-
-    def test_get_ohlc(self):
-        df = iex.get_ohlc(symbol='AAPL', timeframe='1m')
-        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
-                C.CLOSE, C.VOL}.issubset(df.columns)
-        assert len(df) > 10
-
-    def test_get_intraday(self):
-        df = pd.concat(iex_intra.get_intraday(symbol='AAPL', timeframe='1w'))
-        assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
-                C.CLOSE, C.VOL}.issubset(df.columns)
-        assert len(df) > 1000
 
 
 class TestPolygon:
@@ -448,10 +392,10 @@ class TestStockTwits:
 class TestLaborStats:
     def test_init(self):
         assert type(bls).__name__ == 'LaborStats'
-        assert hasattr(iex, 'base')
-        assert hasattr(iex, 'version')
-        assert hasattr(iex, 'token')
-        assert hasattr(iex, 'provider')
+        assert hasattr(bls, 'base')
+        assert hasattr(bls, 'version')
+        assert hasattr(bls, 'token')
+        assert hasattr(bls, 'provider')
 
     def test_get_unemployment_rate(self):
         df = bls.get_unemployment_rate(timeframe='2y')

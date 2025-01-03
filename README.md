@@ -44,12 +44,12 @@ Most secrets must be passed as environment variables. Future updates will allow 
 
 Pre-requisites:
 
-- an IEXCloud or Polygon API key
+- a Polygon API key
 - an AWS account and an S3 bucket
 
 Environment Variables:
 
-- `IEXCLOUD` or `POLYGON`
+- `POLYGON`
 - `AWS_ACCESS_KEY_ID`
 - `AWS_SECRET_ACCESS_KEY`
 - `AWS_DEFAULT_REGION`
@@ -57,12 +57,12 @@ Environment Variables:
 
 ```
 from hyperdrive import DataSource
-from DataSource import IEXCloud
+from DataSource import Polygon
 
-# Your IEXCloud API token must be an environment variable (accessible in os.environ['IEXCLOUD'])
+# Your Polygon API token must be an environment variable (accessible in os.environ['POLYGON'])
 
-iex = IEXCloud()
-df = iex.get_ohlc(symbol='TSLA', timeframe='7d')
+poly = Polygon()
+df = poly.get_ohlc(symbol='TSLA', timeframe='7d')
 print(df)
 ```
 
@@ -77,18 +77,18 @@ Output:
 2867 2021-11-16  1003.31  1057.1999  1002.18  1054.73  26542359
 ```
 
-Although this function won't save data to the S3 bucket, hyperdrive checks the S3 bucket with key `data/ohlc/iexcloud/TSLA.csv` to see if any cached data exists to correct for inconsistencies in values and column names. -->
+Although this function won't save data to the S3 bucket, hyperdrive checks the S3 bucket with key `data/ohlc/polygon/TSLA.csv` to see if any cached data exists to correct for inconsistencies in values and column names. -->
 
 ### 1. Storing data
 
 Pre-requisites:
 
-- an IEXCloud or Polygon API key
+- a Polygon API key
 - an AWS account and an S3 bucket
 
 Environment Variables:
 
-- `IEXCLOUD` or `POLYGON`
+- `POLYGON`
 - `AWS_ACCESS_KEY_ID`
 - `AWS_SECRET_ACCESS_KEY`
 - `AWS_DEFAULT_REGION`
@@ -96,17 +96,17 @@ Environment Variables:
 
 ```
 from hyperdrive import DataSource
-from DataSource import IEXCloud, MarketData
+from DataSource import Polygon, MarketData
 
-# IEXCloud API token loaded as an environment variable (os.environ['IEXCLOUD'])
+# Polygon API token loaded as an environment variable (os.environ['POLYGON'])
 
 symbol = 'TSLA'
 timeframe = '7d'
 
 md = MarketData()
-iex = IEXCloud()
+poly = Polygon()
 
-iex.save_ohlc(symbol=symbol, timeframe=timeframe)
+poly.save_ohlc(symbol=symbol, timeframe=timeframe)
 df = md.get_ohlc(symbol=symbol, timeframe=timeframe)
 
 print(df)
@@ -267,10 +267,10 @@ Use the scripts provided in the [`scripts/`](https://github.com/suchak1/hyperdri
 Available data collection functions:
 
 - [x] [![Symbols](https://github.com/suchak1/hyperdrive/workflows/Symbols/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3ASymbols) (from Robinhood)
-- [x] [![OHLC](https://github.com/suchak1/hyperdrive/workflows/OHLC/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3AOHLC) (from IEXCloud and Polygon)
-- [x] [![Intraday](https://github.com/suchak1/hyperdrive/workflows/Intraday/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3AIntraday) (from IEXCloud and Polygon)
-- [x] [![Dividends](https://github.com/suchak1/hyperdrive/workflows/Dividends/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3ADividends) (from IEXCloud and Polygon)
-- [x] [![Splits](https://github.com/suchak1/hyperdrive/workflows/Splits/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3ASplits) (from IEXCloud and Polygon)
+- [x] [![OHLC](https://github.com/suchak1/hyperdrive/workflows/OHLC/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3AOHLC) (from Polygon)
+- [x] [![Intraday](https://github.com/suchak1/hyperdrive/workflows/Intraday/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3AIntraday) (from Polygon)
+- [x] [![Dividends](https://github.com/suchak1/hyperdrive/workflows/Dividends/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3ADividends) (from Polygon)
+- [x] [![Splits](https://github.com/suchak1/hyperdrive/workflows/Splits/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3ASplits) (from Polygon)
 - [x] [![Social Sentiment](<https://github.com/suchak1/hyperdrive/workflows/Social%20Sentiment%20(1)/badge.svg>)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3A%22Social+Sentiment+%281%29%22) (from StockTwits)
 - [x] [![Unemployment](https://github.com/suchak1/hyperdrive/workflows/Unemployment/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3AUnemployment) (from the Bureau of Labor Statistics)
 

@@ -495,11 +495,6 @@ class MarketData:
         if os.path.exists(filename):
             os.remove(filename)
 
-        # from parent this is nasdaq 100 from saved on specific date (default latest)
-        # from child this is nasdaq 100 from latest on specific date (default latest)
-        # df = self.get_ndx(**kwargs)
-
-        # what is needed is total history
         saved = self.get_saved_ndx()
         before = set(self.standardize_ndx(saved)[C.SYMBOL])
         after = set(self.get_latest_ndx(**kwargs)[C.SYMBOL])

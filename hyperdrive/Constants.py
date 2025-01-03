@@ -33,14 +33,12 @@ SENT_DIR = 'sentiment'
 INTRA_DIR = 'intraday'
 IDX_DIR = 'indices'
 # providers
-IEX_DIR = 'iexcloud'
 POLY_DIR = 'polygon'
 TWIT_DIR = 'stocktwits'
 # models
 MODELS_DIR = 'models'
 
 folders = {
-    'iexcloud': IEX_DIR,
     'polygon': POLY_DIR,
     'stocktwits': TWIT_DIR
 }
@@ -153,7 +151,7 @@ class PathFinder:
             'symbols.csv'
         )
 
-    def get_dividends_path(self, symbol, provider='iexcloud'):
+    def get_dividends_path(self, symbol, provider=POLY_DIR):
         # given a symbol
         # return the path to its csv
         return os.path.join(
@@ -163,7 +161,7 @@ class PathFinder:
             f'{symbol.upper()}.csv'
         )
 
-    def get_splits_path(self, symbol, provider='iexcloud'):
+    def get_splits_path(self, symbol, provider=POLY_DIR):
         # given a symbol
         # return the path to its stock splits
         return os.path.join(
@@ -173,7 +171,7 @@ class PathFinder:
             f'{symbol.upper()}.csv'
         )
 
-    def get_ohlc_path(self, symbol, provider='iexcloud'):
+    def get_ohlc_path(self, symbol, provider=POLY_DIR):
         # given a symbol
         # return the path to its ohlc data
         return os.path.join(
@@ -193,7 +191,7 @@ class PathFinder:
             f'{symbol.upper()}.csv'
         )
 
-    def get_intraday_path(self, symbol, date, provider='iexcloud'):
+    def get_intraday_path(self, symbol, date, provider=POLY_DIR):
         # given a symbol,
         # return the path to its intraday ohlc data
         return os.path.join(
