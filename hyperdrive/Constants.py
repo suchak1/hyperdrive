@@ -34,13 +34,11 @@ INTRA_DIR = 'intraday'
 IDX_DIR = 'indices'
 # providers
 POLY_DIR = 'polygon'
-TWIT_DIR = 'stocktwits'
 # models
 MODELS_DIR = 'models'
 
 folders = {
     'polygon': POLY_DIR,
-    'stocktwits': TWIT_DIR
 }
 
 # Column Names
@@ -78,7 +76,6 @@ PRECISE_TIME_FMT = '%H:%M:%S'
 POS = 'Pos'
 NEG = 'Neg'
 DELTA = 'Delta'
-TWIT_RATE = 175
 
 # Unemployment
 UN_RATE = 'UnRate'
@@ -177,16 +174,6 @@ class PathFinder:
         return os.path.join(
             DATA_DIR,
             OHLC_DIR,
-            folders[provider],
-            f'{symbol.upper()}.csv'
-        )
-
-    def get_sentiment_path(self, symbol, provider='stocktwits'):
-        # given a symbol
-        # return the path to its social sentiment data
-        return os.path.join(
-            DATA_DIR,
-            SENT_DIR,
             folders[provider],
             f'{symbol.upper()}.csv'
         )

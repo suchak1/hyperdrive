@@ -6,7 +6,7 @@ from random import choice
 import pandas as pd
 sys.path.append('hyperdrive')
 from DataSource import MarketData, Polygon, \
-                        StockTwits, LaborStats, Glassnode  # noqa autopep8
+                        LaborStats, Glassnode  # noqa autopep8
 import Constants as C  # noqa autopep8
 from Workflow import Flow  # noqa autopep8
 from Utils import SwissArmyKnife  # noqa autopep8
@@ -14,8 +14,6 @@ from Utils import SwissArmyKnife  # noqa autopep8
 
 md = MarketData()
 poly = Polygon()
-twit = StockTwits()
-twit.token = ''
 bls = LaborStats()
 glass = Glassnode(use_cookies=True)
 flow = Flow()
@@ -23,7 +21,6 @@ knife = SwissArmyKnife()
 
 md = knife.use_dev(md)
 poly = knife.use_dev(poly)
-twit = knife.use_dev(twit)
 bls = knife.use_dev(bls)
 glass = knife.use_dev(glass)
 
@@ -153,26 +150,6 @@ class TestMarketData:
         df = md.get_social_volume('TSLA')
         assert len(df) > 0
         assert {C.TIME, C.VOL, C.DELTA}.issubset(df.columns)
-
-    def test_save_social_sentiment(self):
-        symbol = 'ADBE'
-        sent_path = md.finder.get_sentiment_path(symbol)
-        temp_path = f'{sent_path}_TEMP'
-
-        if os.path.exists(sent_path):
-            os.rename(sent_path, temp_path)
-
-        twit.save_social_sentiment(
-            symbol=symbol, timeframe='1d', retries=1, delay=0)
-
-        assert md.reader.check_file_exists(sent_path)
-        assert md.reader.store.modified_delta(sent_path).total_seconds() < 60
-        df = md.reader.load_csv(sent_path)
-        assert {C.TIME, C.POS, C.NEG, C.VOL, C.DELTA}.issubset(df.columns)
-        assert len(df) > 0
-
-        if os.path.exists(temp_path):
-            os.rename(temp_path, sent_path)
 
     def test_standardize_sentiment(self):
         columns = ['timestamp', 'bullish', 'bearish']
@@ -370,23 +347,6 @@ class TestPolygon:
         poly.obey_free_limit()
         now = time()
         assert now - then > C.POLY_FREE_DELAY
-
-
-class TestStockTwits:
-    def test_init(self):
-        assert type(twit).__name__ == 'StockTwits'
-        assert hasattr(twit, 'provider')
-        assert hasattr(twit, 'token')
-
-    def test_get_social_volume(self):
-        df = twit.get_social_volume(symbol='TSLA')
-        assert len(df) > 30
-        assert {C.TIME, C.VOL, C.DELTA}.issubset(df.columns)
-
-    def test_get_social_sentiment(self):
-        df = twit.get_social_sentiment(symbol='TSLA')
-        assert len(df) > 30
-        assert {C.TIME, C.POS, C.NEG}.issubset(df.columns)
 
 
 class TestLaborStats:

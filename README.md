@@ -271,7 +271,7 @@ Available data collection functions:
 - [x] [![Intraday](https://github.com/suchak1/hyperdrive/workflows/Intraday/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3AIntraday) (from Polygon)
 - [x] [![Dividends](https://github.com/suchak1/hyperdrive/workflows/Dividends/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3ADividends) (from Polygon)
 - [x] [![Splits](https://github.com/suchak1/hyperdrive/workflows/Splits/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3ASplits) (from Polygon)
-- [x] [![Social Sentiment](<https://github.com/suchak1/hyperdrive/workflows/Social%20Sentiment%20(1)/badge.svg>)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3A%22Social+Sentiment+%281%29%22) (from StockTwits)
+<!-- - [x] [![Social Sentiment](<https://github.com/suchak1/hyperdrive/workflows/Social%20Sentiment%20(1)/badge.svg>)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3A%22Social+Sentiment+%281%29%22) (from StockTwits) -->
 - [x] [![Unemployment](https://github.com/suchak1/hyperdrive/workflows/Unemployment/badge.svg)](https://github.com/suchak1/hyperdrive/actions?query=workflow%3AUnemployment) (from the Bureau of Labor Statistics)
 
 ---
