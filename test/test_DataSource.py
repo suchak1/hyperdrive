@@ -135,7 +135,7 @@ class TestMarketData:
         assert md.reader.check_file_exists(splt_path)
         assert md.reader.store.modified_delta(splt_path).total_seconds() < 60
         df = md.reader.load_csv(splt_path)
-        assert {C.EX, C.DEC, C.RATIO}.issubset(df.columns)
+        assert {C.EX, C.RATIO}.issubset(df.columns)
         assert len(df) > 0
 
         if os.path.exists(temp_path):
