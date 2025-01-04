@@ -250,7 +250,7 @@ class TestMarketData:
     def test_get_ndx(self):
         ndx = md.get_ndx()
         assert {C.TIME, C.SYMBOL, C.DELTA}.issubset(ndx.columns)
-        assert 'AAPL' in ndx[C.SYMBOL]
+        assert 'AAPL' in set(ndx[C.SYMBOL])
         assert (ndx[C.DELTA] == '+').all()
 
     def test_standardize_ndx(self):
@@ -277,7 +277,7 @@ class TestIndices:
     def test_get_ndx(self):
         ndx = idc.get_ndx()
         assert {C.TIME, C.SYMBOL, C.DELTA}.issubset(ndx.columns)
-        assert 'AAPL' in ndx[C.SYMBOL]
+        assert 'AAPL' in set(ndx[C.SYMBOL])
         assert (ndx[C.DELTA] == '+').all()
 
 
