@@ -84,9 +84,6 @@ jobs:
       # - name: Update OHLC
       #   run: python scripts/update_ohlc.py
 
-      - name: Update social sentiment
-        run: python scripts/update_sentiment.py
-
       # - name: Update intraday
       #   run: python scripts/update_intraday.py
 
