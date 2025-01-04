@@ -5,7 +5,7 @@ from time import sleep, time
 from random import choice
 import pandas as pd
 sys.path.append('hyperdrive')
-from DataSource import MarketData, Polygon, \
+from DataSource import MarketData, Indices, Polygon, \
                         LaborStats, Glassnode  # noqa autopep8
 import Constants as C  # noqa autopep8
 from Workflow import Flow  # noqa autopep8
@@ -13,6 +13,7 @@ from Utils import SwissArmyKnife  # noqa autopep8
 
 
 md = MarketData()
+idc = Indices()
 poly = Polygon()
 bls = LaborStats()
 glass = Glassnode(use_cookies=True)
@@ -246,10 +247,43 @@ class TestMarketData:
     def test_save_sopr(self):
         assert 'sopr.csv' in md.save_sopr()
 
+    def test_get_ndx(self):
+        ndx = md.get_ndx()
+        assert {C.TIME, C.SYMBOL, C.DELTA}.issubset(ndx.columns)
+        assert 'AAPL' in ndx[C.SYMBOL]
+        assert (ndx[C.DELTA] == '+').all()
+
+    def test_standardize_ndx(self):
+        nonstd = pd.DataFrame({
+            C.TIME: ['2020-01-03', '2020-01-01', '2020-01-02'],
+            C.SYMBOL: ['AAPL', 'NFLX', 'AAPL'],
+            C.DELTA: ['-', '+', '+'],
+        })
+        std = pd.DataFrame({
+            C.TIME: ['2020-01-01'],
+            C.SYMBOL: ['NFLX'],
+            C.DELTA: ['+'],
+        })
+        assert md.standardize_ndx(nonstd).equals(std)
+
+    def test_save_ndx(self):
+        assert 'ndx.csv' in md.save_ndx()
+
+
+class TestIndices:
+    def test_init(self):
+        assert isinstance(idc, Indices)
+
+    def test_get_ndx(self):
+        ndx = idc.get_ndx()
+        assert {C.TIME, C.SYMBOL, C.DELTA}.issubset(ndx.columns)
+        assert 'AAPL' in ndx[C.SYMBOL]
+        assert (ndx[C.DELTA] == '+').all()
+
 
 class TestPolygon:
     def test_init(self):
-        assert type(poly).__name__ == 'Polygon'
+        assert isinstance(poly, Polygon)
         assert hasattr(poly, 'client')
         assert hasattr(poly, 'provider')
 
