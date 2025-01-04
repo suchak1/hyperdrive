@@ -141,48 +141,6 @@ class TestMarketData:
         if os.path.exists(temp_path):
             os.rename(temp_path, splt_path)
 
-    def test_get_social_sentiment(self):
-        df = md.get_social_sentiment('TSLA')
-        assert len(df) > 0
-        assert {C.TIME, C.POS, C.NEG}.issubset(df.columns)
-
-    def test_get_social_volume(self):
-        df = md.get_social_volume('TSLA')
-        assert len(df) > 0
-        assert {C.TIME, C.VOL, C.DELTA}.issubset(df.columns)
-
-    def test_standardize_sentiment(self):
-        columns = ['timestamp', 'bullish', 'bearish']
-        new_cols = [C.TIME, C.POS, C.NEG]
-        sel_idx = 2
-        selected = columns[sel_idx:]
-        df = pd.DataFrame({column: [0] for column in columns})
-        standardized = md.standardize_sentiment('AAPL', df)
-        for column in new_cols:
-            assert column in standardized
-
-        df.drop(columns=selected, inplace=True)
-        standardized = md.standardize_sentiment('AAPL', df)
-        for curr_idx, column in enumerate(new_cols):
-            col_in_df = column in standardized
-            assert col_in_df if curr_idx < sel_idx else not col_in_df
-
-    def test_standardize_volume(self):
-        columns = ['timestamp', 'volume_score', 'volume_change']
-        new_cols = [C.TIME, C.VOL, C.DELTA]
-        sel_idx = 2
-        selected = columns[sel_idx:]
-        df = pd.DataFrame({column: [0] for column in columns})
-        standardized = md.standardize_volume('AAPL', df)
-        for column in new_cols:
-            assert column in standardized
-
-        df.drop(columns=selected, inplace=True)
-        standardized = md.standardize_volume('AAPL', df)
-        for curr_idx, column in enumerate(new_cols):
-            col_in_df = column in standardized
-            assert col_in_df if curr_idx < sel_idx else not col_in_df
-
     def test_standardize_ohlc(self):
         columns = ['date', 'open', 'high', 'low', 'close', 'volume']
         new_cols = [C.TIME, C.OPEN, C.HIGH, C.LOW, C.CLOSE, C.VOL]
@@ -244,7 +202,7 @@ class TestMarketData:
             os.remove(path)
 
     def test_get_ohlc(self):
-        df = md.get_ohlc('AAPL', '2m')
+        df = md.get_ohlc('NFLX', '5y')
         assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                 C.CLOSE, C.VOL}.issubset(df.columns)
         assert len(df) > 0

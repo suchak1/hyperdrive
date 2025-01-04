@@ -654,7 +654,7 @@ class LaborStats(MarketData):
             else:
                 raise Exception(
                     'Invalid response from BLS for unemployment rate',
-                    response
+                    response.status_code, response.json()
                 )
 
             df = pd.DataFrame(data)
