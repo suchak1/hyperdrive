@@ -373,7 +373,7 @@ class MarketData:
     def standardize_ndx(self, df):
         if df.empty:
             df = pd.DataFrame(columns=[C.TIME, C.SYMBOL, C.DELTA])
-        df.sort_values(
+        df = df.sort_values(
             by=[C.TIME, C.SYMBOL]
         ).drop_duplicates(C.SYMBOL, 'last')
         df = df[df[C.DELTA] == '+'].reset_index(drop=True)
