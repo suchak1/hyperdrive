@@ -38,14 +38,14 @@ class Calculator:
         )
 
     def derive(self, y, x=np.array([0, 1])):
-        if type(x) == pd.Series:
+        if isinstance(x, pd.Series):
             x = x.to_numpy()
         x = x.astype('float64')
         x_delta = (x[1] - x[0])
         return np.gradient(y, x_delta)
 
     def cv(self, x, ddof=0):
-        if type(x) == pd.Series:
+        if isinstance(x, pd.Series):
             axis = 0
         else:
             axis = 1

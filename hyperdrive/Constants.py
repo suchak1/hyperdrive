@@ -31,17 +31,14 @@ SPLT_DIR = 'splits'
 OHLC_DIR = 'ohlc'
 SENT_DIR = 'sentiment'
 INTRA_DIR = 'intraday'
+IDX_DIR = 'indices'
 # providers
-IEX_DIR = 'iexcloud'
 POLY_DIR = 'polygon'
-TWIT_DIR = 'stocktwits'
 # models
 MODELS_DIR = 'models'
 
 folders = {
-    'iexcloud': IEX_DIR,
     'polygon': POLY_DIR,
-    'stocktwits': TWIT_DIR
 }
 
 # Column Names
@@ -79,7 +76,6 @@ PRECISE_TIME_FMT = '%H:%M:%S'
 POS = 'Pos'
 NEG = 'Neg'
 DELTA = 'Delta'
-TWIT_RATE = 175
 
 # Unemployment
 UN_RATE = 'UnRate'
@@ -152,7 +148,7 @@ class PathFinder:
             'symbols.csv'
         )
 
-    def get_dividends_path(self, symbol, provider='iexcloud'):
+    def get_dividends_path(self, symbol, provider=POLY_DIR):
         # given a symbol
         # return the path to its csv
         return os.path.join(
@@ -162,7 +158,7 @@ class PathFinder:
             f'{symbol.upper()}.csv'
         )
 
-    def get_splits_path(self, symbol, provider='iexcloud'):
+    def get_splits_path(self, symbol, provider=POLY_DIR):
         # given a symbol
         # return the path to its stock splits
         return os.path.join(
@@ -172,7 +168,7 @@ class PathFinder:
             f'{symbol.upper()}.csv'
         )
 
-    def get_ohlc_path(self, symbol, provider='iexcloud'):
+    def get_ohlc_path(self, symbol, provider=POLY_DIR):
         # given a symbol
         # return the path to its ohlc data
         return os.path.join(
@@ -182,17 +178,7 @@ class PathFinder:
             f'{symbol.upper()}.csv'
         )
 
-    def get_sentiment_path(self, symbol, provider='stocktwits'):
-        # given a symbol
-        # return the path to its social sentiment data
-        return os.path.join(
-            DATA_DIR,
-            SENT_DIR,
-            folders[provider],
-            f'{symbol.upper()}.csv'
-        )
-
-    def get_intraday_path(self, symbol, date, provider='iexcloud'):
+    def get_intraday_path(self, symbol, date, provider=POLY_DIR):
         # given a symbol,
         # return the path to its intraday ohlc data
         return os.path.join(
@@ -246,6 +232,13 @@ class PathFinder:
             DATA_DIR,
             API_DIR,
             f'{endpoint}.json',
+        )
+
+    def get_ndx_path(self):
+        return os.path.join(
+            DATA_DIR,
+            IDX_DIR,
+            'ndx.csv'
         )
 
     def get_all_paths(self, path, truncate=False):

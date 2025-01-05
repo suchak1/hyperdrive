@@ -179,7 +179,7 @@ class Historian:
     def standardize(self, X_train, X_test=None):
         scaler = StandardScaler().fit(X_train)
         X_train = scaler.transform(X_train)
-        if type(X_test) == np.ndarray:
+        if isinstance(X_test, np.ndarray):
             X_test = scaler.transform(X_test)
             return X_train, X_test, scaler
         return X_train, scaler
@@ -189,7 +189,7 @@ class Historian:
         n = n if n <= num_features else num_features
         pca = PCA(n_components=n).fit(X_train)
         X_train = pca.transform(X_train)
-        if type(X_test) == np.ndarray:
+        if isinstance(X_test, np.ndarray):
             X_test = pca.transform(X_test)
             var = pca.explained_variance_ratio_.sum() * 100
             print(f'Explained variance (X_train): {round(var, 2)}%')

@@ -51,7 +51,7 @@ class TestOracle:
             preds_2D
         ) = oracle.visualize(X=X, y=y, dimensions=2, refinement=4)
         assert len(actual_2D) == len(centroid_2D) == len(grid_2D) == 2
-        type(radius_2D) == float
+        assert isinstance(radius_2D, float)
         assert preds_2D.dtype == np.dtype(int)
 
         # 3D
@@ -63,5 +63,5 @@ class TestOracle:
             preds_3D
         ) = oracle.visualize(X=X, y=y, dimensions=3, refinement=4)
         assert len(actual_3D) == len(centroid_3D) == len(grid_3D) == 3
-        type(radius_3D) == float
+        assert isinstance(radius_3D, float)
         assert preds_3D.dtype == np.dtype(int)

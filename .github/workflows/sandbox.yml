@@ -13,9 +13,6 @@ env:
   RH_USERNAME: ${{ secrets.RH_USERNAME }}
   RH_PASSWORD: ${{ secrets.RH_PASSWORD }}
   RH_2FA: ${{ secrets.RH_2FA }}
-  IEXCLOUD: ${{ secrets.IEXCLOUD }}
-  IEXCLOUD_SANDBOX: ${{ secrets.IEXCLOUD_SANDBOX }}
-  STOCKTWITS: ${{ secrets.STOCKTWITS }}
   GLASSNODE: ${{ secrets.GLASSNODE }}
   S3_BUCKET: ${{ secrets.S3_DEV_BUCKET }}
   POLYGON: ${{ secrets.POLYGON }}
@@ -86,9 +83,6 @@ jobs:
 
       # - name: Update OHLC
       #   run: python scripts/update_ohlc.py
-
-      - name: Update social sentiment
-        run: python scripts/update_sentiment.py
 
       # - name: Update intraday
       #   run: python scripts/update_intraday.py

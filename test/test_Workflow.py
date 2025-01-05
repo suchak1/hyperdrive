@@ -16,4 +16,4 @@ class TestWorkFlow:
             assert flow.get_workflow_start_time('build')
 
     def test_is_workflow_running(self):
-        assert not flow.is_workflow_running('sentiment1')
+        assert not flow.is_workflow_running('unrate')

@@ -2,6 +2,7 @@ import os
 import json
 import requests
 from time import sleep, time
+from bs4 import BeautifulSoup
 import pandas as pd
 from random import random
 from polygon import RESTClient, exceptions
@@ -10,6 +11,7 @@ from FileOps import FileReader, FileWriter
 from TimeMachine import TimeTraveller
 from Constants import PathFinder
 import Constants as C
+from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.support.ui import WebDriverWait
@@ -25,7 +27,7 @@ class MarketData:
         self.reader = FileReader()
         self.finder = PathFinder()
         self.traveller = TimeTraveller()
-        self.provider = 'iexcloud'
+        self.provider = 'polygon'
 
     def get_indexer(self, s1, s2):
         return list(s1.intersection(s2))
@@ -184,86 +186,6 @@ class MarketData:
         self.writer.update_csv(filename, df)
         if os.path.exists(filename):
             return filename
-
-    def get_social_sentiment(self, symbol, timeframe='max'):
-        # given a symbol, return a cached dataframe
-        df = self.reader.load_csv(
-            self.finder.get_sentiment_path(symbol))
-        filtered = self.reader.data_in_timeframe(df, C.TIME, timeframe)[
-            [C.TIME, C.POS, C.NEG]]
-        return filtered
-
-    def get_social_volume(self, symbol, timeframe='max'):
-        # given a symbol, return a cached dataframe
-        df = self.reader.load_csv(
-            self.finder.get_sentiment_path(symbol))
-        filtered = self.reader.data_in_timeframe(df, C.TIME, timeframe)[
-            [C.TIME, C.VOL, C.DELTA]]
-        return filtered
-
-    def save_social_sentiment(self, **kwargs):
-        # # given a symbol, save its sentiment data
-        symbol = kwargs['symbol']
-        filename = self.finder.get_sentiment_path(symbol)
-
-        if os.path.exists(filename):
-            os.remove(filename)
-
-        sen_df = self.reader.update_df(
-            filename, self.get_social_sentiment(**kwargs), C.TIME)
-        sen_df = sen_df[self.get_indexer(
-            {C.TIME, C.POS, C.NEG}, sen_df.columns)]
-
-        vol_df = self.reader.update_df(
-            filename, self.get_social_volume(**kwargs), C.TIME)
-        vol_df = vol_df[self.get_indexer(
-            {C.TIME, C.VOL, C.DELTA}, vol_df.columns)]
-
-        if sen_df.empty and not vol_df.empty:
-            df = vol_df
-        elif not sen_df.empty and vol_df.empty:
-            df = sen_df
-        elif not sen_df.empty and not vol_df.empty:
-            df = sen_df.merge(vol_df, how="outer", on=C.TIME)
-        else:
-            return
-        self.writer.update_csv(filename, df)
-        if os.path.exists(filename):
-            return filename
-
-    def standardize_sentiment(self, symbol, df):
-        full_mapping = dict(
-            zip(
-                ['timestamp', 'bullish', 'bearish'],
-                [C.TIME, C.POS, C.NEG]
-            )
-        )
-        filename = self.finder.get_sentiment_path(symbol, self.provider)
-        df = self.standardize(
-            df,
-            full_mapping,
-            filename,
-            [C.TIME, C.POS, C.NEG],
-            0
-        )
-        return df[self.get_indexer({C.TIME, C.POS, C.NEG}, df.columns)]
-
-    def standardize_volume(self, symbol, df):
-        full_mapping = dict(
-            zip(
-                ['timestamp', 'volume_score', 'volume_change'],
-                [C.TIME, C.VOL, C.DELTA]
-            )
-        )
-        filename = self.finder.get_sentiment_path(symbol, self.provider)
-        df = self.standardize(
-            df,
-            full_mapping,
-            filename,
-            [C.TIME, C.VOL, C.DELTA],
-            0
-        )
-        return df[self.get_indexer({C.TIME, C.VOL, C.DELTA}, df.columns)]
 
     def get_intraday(self, symbol, min=1, timeframe='max', extra_hrs=False):
         # implement way to transform 1 min dataset to 5 min data
@@ -448,209 +370,82 @@ class MarketData:
             return filename
     # def handle_request(self, url, err_msg):
 
+    def standardize_ndx(self, df):
+        if df.empty:
+            df = pd.DataFrame(columns=[C.TIME, C.SYMBOL, C.DELTA])
+        df = df.sort_values(
+            by=[C.TIME, C.SYMBOL]
+        ).drop_duplicates(C.SYMBOL, 'last')
+        df = df[df[C.DELTA] == '+'].reset_index(drop=True)
+        return df
 
-class IEXCloud(MarketData):
-    def __init__(self, test=False):
+    def get_saved_ndx(self):
+        df = self.reader.load_csv(self.finder.get_ndx_path())
+        return df
+
+    def get_ndx(self, date=datetime.now()):
+        date = self.traveller.convert_date(date)
+        df = self.get_saved_ndx()
+        return self.standardize_ndx(
+            df[df[C.TIME] <= date] if C.TIME in df else df)
+
+    def get_latest_ndx(self, **kwargs):
+        def _get_latest_ndx():
+            url = "https://en.wikipedia.org/wiki/Nasdaq-100#Components"
+            # alternatives:
+            # https://www.nasdaq.com/solutions/nasdaq-100/companies
+            # https://www.cnbc.com/nasdaq-100/
+            res = requests.get(url)
+            soup = BeautifulSoup(res.text, 'html.parser')
+            html = soup.select("table#constituents")[0]
+            df = pd.read_html(str(html))[0]
+            symbols = df[C.SYMBOL]
+            today = datetime.today().strftime(C.DATE_FMT)
+            df = pd.DataFrame({
+                C.TIME: len(symbols) * [today],
+                C.SYMBOL: symbols,
+                C.DELTA: len(symbols) * ['+']
+            })
+            return df
+        return self.try_again(func=_get_latest_ndx, **kwargs)
+
+    def save_ndx(self, **kwargs):
+        filename = self.finder.get_ndx_path()
+
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        saved = self.get_saved_ndx()
+        before = set(self.standardize_ndx(saved)[C.SYMBOL])
+        after = set(self.get_latest_ndx(**kwargs)[C.SYMBOL])
+        today = datetime.now().strftime(C.DATE_FMT)
+        minus = before.difference(after)
+        plus = after.difference(before)
+        union = list(minus.union(plus))
+        to_append = pd.DataFrame({
+            C.TIME: [today] * len(union),
+            C.SYMBOL: union,
+            C.DELTA: ['+' if u in plus else '-' for u in union]
+        })
+        df = pd.concat([saved, to_append], ignore_index=True).sort_values(
+            by=[C.TIME, C.SYMBOL]).reset_index(drop=True)
+        self.writer.update_csv(filename, df)
+
+        if os.path.exists(filename):
+            return filename
+
+
+class Indices(MarketData):
+    def __init__(self):
         super().__init__()
-        self.version = 'v1'
-        self.provider = 'iexcloud'
 
-        if test:
-            self.base = 'https://sandbox.iexapis.com'
-            self.token = os.environ['IEXCLOUD_SANDBOX']
-        else:
-            self.base = 'https://cloud.iexapis.com'
-            self.token = os.environ['IEXCLOUD']
-
-    def get_dividends(self, **kwargs):
-        # given a symbol, return the dividend history
-        def _get_dividends(symbol, timeframe='3m'):
-            category = 'stock'
-            dataset = 'dividends'
-            parts = [
-                self.base,
-                self.version,
-                category,
-                symbol.lower(),
-                dataset,
-                timeframe
-            ]
-            url = '/'.join(parts)
-            params = {'token': self.token}
-            response = requests.get(url, params=params)
-            empty = pd.DataFrame()
-
-            if response.ok:
-                data = [datum for datum in response.json() if datum['flag']
-                        == 'Cash' and datum['currency'] == 'USD']
-            else:
-                raise Exception(
-                    f'Invalid response from IEX for {symbol} dividends.')
-
-            if data == []:
-                return empty
-
-            df = self.standardize_dividends(symbol, pd.DataFrame(data))
-            return self.reader.data_in_timeframe(df, C.EX, timeframe)
-
-        return self.try_again(func=_get_dividends, **kwargs)
-
-    def get_splits(self, **kwargs):
-        # given a symbol, return the stock splits
-        def _get_splits(symbol, timeframe='3m'):
-            category = 'stock'
-            dataset = 'splits'
-            parts = [
-                self.base,
-                self.version,
-                category,
-                symbol.lower(),
-                dataset,
-                timeframe
-            ]
-            url = '/'.join(parts)
-            params = {'token': self.token}
-            response = requests.get(url, params=params)
-            empty = pd.DataFrame()
-
-            if response.ok:
-                data = response.json()
-            else:
-                raise Exception(
-                    f'Invalid response from IEX for {symbol} splits.')
-
-            if data == []:
-                return empty
-
-            df = self.standardize_splits(symbol, pd.DataFrame(data))
-            return self.reader.data_in_timeframe(df, C.EX, timeframe)
-
-        return self.try_again(func=_get_splits, **kwargs)
-
-    def get_ohlc(self, **kwargs):
-        def _get_prev_ohlc(symbol):
-            category = 'stock'
-            dataset = 'previous'
-            parts = [
-                self.base,
-                self.version,
-                category,
-                symbol.lower(),
-                dataset
-            ]
-            url = '/'.join(parts)
-            params = {'token': self.token}
-            response = requests.get(url, params=params)
-            empty = pd.DataFrame()
-
-            if response.ok:
-                data = response.json()
-            else:
-                raise Exception(
-                    f'Invalid response from IEX for {symbol} OHLC.')
-
-            if data == []:
-                return empty
-
-            df = pd.DataFrame([data])
-            return self.standardize_ohlc(symbol, df)
-
-        def _get_ohlc(symbol, timeframe='1m'):
-            if timeframe == '1d':
-                return _get_prev_ohlc(symbol)
-
-            category = 'stock'
-            dataset = 'chart'
-            parts = [
-                self.base,
-                self.version,
-                category,
-                symbol.lower(),
-                dataset,
-                timeframe
-            ]
-            url = '/'.join(parts)
-            params = {'token': self.token}
-            response = requests.get(url, params=params)
-            empty = pd.DataFrame()
-
-            if response.ok:
-                data = response.json()
-            else:
-                raise Exception(
-                    f'Invalid response from IEX for {symbol} OHLC.')
-
-            if data == []:
-                return empty
-
-            df = self.standardize_ohlc(symbol, pd.DataFrame(data))
-            return self.reader.data_in_timeframe(df, C.TIME, timeframe)
-
-        return self.try_again(func=_get_ohlc, **kwargs)
-
-    # extra_hrs should be True if possible
-    def get_intraday(self, **kwargs):
-        def _get_intraday(symbol, min=1, timeframe='max', extra_hrs=True):
-            # pass min directly into hist prices endpoint
-            # to get 1, 5, 30, 60 min granularity if possible
-            # and get extra hrs if possible
-            category = 'stock'
-            dataset = 'chart'
-
-            dates = self.traveller.dates_in_range(timeframe)
-            if dates == []:
-                raise Exception(f'No dates in timeframe: {timeframe}.')
-
-            for date in dates:
-                parts = [
-                    self.base,
-                    self.version,
-                    category,
-                    symbol.lower(),
-                    dataset,
-                    'date',
-                    date.replace('-', '')
-                ]
-
-                url = '/'.join(parts)
-                params = {'token': self.token}
-                response = requests.get(url, params=params)
-
-                if response.ok:
-                    data = response.json()
-                else:
-                    raise Exception(
-                        f'Invalid response from IEX for {symbol} intraday.')
-
-                if data == []:
-                    continue
-
-                df = pd.DataFrame(data)
-                df['date'] = pd.to_datetime(df['date'] + ' ' + df['minute'])
-
-                # if all values are na except time, then skip
-                num_data_rows = len(
-                    df.drop(columns=['date', 'minute']).dropna(how='all'))
-                if (num_data_rows == 0):
-                    continue
-
-                res_cols = ['date', 'minute', 'marketOpen', 'marketHigh',
-                            'marketLow', 'marketClose', 'marketVolume',
-                            'marketAverage', 'marketNumberOfTrades']
-                std_cols = ['date', 'minute', 'open', 'high', 'low',
-                            'close', 'volume', 'average', 'trades']
-
-                columns = dict(zip(res_cols, std_cols))
-
-                df = df[res_cols].rename(columns=columns)
-                df.drop(columns='minute', inplace=True)
-
-                filename = self.finder.get_intraday_path(
-                    symbol, date, self.provider)
-                df = self.standardize_ohlc(symbol, df, filename)
-                yield df
-
-        return self.try_again(func=_get_intraday, **kwargs)
+    def get_ndx(self, date=datetime.now()):
+        old = super().get_ndx(date)
+        date = self.traveller.convert_date(date)
+        new = self.get_latest_ndx()
+        new = new[new[C.TIME] <= date]
+        df = pd.concat([old, new])
+        return self.standardize_ndx(df)
 
 
 class Polygon(MarketData):
@@ -816,97 +611,6 @@ class Polygon(MarketData):
 # newShares = oldShares / ratio
 
 
-class StockTwits(MarketData):
-    def __init__(self):
-        super().__init__()
-        self.base = 'https://api.stocktwits.com'
-        self.version = '2'
-        self.token = os.environ.get('STOCKTWITS')
-        self.provider = 'stocktwits'
-
-    def get_social_volume(self, **kwargs):
-        def _get_social_volume(symbol, timeframe='max'):
-            parts = [
-                self.base,
-                'api',
-                self.version,
-                'symbols',
-                symbol,
-                'volume.json'
-            ]
-            url = '/'.join(parts)
-            params = {'access_token': self.token}
-            vol_res = requests.get(url, params=params)
-            json_res = vol_res.json()
-            empty = pd.DataFrame()
-
-            if vol_res.ok:
-                vol_data = json_res['data']
-            else:
-                if 'errors' in json_res:
-                    errors = '\n'.join([error['message']
-                                        for error in json_res['errors']])
-                raise Exception(
-                    f'Invalid response from Stocktwits for {symbol}\n{errors}')
-
-            if vol_data == []:
-                return empty
-
-            vol_data.sort(key=lambda x: x['timestamp'])
-            vol_data.pop()
-            df = pd.DataFrame(vol_data)
-            std = self.standardize_volume(symbol, df)
-            if timeframe == '1d':
-                filtered = std.tail(1)
-            else:
-                filtered = self.reader.data_in_timeframe(
-                    std, C.TIME, timeframe)
-                [[C.TIME, C.VOL, C.DELTA]]
-            return filtered
-
-        return self.try_again(func=_get_social_volume, **kwargs)
-
-    def get_social_sentiment(self, **kwargs):
-        def _get_social_sentiment(symbol, timeframe='max'):
-            parts = [
-                self.base,
-                'api',
-                self.version,
-                'symbols',
-                symbol,
-                'sentiment.json'
-            ]
-            url = '/'.join(parts)
-            params = {'access_token': self.token}
-            sen_res = requests.get(url, params=params)
-            json_res = sen_res.json()
-            empty = pd.DataFrame()
-
-            if sen_res.ok:
-                sen_data = json_res['data']
-            else:
-                if 'errors' in json_res:
-                    errors = '\n'.join([error['message']
-                                        for error in json_res['errors']])
-                raise Exception(
-                    f'Invalid response from Stocktwits for {symbol}\n{errors}')
-
-            if sen_data == []:
-                return empty
-
-            sen_data.sort(key=lambda x: x['timestamp'])
-            sen_data.pop()
-            df = pd.DataFrame(sen_data)
-            std = self.standardize_sentiment(symbol, df)
-            if timeframe == '1d':
-                filtered = std.tail(1)
-            else:
-                filtered = self.reader.data_in_timeframe(
-                    std, C.TIME, timeframe)
-            return filtered
-        return self.try_again(func=_get_social_sentiment, **kwargs)
-
-
 class LaborStats(MarketData):
     def __init__(self):
         super().__init__()
@@ -949,7 +653,9 @@ class LaborStats(MarketData):
                     )
             else:
                 raise Exception(
-                    'Invalid response from BLS for unemployment rate')
+                    'Invalid response from BLS for unemployment rate',
+                    response.status_code, response.json()
+                )
 
             df = pd.DataFrame(data)
             df['time'] = df['year'] + '-' + \
@@ -1022,7 +728,7 @@ class Glassnode(MarketData):
             headers = self.headers
             cookies = self.cookies
         else:
-            params['api_key']: self.token
+            params['api_key'] = self.token
             headers = {}
             cookies = {}
         response = requests.get(
@@ -1047,7 +753,7 @@ class Glassnode(MarketData):
                 data = response.json()
             else:
                 raise Exception(
-                    'Invalid response from Glassnode for S2F Ratio')
+                    'Invalid response from Glassnode for S2F Ratio', response)
 
             if data == []:
                 return empty
@@ -1076,7 +782,9 @@ class Glassnode(MarketData):
                 data = response.json()
             else:
                 raise Exception(
-                    'Invalid response from Glassnode for Difficulty Ribbon')
+                    'Invalid response from Glassnode for Difficulty Ribbon',
+                    response
+                )
 
             if data == []:
                 return empty
@@ -1105,7 +813,7 @@ class Glassnode(MarketData):
                 data = response.json()
             else:
                 raise Exception(
-                    'Invalid response from Glassnode for SOPR')
+                    'Invalid response from Glassnode for SOPR', response)
 
             if data == []:
                 return empty
