@@ -485,13 +485,14 @@ class Alpaca(MarketData):
 
     def get_ohlc(self, **kwargs):
         def _get_ohlc(symbol, timeframe='max'):
-            version = 'v1beta3' if symbol in C.ALPC_CRYPTO_SYMBOLS else 'v2'
+            is_crypto = symbol in C.ALPC_CRYPTO_SYMBOLS
+            version = 'v1beta3' if is_crypto else 'v2'
             page_token = None
             start, _ = self.traveller.convert_dates(timeframe)
             parts = [
                 self.base,
                 version,
-                'crypto/us' if symbol in C.ALPC_CRYPTO_SYMBOLS else 'stocks',
+                'crypto/us' if is_crypto else 'stocks',
                 'bars',
             ]
             url = '/'.join(parts)
@@ -500,9 +501,7 @@ class Alpaca(MarketData):
                 'timeframe': '1D',
                 'start': start,
                 'limit': 10000,
-                'adjustment': 'all',
-                'feed': 'iex,'
-            }
+            } | {} if is_crypto else {'adjustment': 'all', 'feed': 'iex'}
             headers = {
                 'APCA-API-KEY-ID': self.token,
                 'APCA-API-SECRET-KEY': self.secret
