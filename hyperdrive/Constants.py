@@ -34,11 +34,13 @@ INTRA_DIR = 'intraday'
 IDX_DIR = 'indices'
 # providers
 POLY_DIR = 'polygon'
+ALPACA_DIR = 'alpaca'
 # models
 MODELS_DIR = 'models'
 
 folders = {
     'polygon': POLY_DIR,
+    'alpaca': ALPACA_DIR
 }
 
 # Column Names
