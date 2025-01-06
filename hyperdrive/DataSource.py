@@ -536,8 +536,8 @@ class Alpaca(MarketData):
                 'h': 'high',
                 'l': 'low',
                 'c': 'close',
-                'v': 'volume'
-                'vw' 'average',
+                'v': 'volume',
+                'vw': 'average',
                 'n': 'trades'
             }
             df = df.rename(columns=columns)
