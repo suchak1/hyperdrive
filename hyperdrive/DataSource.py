@@ -469,9 +469,12 @@ class Alpaca(MarketData):
     ):
         super().__init__()
         self.base = 'https://data.alpaca.markets'
-        self.token = os.environ.get('ALPACA_PAPER') if paper else token
+        self.token = os.environ.get(
+            'ALPACA_PAPER') if paper or C.TEST else token
         self.secret = os.environ.get(
-            'ALPACA_PAPER_SECRET') if paper else secret
+            'ALPACA_PAPER_SECRET') if paper or C.TEST else secret
+        if not (self.token and self.secret):
+            raise Exception('missing Alpaca credentials')
         self.provider = 'alpaca'
         self.free = free
 

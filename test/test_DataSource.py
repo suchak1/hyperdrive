@@ -349,7 +349,7 @@ class TestPolygon:
 
         then = time()
         poly.log_api_call_time()
-        poly.obey_free_limit()
+        poly.obey_free_limit(C.POLY_FREE_DELAY)
         now = time()
         assert now - then > C.POLY_FREE_DELAY
 
