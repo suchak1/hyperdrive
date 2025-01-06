@@ -501,7 +501,7 @@ class Alpaca(MarketData):
                 'timeframe': '1D',
                 'start': start,
                 'limit': 10000,
-            } | {} if is_crypto else {'adjustment': 'all', 'feed': 'iex'}
+            } | ({} if is_crypto else {'adjustment': 'all', 'feed': 'iex'})
             headers = {
                 'APCA-API-KEY-ID': self.token,
                 'APCA-API-SECRET-KEY': self.secret
