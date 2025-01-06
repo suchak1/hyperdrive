@@ -1,19 +1,18 @@
 import os
-import sys
 import pytest
 from time import sleep, time
 from random import choice
 import pandas as pd
-sys.path.append('hyperdrive')
-from DataSource import MarketData, Indices, Polygon, \
-                        LaborStats, Glassnode  # noqa autopep8
-import Constants as C  # noqa autopep8
-from Workflow import Flow  # noqa autopep8
-from Utils import SwissArmyKnife  # noqa autopep8
+from hyperdrive.DataSource import MarketData, Indices, Polygon, \
+                        LaborStats, Glassnode, Alpaca  # noqa autopep8
+import hyperdrive.Constants as C  # noqa autopep8
+from hyperdrive.Workflow import Flow  # noqa autopep8
+from hyperdrive.Utils import SwissArmyKnife  # noqa autopep8
 
 
 md = MarketData()
 idc = Indices()
+alp = Alpaca()
 poly = Polygon()
 bls = LaborStats()
 glass = Glassnode(use_cookies=True)
@@ -279,6 +278,25 @@ class TestIndices:
         assert {C.TIME, C.SYMBOL, C.DELTA}.issubset(ndx.columns)
         assert 'AAPL' in set(ndx[C.SYMBOL])
         assert (ndx[C.DELTA] == '+').all()
+
+
+class TestAlpaca:
+    def test_init(self):
+        assert isinstance(alp, Alpaca)
+        assert hasattr(alp, 'base')
+        assert hasattr(alp, 'token')
+        assert hasattr(alp, 'secret')
+        assert hasattr(alp, 'provider')
+        assert hasattr(alp, 'free')
+
+    def test_get_ohlc(self):
+        if not flow.is_any_workflow_running():
+            df = alp.get_ohlc(symbol='AAPL', timeframe='1m')
+            assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
+                    C.CLOSE, C.VOL, C.AVG}.issubset(df.columns)
+            assert len(df) > 10
+        else:
+            print('Skipping Alpaca OHLC test because update in progress')
 
 
 class TestPolygon:
