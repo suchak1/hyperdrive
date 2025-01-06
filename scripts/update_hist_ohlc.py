@@ -1,13 +1,14 @@
 import os
 from multiprocessing import Process
 from hyperdrive.DataSource import Polygon, Alpaca
-from hyperdrive.Constants import CI, PathFinder, POLY_CRYPTO_SYMBOLS, SYMBOL
+from hyperdrive.Constants import PathFinder
+import hyperdrive.Constants as C
 
-alpc = Alpaca()
+alpc = Alpaca(paper=C.TEST)
 poly = Polygon(os.environ['POLYGON'])
 stock_symbols = poly.get_symbols()
-poly_symbols = stock_symbols + POLY_CRYPTO_SYMBOLS
-alpc_symbols = set(alpc.get_ndx()[SYMBOL]).union(stock_symbols)
+poly_symbols = stock_symbols + C.POLY_CRYPTO_SYMBOLS
+alpc_symbols = set(alpc.get_ndx()[C.SYMBOL]).union(stock_symbols)
 timeframe = '2m'
 
 # Double redundancy
@@ -24,7 +25,7 @@ def update_poly_ohlc():
             print(f'Polygon.io OHLC update failed for {symbol}.')
             print(e)
         finally:
-            if CI and os.path.exists(filename):
+            if C.CI and os.path.exists(filename):
                 os.remove(filename)
 
 # 2nd pass
@@ -40,7 +41,7 @@ def update_alpc_ohlc():
             print(f'Alpaca OHLC update failed for {symbol}.')
             print(e)
         finally:
-            if CI and os.path.exists(filename):
+            if C.CI and os.path.exists(filename):
                 os.remove(filename)
 
 

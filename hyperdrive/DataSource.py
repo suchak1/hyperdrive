@@ -482,13 +482,13 @@ class Alpaca(MarketData):
 
     def get_ohlc(self, **kwargs):
         def _get_ohlc(symbol, timeframe='max'):
-            version = 'v2'
+            version = 'v1beta3' if symbol in C.ALPC_CRYPTO_SYMBOLS else 'v2'
             page_token = None
             start, _ = self.traveller.convert_dates(timeframe)
             parts = [
                 self.base,
                 version,
-                'stocks',
+                'crypto/us' if symbol in C.ALPC_CRYPTO_SYMBOLS else 'stocks',
                 'bars',
             ]
             url = '/'.join(parts)
@@ -546,6 +546,9 @@ class Alpaca(MarketData):
         return self.try_again(func=_get_ohlc, **kwargs)
 
         # def get_intraday(self, **kwargs):
+        #     pass
+
+        # def get_news(self, **kwargs):
         #     pass
 
 
