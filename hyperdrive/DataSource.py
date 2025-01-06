@@ -476,58 +476,7 @@ class Alpaca(MarketData):
         self.free = free
 
     # def get_dividends(self, **kwargs):
-    #     def _get_dividends(symbol, timeframe='max'):
-    #         version = 'v1'
-    #         self.obey_free_limit(C.ALPACA_FREE_DELAY)
-    #         page_token = ''
-    #         start, _ = self.traveller.convert_dates(timeframe)
-    #         parts = [
-    #             self.base,
-    #             version,
-    #             'corporate-actions',
-    #         ]
-    #         url = '/'.join(parts)
-    #         pre_params = {
-    #             'symbols': symbol,
-    #             'types': 'cash_dividend,stock_dividend',
-    #             'start': start,
-    #             'limit': 1000,
-    #             'feed': 'iex,'
-    #         }
-    #         headers = {
-    #             'APCA-API-KEY-ID': self.token,
-    #             'APCA-API-SECRET-KEY': self.secret
-    #         }
-    #         while True:
-    #             try:
-    #                 post_params = {
-    #                     page_token: page_token} if page_token else {}
-    #                 params = pre_params | post_params
-    #                 response = requests.get(url, params, headers=headers)
-        #         response = self.paginate(
-        #             self.client.list_dividends(
-        #                 symbol,
-        #                 ex_dividend_date_gte=start,
-        #                 order='desc',
-        #                 sort='ex_dividend_date',
-        #                 limit=C.POLY_MAX_LIMIT
-        #             ),
-        #             lambda div: {
-        #                 'exDate': div.ex_dividend_date,
-        #                 'paymentDate': div.pay_date,
-        #                 'declaredDate': div.declaration_date,
-        #                 'amount': div.cash_amount
-        #             }
-        #         )
-        #     except Exception as e:
-        #         raise e
-        #     finally:
-        #         self.log_api_call_time()
-        #     raw = pd.DataFrame(response)
-        #     df = self.standardize_dividends(symbol, raw)
-        #     return self.reader.data_in_timeframe(df, C.EX, timeframe)
-        # return self.try_again(func=_get_dividends, **kwargs)
-
+    #     pass
     # def get_splits(self, **kwargs):
     #     pass
 

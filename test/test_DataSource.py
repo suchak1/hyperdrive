@@ -10,19 +10,14 @@ from hyperdrive.Workflow import Flow  # noqa autopep8
 from hyperdrive.Utils import SwissArmyKnife  # noqa autopep8
 
 
-md = MarketData()
-idc = Indices()
-alp = Alpaca()
-poly = Polygon()
-bls = LaborStats()
-glass = Glassnode(use_cookies=True)
 flow = Flow()
 knife = SwissArmyKnife()
-
-md = knife.use_dev(md)
-poly = knife.use_dev(poly)
-bls = knife.use_dev(bls)
-glass = knife.use_dev(glass)
+md = knife.use_dev(MarketData())
+idc = knife.use_dev(Indices())
+alpc = knife.use_dev(Alpaca(paper=True))
+poly = knife.use_dev(Polygon())
+bls = knife.use_dev(LaborStats())
+glass = knife.use_dev(Glassnode(use_cookies=True))
 
 exp_symbols = ['AMZN', 'META', 'NFLX']
 retries = 10
@@ -282,16 +277,16 @@ class TestIndices:
 
 class TestAlpaca:
     def test_init(self):
-        assert isinstance(alp, Alpaca)
-        assert hasattr(alp, 'base')
-        assert hasattr(alp, 'token')
-        assert hasattr(alp, 'secret')
-        assert hasattr(alp, 'provider')
-        assert hasattr(alp, 'free')
+        assert isinstance(alpc, Alpaca)
+        assert hasattr(alpc, 'base')
+        assert hasattr(alpc, 'token')
+        assert hasattr(alpc, 'secret')
+        assert hasattr(alpc, 'provider')
+        assert hasattr(alpc, 'free')
 
     def test_get_ohlc(self):
         if not flow.is_any_workflow_running():
-            df = alp.get_ohlc(symbol='AAPL', timeframe='1m')
+            df = alpc.get_ohlc(symbol='AAPL', timeframe='1m')
             assert {C.TIME, C.OPEN, C.HIGH, C.LOW,
                     C.CLOSE, C.VOL, C.AVG}.issubset(df.columns)
             assert len(df) > 10
