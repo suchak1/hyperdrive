@@ -44,4 +44,6 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
           POLYGON: ${{ secrets.POLYGON }}
+          ALPACA: ${{ secrets.ALPACA }}
+          ALPACA_SECRET: ${{ secrets.ALPACA_SECRET }}
         run: python scripts/update_ohlc.py

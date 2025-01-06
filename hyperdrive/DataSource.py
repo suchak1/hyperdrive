@@ -434,6 +434,16 @@ class MarketData:
         if os.path.exists(filename):
             return filename
 
+    def log_api_call_time(self):
+        self.last_api_call_time = time()
+
+    def obey_free_limit(self, free_delay):
+        if self.free and hasattr(self, 'last_api_call_time'):
+            time_since_last_call = time() - self.last_api_call_time
+            delay = free_delay - time_since_last_call
+            if delay > 0:
+                sleep(delay)
+
 
 class Indices(MarketData):
     def __init__(self):
@@ -446,6 +456,102 @@ class Indices(MarketData):
         new = new[new[C.TIME] <= date]
         df = pd.concat([old, new])
         return self.standardize_ndx(df)
+
+
+class Alpaca(MarketData):
+    # AlpacaData
+    def __init__(
+            self,
+            token=os.environ.get('ALPACA'),
+            secret=os.environ.get('ALPACA_SECRET'),
+            free=True,
+            paper=False
+    ):
+        super().__init__()
+        self.base = 'https://data.alpaca.markets'
+        self.token = os.environ.get(
+            'ALPACA_PAPER') if paper or C.TEST else token
+        self.secret = os.environ.get(
+            'ALPACA_PAPER_SECRET') if paper or C.TEST else secret
+        if not (self.token and self.secret):
+            raise Exception('missing Alpaca credentials')
+        self.provider = 'alpaca'
+        self.free = free
+
+    # def get_dividends(self, **kwargs):
+    #     pass
+    # def get_splits(self, **kwargs):
+    #     pass
+
+    def get_ohlc(self, **kwargs):
+        def _get_ohlc(symbol, timeframe='max'):
+            is_crypto = symbol in C.ALPC_CRYPTO_SYMBOLS
+            version = 'v1beta3' if is_crypto else 'v2'
+            page_token = None
+            start, _ = self.traveller.convert_dates(timeframe)
+            parts = [
+                self.base,
+                version,
+                'crypto/us' if is_crypto else 'stocks',
+                'bars',
+            ]
+            url = '/'.join(parts)
+            pre_params = {
+                'symbols': symbol,
+                'timeframe': '1D',
+                'start': start,
+                'limit': 10000,
+            } | ({} if is_crypto else {'adjustment': 'all', 'feed': 'iex'})
+            headers = {
+                'APCA-API-KEY-ID': self.token,
+                'APCA-API-SECRET-KEY': self.secret
+            }
+            results = []
+            while True:
+                self.obey_free_limit(C.ALPACA_FREE_DELAY)
+                try:
+                    post_params = {
+                        'page_token': page_token} if page_token else {}
+                    params = pre_params | post_params
+                    response = requests.get(url, params, headers=headers)
+                    if not response.ok:
+                        raise Exception(
+                            'Invalid response from Alpaca for OHLC',
+                            response.status_code,
+                            response.text
+                        )
+                    data = response.json()
+                    if data.get('bars') and data['bars'].get(symbol):
+                        results += data['bars'][symbol]
+                finally:
+                    self.log_api_call_time()
+                if data.get('next_page_token'):
+                    page_token = data['next_page_token']
+                else:
+                    break
+            df = pd.DataFrame(results)
+            columns = {
+                't': 'date',
+                'o': 'open',
+                'h': 'high',
+                'l': 'low',
+                'c': 'close',
+                'v': 'volume',
+                'vw': 'average',
+                'n': 'trades'
+            }
+            df = df.rename(columns=columns)
+            df['date'] = pd.to_datetime(df['date']).dt.tz_convert(
+                C.TZ).dt.tz_localize(None)
+            df = self.standardize_ohlc(symbol, df)
+            return self.reader.data_in_timeframe(df, C.TIME, timeframe)
+        return self.try_again(func=_get_ohlc, **kwargs)
+
+        # def get_intraday(self, **kwargs):
+        #     pass
+
+        # def get_news(self, **kwargs):
+        #     pass
 
 
 class Polygon(MarketData):
@@ -465,19 +571,9 @@ class Polygon(MarketData):
             results.append(apply(item))
         return results
 
-    def obey_free_limit(self):
-        if self.free and hasattr(self, 'last_api_call_time'):
-            time_since_last_call = time() - self.last_api_call_time
-            delay = C.POLY_FREE_DELAY - time_since_last_call
-            if delay > 0:
-                sleep(delay)
-
-    def log_api_call_time(self):
-        self.last_api_call_time = time()
-
     def get_dividends(self, **kwargs):
         def _get_dividends(symbol, timeframe='max'):
-            self.obey_free_limit()
+            self.obey_free_limit(C.POLY_FREE_DELAY)
             try:
                 start, _ = self.traveller.convert_dates(timeframe)
                 response = self.paginate(
@@ -495,8 +591,6 @@ class Polygon(MarketData):
                         'amount': div.cash_amount
                     }
                 )
-            except Exception as e:
-                raise e
             finally:
                 self.log_api_call_time()
             raw = pd.DataFrame(response)
@@ -506,7 +600,7 @@ class Polygon(MarketData):
 
     def get_splits(self, **kwargs):
         def _get_splits(symbol, timeframe='max'):
-            self.obey_free_limit()
+            self.obey_free_limit(C.POLY_FREE_DELAY)
             try:
                 start, _ = self.traveller.convert_dates(timeframe)
                 response = self.paginate(
@@ -522,8 +616,6 @@ class Polygon(MarketData):
                         'ratio': split.split_from / split.split_to
                     }
                 )
-            except Exception as e:
-                raise e
             finally:
                 self.log_api_call_time()
             raw = pd.DataFrame(response)
@@ -536,14 +628,12 @@ class Polygon(MarketData):
             is_crypto = symbol.find('X%3A') == 0
             formatted_start, formatted_end = self.traveller.convert_dates(
                 timeframe)
-            self.obey_free_limit()
+            self.obey_free_limit(C.POLY_FREE_DELAY)
             try:
                 response = self.client.get_aggs(
                     symbol, 1, 'day',
                     from_=formatted_start, to=formatted_end, adjusted=True, limit=C.POLY_MAX_AGGS_LIMIT
                 )
-            except Exception as e:
-                raise e
             finally:
                 self.log_api_call_time()
 
@@ -573,7 +663,7 @@ class Polygon(MarketData):
                 raise Exception(f'No dates in timeframe: {timeframe}.')
 
             for _, date in enumerate(dates):
-                self.obey_free_limit()
+                self.obey_free_limit(C.POLY_FREE_DELAY)
                 try:
                     response = self.client.get_aggs(
                         symbol, min, 'minute', from_=date, to=date,
@@ -582,8 +672,6 @@ class Polygon(MarketData):
                 except exceptions.NoResultsError:
                     # This is to prevent breaking the loop over weekends
                     continue
-                except Exception as e:
-                    raise e
                 finally:
                     self.log_api_call_time()
 

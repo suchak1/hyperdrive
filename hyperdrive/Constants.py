@@ -34,11 +34,13 @@ INTRA_DIR = 'intraday'
 IDX_DIR = 'indices'
 # providers
 POLY_DIR = 'polygon'
+ALPACA_DIR = 'alpaca'
 # models
 MODELS_DIR = 'models'
 
 folders = {
     'polygon': POLY_DIR,
+    'alpaca': ALPACA_DIR
 }
 
 # Column Names
@@ -109,6 +111,8 @@ POLY_CRYPTO_SYMBOLS = [
     'X%3ALTCUSD', 'X%3AXMRUSD', 'X%3AIOTUSD'
 ]
 
+ALPC_CRYPTO_SYMBOLS = ['BTC/USD', 'ETH/USD', 'LTC/USD']
+
 SENTIMENT_SYMBOLS_IGNORE = {
     'SPYD', 'VWDRY', 'BPMP',
     'FOX', 'YYY', 'SDIV',
@@ -123,6 +127,8 @@ POLY_MAX_AGGS_LIMIT = 50000
 FEW = 3
 FEW_DAYS = str(FEW) + 'd'
 SCRIPT_FAILURE_THRESHOLD = 0.95
+
+ALPACA_FREE_DELAY = 0.5
 
 # Exchanges
 BINANCE = 'BINANCE'

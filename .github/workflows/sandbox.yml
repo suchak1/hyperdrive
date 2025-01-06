@@ -27,6 +27,8 @@ env:
   PREF_EXCHANGE: ${{ secrets.PREF_EXCHANGE }}
   TEST: true
   GLASSNODE_PASS: ${{ secrets.GLASSNODE_PASS }}
+  ALPACA_PAPER: ${{ secrets.ALPACA_PAPER }}
+  ALPACA_PAPER_SECRET: ${{ secrets.ALPACA_PAPER_SECRET}}
 
 jobs:
   build:
