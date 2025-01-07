@@ -1,8 +1,10 @@
 import os
+import sys
 from multiprocessing import Process, Value
-from hyperdrive.DataSource import Polygon, Alpaca
-from hyperdrive.Constants import PathFinder
-import hyperdrive.Constants as C
+sys.path.append('hyperdrive')
+from DataSource import Polygon, Alpaca  # noqa autopep8
+from Constants import PathFinder  # noqa autopep8
+import Constants as C  # noqa autopep8
 
 counter = Value('i', 0)
 alpc = Alpaca(paper=C.TEST)

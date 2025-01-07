@@ -89,6 +89,9 @@ jobs:
       # - name: Update intraday
       #   run: python scripts/update_intraday.py
 
+      - name: Update indices
+        run: python scripts/update_indices.py
+
       - name: Update unemployment
         run: python scripts/update_unrate.py
 
