@@ -500,6 +500,8 @@ class Alpaca(MarketData):
                 'symbols': symbol,
                 'timeframe': '1D',
                 'start': start,
+                # end should be > 15 min before current UTC time in this format
+                # 2025-01-01T00:00:00Z
                 'limit': 10000,
             } | ({} if is_crypto else {'adjustment': 'all'})
             headers = {
