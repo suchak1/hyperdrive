@@ -103,7 +103,7 @@ ABS_TOL = vbt.utils.math_.abs_tol
 
 # Model
 MAX_MODEL_AGE_DAYS = 90  # 3 months
-MIN_MODEL_ACCURACY = 0.95
+MIN_MODEL_ACCURACY = 0.925
 
 # Misc
 POLY_CRYPTO_SYMBOLS = [

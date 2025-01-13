@@ -17,6 +17,10 @@ class CEX:
         return f'{base}{quote}'
 
 
+class Alpaca(CEX):
+    pass
+
+
 class Kraken(CEX):
     def __init__(self, key=None, secret=None, test=False):
         super().__init__()

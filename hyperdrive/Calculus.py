@@ -24,8 +24,8 @@ class Calculator:
             ]
         return [self.avg(component) for component in components]
 
-    def delta(self, series):
-        return series / series.shift() - 1
+    def delta(self, series, window=1):
+        return series / series.shift(window) - 1
 
     def roll(self, series, window):
         return series.rolling(window).mean()

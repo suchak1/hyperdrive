@@ -25,6 +25,8 @@ env:
   AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
   PREF_EXCHANGE: ${{ secrets.PREF_EXCHANGE }}
   GLASSNODE_PASS: ${{ secrets.GLASSNODE_PASS }}
+  ALPACA_PAPER: ${{ secrets.ALPACA_PAPER }}
+  ALPACA_PAPER_SECRET: ${{ secrets.ALPACA_PAPER_SECRET }}
 
 jobs:
   build:
