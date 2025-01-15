@@ -233,6 +233,12 @@ class PathFinder:
             'orders.csv'
         )
 
+    def get_new_orders_path(self, provider):
+        return os.path.join(
+            DATA_DIR,
+            f'{provider}.csv'
+        )
+
     def get_api_path(self, endpoint):
         return os.path.join(
             DATA_DIR,

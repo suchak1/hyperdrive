@@ -106,6 +106,10 @@ jobs:
         run: |
           python util/decrypt.py encrypted/create_model.py
           python util/decrypt.py encrypted/predict_signal.py
+          python util/decrypt.py encrypted/optimize_portfolio.py
+
+      - name: Optimize portfolio
+        run: python encrypted/optimize_portfolio.py
 
       - name: Create model
         run: python encrypted/create_model.py

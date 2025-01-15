@@ -2,12 +2,12 @@ import os
 import sys
 from multiprocessing import Process, Value
 sys.path.append('hyperdrive')
-from DataSource import Polygon, Alpaca  # noqa autopep8
+from DataSource import Polygon, AlpacaData  # noqa autopep8
 from Constants import PathFinder  # noqa autopep8
 import Constants as C  # noqa autopep8
 
 counter = Value('i', 0)
-alpc = Alpaca(paper=C.TEST)
+alpc = AlpacaData(paper=C.TEST)
 poly = Polygon(os.environ['POLYGON'])
 stock_symbols = poly.get_symbols()
 poly_symbols = stock_symbols + C.POLY_CRYPTO_SYMBOLS

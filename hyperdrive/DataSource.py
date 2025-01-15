@@ -458,8 +458,7 @@ class Indices(MarketData):
         return self.standardize_ndx(df)
 
 
-class Alpaca(MarketData):
-    # AlpacaData
+class AlpacaData(MarketData):
     def __init__(
             self,
             token=os.environ.get('ALPACA'),
