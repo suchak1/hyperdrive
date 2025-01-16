@@ -277,7 +277,7 @@ class TestIndices:
 
 class TestAlpaca:
     def test_init(self):
-        assert isinstance(alpc, Alpaca)
+        assert isinstance(alpc, AlpacaData)
         assert hasattr(alpc, 'base')
         assert hasattr(alpc, 'token')
         assert hasattr(alpc, 'secret')
