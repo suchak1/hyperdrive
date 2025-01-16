@@ -41,7 +41,12 @@ class TestAlpacaEx:
         assert acct['status'] == 'ACTIVE'
 
     def test_create_order(self):
-        pass
+        positions = alpc.get_positions()
+        side = 'buy'
+        if 'AAPL' in [position['symbol'] for position in positions]:
+            side = 'sell'
+        order = alpc.create_order('AAPL', side, 1)
+        assert 'id' in order
 
 
 class TestBinance:
