@@ -1,12 +1,41 @@
 import sys
 from collections import OrderedDict
 sys.path.append('hyperdrive')
-from Exchange import Binance, Kraken  # noqa autopep8
+from Exchange import Binance, Kraken, AlpacaEx  # noqa autopep8
 import Constants as C  # noqa
 
 
 bn = Binance(testnet=True)
 kr = Kraken(test=True)
+alpc = AlpacaEx(paper=True)
+
+
+class TestAlpacaEx:
+    def test_init(self):
+        assert isinstance(alpc, AlpacaEx)
+        assert hasattr(alpc, 'base')
+        assert alpc.base == 'https://paper-api.alpaca.markets'
+        assert hasattr(alpc, 'version')
+        assert hasattr(alpc, 'token')
+        assert hasattr(alpc, 'secret')
+
+    def test_make_request(self):
+        pass
+
+    def test_get_positions(self):
+        pass
+
+    def test_close_position(self):
+        pass
+
+    def test_get_order(self):
+        pass
+
+    def test_get_account(self):
+        pass
+
+    def test_create_order(self):
+        pass
 
 
 class TestBinance:
