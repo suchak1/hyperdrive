@@ -1,4 +1,5 @@
 import sys
+import pytest
 from collections import OrderedDict
 sys.path.append('hyperdrive')
 from Exchange import Binance, Kraken, AlpacaEx  # noqa autopep8
@@ -20,7 +21,11 @@ class TestAlpacaEx:
         assert hasattr(alpc, 'secret')
 
     def test_make_request(self):
-        pass
+        acct = alpc.make_request('GET', 'account')
+        assert acct['status'] == 'ACTIVE'
+
+        with pytest.raises(Exception):
+            alpc.make_request('GET', 'not_a_real_route')
 
     def test_get_positions(self):
         pass
@@ -32,7 +37,8 @@ class TestAlpacaEx:
         pass
 
     def test_get_account(self):
-        pass
+        acct = alpc.get_account()
+        assert acct['status'] == 'ACTIVE'
 
     def test_create_order(self):
         pass
