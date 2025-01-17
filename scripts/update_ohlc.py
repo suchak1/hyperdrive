@@ -17,8 +17,9 @@ alpc_symbols = set(alpc.get_ndx()[C.SYMBOL]).union(stock_symbols)
 def update_poly_ohlc():
     for symbol in poly_symbols:
         try:
-            filename = poly.save_ohlc(
-                symbol=symbol, timeframe=C.FEW_DAYS, retries=1)
+            if not C.TEST:
+                filename = poly.save_ohlc(
+                    symbol=symbol, timeframe=C.FEW_DAYS, retries=1)
             with counter.get_lock():
                 counter.value += 1
         except Exception as e:
