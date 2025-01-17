@@ -28,13 +28,18 @@ class TestAlpacaEx:
             alpc.make_request('GET', 'not_a_real_route')
 
     def test_get_positions(self):
-        pass
+        positions = alpc.get_positions()
+        assert all('symbol' in position for position in positions)
 
     def test_close_position(self):
-        pass
+        positions = alpc.get_positions()
+        if any([position['symbol'] == 'QQQ' for position in positions]):
+            order = alpc.close_position('QQQ')
+            assert 'id' in order
 
     def test_get_order(self):
-        pass
+        with pytest.raises(Exception):
+            alpc.get_order('not_a_real_id')
 
     def test_get_account(self):
         acct = alpc.get_account()
@@ -43,9 +48,9 @@ class TestAlpacaEx:
     def test_create_order(self):
         positions = alpc.get_positions()
         side = 'buy'
-        if 'AAPL' in [position['symbol'] for position in positions]:
+        if 'QQQ' in [position['symbol'] for position in positions]:
             side = 'sell'
-        order = alpc.create_order('AAPL', side, 1)
+        order = alpc.create_order('QQQ', side, 1)
         assert 'id' in order
 
 
