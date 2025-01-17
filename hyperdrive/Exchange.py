@@ -66,7 +66,7 @@ class AlpacaEx(CEX):
             'symbol': symbol,
             'side': side.lower(),
             'type': 'market',
-            'notional': notional,
+            'notional': str(notional),
             'time_in_force': 'day'
         }
         return self.make_request('POST', 'orders', payload)
