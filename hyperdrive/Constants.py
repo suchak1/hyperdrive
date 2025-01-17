@@ -70,6 +70,7 @@ TRADES = 'Trades'
 
 # Time
 TZ = timezone('US/Eastern')
+UTC = timezone('UTC')
 DATE_FMT = '%Y-%m-%d'
 TIME_FMT = '%H:%M'
 PRECISE_TIME_FMT = '%H:%M:%S'
