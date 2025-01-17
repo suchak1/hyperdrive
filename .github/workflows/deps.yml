@@ -28,6 +28,9 @@ env:
   PREF_EXCHANGE: ${{ secrets.PREF_EXCHANGE }}
   TEST: true
   GLASSNODE_PASS: ${{ secrets.GLASSNODE_PASS }}
+  ALPACA_PAPER: ${{ secrets.ALPACA_PAPER }}
+  ALPACA_PAPER_SECRET: ${{ secrets.ALPACA_PAPER_SECRET }}
+  S3_BUCKET: ${{ secrets.S3_DEV_BUCKET }}
 
 jobs:
   build:
@@ -77,8 +80,6 @@ jobs:
           chrome-version: stable
 
       - name: Run all unit tests
-        env:
-          S3_BUCKET: ${{ secrets.S3_DEV_BUCKET }}
         run: coverage run -m pytest -vv -s
 
       - name: Generate test coverage report
@@ -113,6 +114,10 @@ jobs:
         run: |
           python util/decrypt.py encrypted/create_model.py
           python util/decrypt.py encrypted/predict_signal.py
+          python util/decrypt.py encrypted/optimize_portfolio.py
+
+      - name: Optimize portfolio
+        run: python encrypted/optimize_portfolio.py
 
       - name: Create model
         run: python encrypted/create_model.py

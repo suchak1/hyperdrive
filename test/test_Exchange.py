@@ -1,12 +1,57 @@
 import sys
+import pytest
 from collections import OrderedDict
 sys.path.append('hyperdrive')
-from Exchange import Binance, Kraken  # noqa autopep8
+from Exchange import Binance, Kraken, AlpacaEx  # noqa autopep8
 import Constants as C  # noqa
 
 
 bn = Binance(testnet=True)
 kr = Kraken(test=True)
+alpc = AlpacaEx(paper=True)
+
+
+class TestAlpacaEx:
+    def test_init(self):
+        assert isinstance(alpc, AlpacaEx)
+        assert hasattr(alpc, 'base')
+        assert alpc.base == 'https://paper-api.alpaca.markets'
+        assert hasattr(alpc, 'version')
+        assert hasattr(alpc, 'token')
+        assert hasattr(alpc, 'secret')
+
+    def test_make_request(self):
+        acct = alpc.make_request('GET', 'account')
+        assert acct['status'] == 'ACTIVE'
+
+        with pytest.raises(Exception):
+            alpc.make_request('GET', 'not_a_real_route')
+
+    def test_get_positions(self):
+        positions = alpc.get_positions()
+        assert all('symbol' in position for position in positions)
+
+    def test_close_position(self):
+        positions = alpc.get_positions()
+        if any([position['symbol'] == 'QQQ' for position in positions]):
+            order = alpc.close_position('QQQ')
+            assert 'id' in order
+
+    def test_get_order(self):
+        with pytest.raises(Exception):
+            alpc.get_order('not_a_real_id')
+
+    def test_get_account(self):
+        acct = alpc.get_account()
+        assert acct['status'] == 'ACTIVE'
+
+    def test_create_order(self):
+        positions = alpc.get_positions()
+        side = 'buy'
+        if 'QQQ' in [position['symbol'] for position in positions]:
+            side = 'sell'
+        order = alpc.create_order('QQQ', side, 1)
+        assert 'id' in order
 
 
 class TestBinance:

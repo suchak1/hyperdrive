@@ -12,9 +12,12 @@ def get_version():
     token = os.environ.get('GITHUB')
     headers = {'Authorization': f'token {token}'}
     response = requests.get(url, headers=headers if token else None)
-    data = response.json()
-    version = data['tag_name'].replace('v', '')
-    return version
+    if response.ok:
+        data = response.json()
+        version = data['tag_name'].replace('v', '')
+        return version
+    else:
+        raise Exception(response.text)
 
 
 def get_requirements():

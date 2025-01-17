@@ -83,8 +83,8 @@ jobs:
       # - name: Update splits
       #   run: python scripts/update_splits.py
 
-      # - name: Update OHLC
-      #   run: python scripts/update_ohlc.py
+      - name: Update OHLC
+        run: python scripts/update_ohlc.py
 
       # - name: Update intraday
       #   run: python scripts/update_intraday.py
@@ -106,6 +106,10 @@ jobs:
         run: |
           python util/decrypt.py encrypted/create_model.py
           python util/decrypt.py encrypted/predict_signal.py
+          python util/decrypt.py encrypted/optimize_portfolio.py
+
+      - name: Optimize portfolio
+        run: python encrypted/optimize_portfolio.py
 
       - name: Create model
         run: python encrypted/create_model.py

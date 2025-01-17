@@ -17,6 +17,61 @@ class CEX:
         return f'{base}{quote}'
 
 
+class AlpacaEx(CEX):
+    def __init__(
+            self,
+            token=os.environ.get('ALPACA'),
+            secret=os.environ.get('ALPACA_SECRET'),
+            paper=False
+    ):
+        super().__init__()
+        self.base = (f'https://{"paper-" if paper or C.TEST else ""}'
+                     'api.alpaca.markets')
+        self.version = 'v2'
+        self.token = os.environ.get(
+            'ALPACA_PAPER') if paper or C.TEST else token
+        self.secret = os.environ.get(
+            'ALPACA_PAPER_SECRET') if paper or C.TEST else secret
+        if not (self.token and self.secret):
+            raise Exception('missing Alpaca credentials')
+
+    def make_request(self, method, route, payload={}):
+        parts = [self.base, self.version, route]
+        url = '/'.join(parts)
+        headers = {
+            "accept": "application/json",
+            "APCA-API-KEY-ID": self.token,
+            "APCA-API-SECRET-KEY": self.secret
+        }
+        response = requests.request(method, url, json=payload, headers=headers)
+        if response.ok:
+            return response.json()
+        else:
+            raise Exception(response.text)
+
+    def get_positions(self):
+        return self.make_request('GET', 'positions')
+
+    def close_position(self, symbol):
+        return self.make_request('DELETE', f'positions/{symbol}')
+
+    def get_order(self, id):
+        return self.make_request('GET', f'orders/{id}')
+
+    def get_account(self):
+        return self.make_request('GET', 'account')
+
+    def create_order(self, symbol, side, notional):
+        payload = {
+            'symbol': symbol,
+            'side': side.lower(),
+            'type': 'market',
+            'notional': str(notional),
+            'time_in_force': 'day'
+        }
+        return self.make_request('POST', 'orders', payload)
+
+
 class Kraken(CEX):
     def __init__(self, key=None, secret=None, test=False):
         super().__init__()

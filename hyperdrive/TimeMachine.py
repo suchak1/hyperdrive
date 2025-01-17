@@ -1,6 +1,6 @@
 from time import sleep
 from datetime import datetime, timedelta
-from Constants import TZ, DATE_FMT, TIME_FMT, PRECISE_TIME_FMT
+from Constants import TZ, UTC, DATE_FMT, TIME_FMT, PRECISE_TIME_FMT
 
 
 class TimeTraveller:
@@ -68,10 +68,10 @@ class TimeTraveller:
     def get_diff(self, t1, t2):
         return abs((t1 - t2).total_seconds())
 
-    def sleep_until(self, time):
+    def sleep_until(self, time, tz=UTC):
         # time could be "00:00"
-        curr = datetime.utcnow()
-        prev_sched = datetime.combine(curr.date(), self.get_time(time))
+        curr = datetime.now(tz)
+        prev_sched = datetime.combine(curr.date(), self.get_time(time), tz)
         next_sched = prev_sched + timedelta(days=1)
 
         prev_diff = self.get_diff(curr, prev_sched)
@@ -81,7 +81,7 @@ class TimeTraveller:
         diff = self.get_diff(curr, sched) if sched > curr else 0
 
         while diff > 0:
-            curr = datetime.utcnow()
+            curr = datetime.now(tz)
             diff = self.get_diff(curr, sched) if sched > curr else 0
             sleep(diff)
 

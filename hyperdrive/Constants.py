@@ -70,6 +70,7 @@ TRADES = 'Trades'
 
 # Time
 TZ = timezone('US/Eastern')
+UTC = timezone('UTC')
 DATE_FMT = '%Y-%m-%d'
 TIME_FMT = '%H:%M'
 PRECISE_TIME_FMT = '%H:%M:%S'
@@ -103,7 +104,7 @@ ABS_TOL = vbt.utils.math_.abs_tol
 
 # Model
 MAX_MODEL_AGE_DAYS = 90  # 3 months
-MIN_MODEL_ACCURACY = 0.95
+MIN_MODEL_ACCURACY = 0.925
 
 # Misc
 POLY_CRYPTO_SYMBOLS = [
@@ -231,6 +232,12 @@ class PathFinder:
             MODELS_DIR,
             'latest',
             'orders.csv'
+        )
+
+    def get_new_orders_path(self, provider):
+        return os.path.join(
+            DATA_DIR,
+            f'{provider}.csv'
         )
 
     def get_api_path(self, endpoint):

@@ -4,7 +4,7 @@ from time import sleep, time
 from random import choice
 import pandas as pd
 from hyperdrive.DataSource import MarketData, Indices, Polygon, \
-                        LaborStats, Glassnode, Alpaca  # noqa autopep8
+                        LaborStats, Glassnode, AlpacaData  # noqa autopep8
 import hyperdrive.Constants as C  # noqa autopep8
 from hyperdrive.Workflow import Flow  # noqa autopep8
 from hyperdrive.Utils import SwissArmyKnife  # noqa autopep8
@@ -14,7 +14,7 @@ flow = Flow()
 knife = SwissArmyKnife()
 md = knife.use_dev(MarketData())
 idc = knife.use_dev(Indices())
-alpc = knife.use_dev(Alpaca(paper=True))
+alpc = knife.use_dev(AlpacaData(paper=True))
 poly = knife.use_dev(Polygon())
 bls = knife.use_dev(LaborStats())
 glass = knife.use_dev(Glassnode(use_cookies=True))
@@ -277,7 +277,7 @@ class TestIndices:
 
 class TestAlpaca:
     def test_init(self):
-        assert isinstance(alpc, Alpaca)
+        assert isinstance(alpc, AlpacaData)
         assert hasattr(alpc, 'base')
         assert hasattr(alpc, 'token')
         assert hasattr(alpc, 'secret')
