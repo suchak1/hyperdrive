@@ -25,8 +25,8 @@ class AlpacaEx(CEX):
             paper=False
     ):
         super().__init__()
-        self.base = (f'https://{"paper-" if paper or C.TEST else ""}\
-        api.alpaca.markets')
+        self.base = (f'https://{"paper-" if paper or C.TEST else ""}'
+                     'api.alpaca.markets')
         self.version = 'v2'
         self.token = os.environ.get(
             'ALPACA_PAPER') if paper or C.TEST else token
