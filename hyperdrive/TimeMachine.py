@@ -71,7 +71,7 @@ class TimeTraveller:
     def sleep_until(self, time, tz=UTC):
         # time could be "00:00"
         curr = datetime.now(tz)
-        prev_sched = datetime.combine(curr.date(), self.get_time(time))
+        prev_sched = datetime.combine(curr.date(), self.get_time(time), tz)
         next_sched = prev_sched + timedelta(days=1)
 
         prev_diff = self.get_diff(curr, prev_sched)
