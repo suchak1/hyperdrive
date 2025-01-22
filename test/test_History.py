@@ -29,12 +29,12 @@ y = np.array([True] * majority + [False] * minority)
 
 
 class TestHistorian:
-    def test_buy_and_hold(self):
-        stats = hist.buy_and_hold(close).stats()
+    def test_from_holding(self):
+        stats = hist.from_holding(close).stats()
         assert 'Sortino Ratio' in stats
 
-    def test_create_portfolio(self):
-        stats = hist.create_portfolio(close, test_ffill).stats()
+    def test_from_signals(self):
+        stats = hist.from_signals(close, test_ffill).stats()
         assert 'Sortino Ratio' in stats
 
     def test_fill(self):

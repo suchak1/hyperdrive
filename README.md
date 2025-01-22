@@ -144,9 +144,9 @@ timeframe = '1y'
 
 df = md.get_ohlc(symbol=symbol, timeframe=timeframe)
 
-holding = hist.buy_and_hold(df[C.CLOSE])
+holding = hist.from_holding(df[C.CLOSE])
 signals = hist.get_optimal_signals(df[C.CLOSE])
-my_strat = hist.create_portfolio(df[C.CLOSE], signals)
+my_strat = hist.from_signals(df[C.CLOSE], signals)
 
 metrics = [
     'Total Return [%]', 'Benchmark Return [%]',

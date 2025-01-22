@@ -17,6 +17,7 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.metrics import classification_report
 from imblearn.over_sampling import SMOTE
 from Calculus import Calculator
+import Constants as C
 
 
 class Historian:
@@ -26,16 +27,69 @@ class Historian:
     # add fx to perform calculations on columns
     # takes calc.fx, df, and column names as args, fx args
 
-    def buy_and_hold(self, close, init_cash=1000):
+    def from_holding(self, close, init_cash=1000):
         # returns a portfolio based on buy and hold strategy
         portfolio = vbt.Portfolio.from_holding(
             close, init_cash=init_cash, freq='D')
         return portfolio
 
-    def create_portfolio(self, close, signals, init_cash=1000, fee=0):
+    def from_signals(self, close, signals, init_cash=1000, fee=0):
         # returns a portfolio based on signals
         portfolio = vbt.Portfolio.from_signals(
             close, signals, ~signals, init_cash=init_cash, freq='D', fees=fee
+        )
+        return portfolio
+
+    def optimize_portfolio(self, close, indicator, top_n, period, init_cash, **kwargs):
+        close = close.set_index(C.CLOSE)
+        signals = close.apply(indicator, **kwargs)
+        close = close.dropna()
+        positions = pd.DataFrame(
+            0, index=close.index, columns=close.columns)
+        holdings = {"cash": init_cash}
+        prev_period = None
+        prev_symbols = set()
+        for day in close.index:
+            curr_period = getattr(day, period)
+            # if is first of the period
+            if prev_period != curr_period:
+                # Rank symbols by indicator and select top_n
+                top_symbols = set(signals.loc[day].nlargest(top_n).index)
+                # Sell old positions for the top symbols
+                minus = prev_symbols.difference(top_symbols)
+                for symbol in minus:
+                    size = holdings[symbol]
+                    positions.loc[day, symbol] = - size
+                    holdings["cash"] += close.loc[day][symbol] * size
+                    del holdings[symbol]
+                # Buy new positions for the top symbols
+                plus = top_symbols.difference(prev_symbols)
+                notional = holdings["cash"] / len(plus)
+                for symbol in plus:
+                    size = notional / close.loc[day][symbol]
+                    positions.loc[day, symbol] = size
+                    holdings[symbol] = size
+                    holdings["cash"] -= notional
+                # Update prev values
+                prev_period = curr_period
+                prev_symbols = top_symbols
+
+        # Forward fill positions to maintain holdings
+        positions = positions.ffill().fillna(0)
+
+        # Convert to orders format
+        portfolio = vbt.Portfolio.from_orders(
+            close=close,
+            size=positions,
+            freq='D',
+            init_cash=0,
+            group_by=True
+        )
+        return portfolio
+
+    def from_orders(self, close, size, fee=0):
+        portfolio = vbt.Portfolio.from_orders(
+            close, size, freq='D', fees=fee, init_cash=0, group_by=True
         )
         return portfolio
 

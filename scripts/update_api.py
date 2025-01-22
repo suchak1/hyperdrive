@@ -49,7 +49,7 @@ def create_portfolio_preview(close, signals, invert):
 
     holding_signals = np.full(len(signals), not invert)
 
-    holding_pf = hist.create_portfolio(close, holding_signals, init_cash)
+    holding_pf = hist.from_signals(close, holding_signals, init_cash)
     if C.PREF_EXCHANGE == C.BINANCE:
         fee = C.BINANCE_FEE
     else:
@@ -57,7 +57,7 @@ def create_portfolio_preview(close, signals, invert):
         quote = C.KRAKEN_SYMBOLS['USD']
         pair = kr.create_pair(base, quote)
         fee = kr.get_fee(pair) / 100
-    hyper_pf = hist.create_portfolio(
+    hyper_pf = hist.from_signals(
         close, ~signals if invert else signals, init_cash, fee)
 
     holding_values = holding_pf.value()
