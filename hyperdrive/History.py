@@ -46,11 +46,12 @@ class Historian:
             close: pd.DataFrame,
             indicator: Callable,
             top_n: int,
-            period: int,
+            period: str,
             init_cash: float,
             **kwargs: dict[str, any]
     ) -> vbt.Portfolio:
-        close = close.set_index(C.CLOSE)
+        if C.CLOSE in close.columns:
+            close = close.set_index(C.CLOSE)
         signals = close.apply(indicator, **kwargs)
         close = close.dropna()
         positions = pd.DataFrame(
