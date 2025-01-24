@@ -48,7 +48,7 @@ class TestAlpacaEx:
     def test_create_order(self):
         positions = alpc.get_positions()
         side = 'buy'
-        if 'QQQ' in [position['symbol'] for position in positions]:
+        if 'LTC/USD' in [position['symbol'] for position in positions]:
             side = 'sell'
         order = alpc.create_order('LTC/USD', side, 1)
         assert 'id' in order
