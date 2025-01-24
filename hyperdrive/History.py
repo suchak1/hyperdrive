@@ -17,6 +17,7 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.metrics import classification_report
 from imblearn.over_sampling import SMOTE
 from Calculus import Calculator
+from collections.abc import Callable
 import Constants as C
 
 
@@ -40,7 +41,15 @@ class Historian:
         )
         return portfolio
 
-    def optimize_portfolio(self, close, indicator, top_n, period, init_cash, **kwargs):
+    def optimize_portfolio(
+            self,
+            close: pd.DataFrame,
+            indicator: Callable,
+            top_n: int,
+            period: int,
+            init_cash: float,
+            **kwargs: dict[str, any]
+    ) -> vbt.Portfolio:
         close = close.set_index(C.CLOSE)
         signals = close.apply(indicator, **kwargs)
         close = close.dropna()
@@ -87,7 +96,12 @@ class Historian:
         )
         return portfolio
 
-    def from_orders(self, close, size, fee=0):
+    def from_orders(
+            self,
+            close: pd.DataFrame,
+            size: pd.DataFrame,
+            fee: float = 0
+    ) -> vbt.Portfolio:
         portfolio = vbt.Portfolio.from_orders(
             close, size, freq='D', fees=fee, init_cash=0, group_by=True
         )

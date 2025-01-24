@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 sys.path.append('hyperdrive')
 from History import Historian  # noqa autopep8
+import Constants as C  # noqa autopep8
 
 
 hist = Historian()
@@ -36,6 +37,22 @@ class TestHistorian:
     def test_from_signals(self):
         stats = hist.from_signals(close, test_ffill).stats()
         assert 'Sortino Ratio' in stats
+
+    def test_from_orders(self):
+        index = pd.Series(['2025-01-01', '2025-01-02'], name=C.TIME)
+        close = pd.DataFrame({
+            'AAPL': [200, 100],
+            'META': [25, 50]
+        }, index=index)
+        size = pd.DataFrame({
+            'AAPL': [1, 0],
+            'META': [0, 1]
+        }, index=index)
+        stats = hist.from_orders(close, size).stats()
+        assert 'Sortino Ratio' in stats
+
+    def test_optimize_portfolio(self):
+        pass
 
     def test_fill(self):
         ffill = hist.fill(arr)
