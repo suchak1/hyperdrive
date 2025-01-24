@@ -50,7 +50,7 @@ class TestAlpacaEx:
         side = 'buy'
         if 'LTC/USD' in [position['symbol'] for position in positions]:
             side = 'sell'
-        order = alpc.create_order('LTC/USD', side, 1)
+        order = alpc.create_order('LTC/USD', side, 10)
         assert 'id' in order
 
 
