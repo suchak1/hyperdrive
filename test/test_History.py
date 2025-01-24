@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 sys.path.append('hyperdrive')
 from History import Historian  # noqa autopep8
+import Constants as C  # noqa autopep8
 
 
 hist = Historian()
@@ -27,14 +28,35 @@ data = np.arange(total)
 X = pd.DataFrame({'i': data, 'j': data})
 y = np.array([True] * majority + [False] * minority)
 
+orders_index = pd.to_datetime(
+    pd.Series(['2025-01-01', '2025-01-02'], name=C.TIME))
+orders_close = pd.DataFrame({
+    'AAPL': [200, 100],
+    'META': [25, 50]
+}, index=orders_index)
+
 
 class TestHistorian:
-    def test_buy_and_hold(self):
-        stats = hist.buy_and_hold(close).stats()
+    def test_from_holding(self):
+        stats = hist.from_holding(close).stats()
         assert 'Sortino Ratio' in stats
 
-    def test_create_portfolio(self):
-        stats = hist.create_portfolio(close, test_ffill).stats()
+    def test_from_signals(self):
+        stats = hist.from_signals(close, test_ffill).stats()
+        assert 'Sortino Ratio' in stats
+
+    def test_from_orders(self):
+        size = pd.DataFrame({
+            'AAPL': [1, 0],
+            'META': [0, 1]
+        }, index=orders_index)
+        stats = hist.from_orders(orders_close, size).stats()
+        assert 'Sortino Ratio' in stats
+
+    def test_optimize_portfolio(self):
+        indicator = pd.Series.diff
+        stats = hist.optimize_portfolio(
+            orders_close, indicator, 1, 'day', 225).stats()
         assert 'Sortino Ratio' in stats
 
     def test_fill(self):

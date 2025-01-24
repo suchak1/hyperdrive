@@ -237,6 +237,7 @@ class PathFinder:
     def get_new_orders_path(self, provider):
         return os.path.join(
             DATA_DIR,
+            'orders',
             f'{provider}.csv'
         )
 

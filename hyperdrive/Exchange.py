@@ -67,7 +67,9 @@ class AlpacaEx(CEX):
             'side': side.lower(),
             'type': 'market',
             'notional': str(notional),
-            'time_in_force': 'day'
+            'time_in_force': (
+                'gtc' if symbol in C.ALPC_CRYPTO_SYMBOLS else 'day'
+            )
         }
         return self.make_request('POST', 'orders', payload)
 

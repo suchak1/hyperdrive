@@ -33,8 +33,8 @@ class TestAlpacaEx:
 
     def test_close_position(self):
         positions = alpc.get_positions()
-        if any([position['symbol'] == 'QQQ' for position in positions]):
-            order = alpc.close_position('QQQ')
+        if any([position['symbol'] == 'LTC/USD' for position in positions]):
+            order = alpc.close_position('LTC/USD')
             assert 'id' in order
 
     def test_get_order(self):
@@ -48,9 +48,9 @@ class TestAlpacaEx:
     def test_create_order(self):
         positions = alpc.get_positions()
         side = 'buy'
-        if 'QQQ' in [position['symbol'] for position in positions]:
+        if 'LTC/USD' in [position['symbol'] for position in positions]:
             side = 'sell'
-        order = alpc.create_order('QQQ', side, 1)
+        order = alpc.create_order('LTC/USD', side, 10)
         assert 'id' in order
 
 
