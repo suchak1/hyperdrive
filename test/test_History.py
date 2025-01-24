@@ -55,7 +55,8 @@ class TestHistorian:
 
     def test_optimize_portfolio(self):
         indicator = pd.Series.diff
-        stats = hist.optimize_portfolio(orders_close, indicator, 1, 'day', 225)
+        stats = hist.optimize_portfolio(
+            orders_close, indicator, 1, 'day', 225).stats()
         assert 'Sortino Ratio' in stats
 
     def test_fill(self):
