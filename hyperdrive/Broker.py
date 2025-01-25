@@ -42,7 +42,7 @@ class Robinhood:
         df['begins_at'] = pd.to_datetime(df['begins_at']).apply(
             lambda x: x.tz_localize(None))
         # df = df.sort_values('begins_at')
-        if save is True:
+        if save:
             self.writer.save_csv('data/data.csv', df)
         return df
 

@@ -8,7 +8,7 @@ class HyperDrive:
 
         self.broker = Robinhood()
 
-        if load is True:
+        if load:
             self.broker.load_portfolio()
 
 
