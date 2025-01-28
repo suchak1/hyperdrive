@@ -7,7 +7,7 @@ import requests
 import urllib.parse
 from time import sleep
 from binance import Client
-from typing import Iterable
+from typing import Iterable, Union, Optional
 from binance.helpers import round_step_size
 from dotenv import load_dotenv, find_dotenv
 import Constants as C
@@ -22,8 +22,8 @@ class CEX:
 class AlpacaEx(CEX):
     def __init__(
             self,
-            token: str | None = os.environ.get('ALPACA'),
-            secret: str | None = os.environ.get('ALPACA_SECRET'),
+            token: Optional[str] = os.environ.get('ALPACA'),
+            secret: Optional[str] = os.environ.get('ALPACA_SECRET'),
             paper: bool = False
     ) -> None:
         super().__init__()
@@ -64,7 +64,7 @@ class AlpacaEx(CEX):
             self,
             method: str,
             route: str,
-            payload: dict[str, any] | None = {}
+            payload: Optional[dict[str, any]] = {}
     ) -> any:
         parts = [self.base, self.version, route]
         url = '/'.join(parts)
@@ -95,7 +95,7 @@ class AlpacaEx(CEX):
             self,
             symbol: str,
             side: str,
-            notional: int | float | str
+            notional: Union[int, float, str]
     ) -> any:
         payload = {
             'symbol': symbol,
