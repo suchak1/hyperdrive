@@ -7,6 +7,7 @@ import requests
 import urllib.parse
 from time import sleep
 from binance import Client
+from typing import Iterable
 from binance.helpers import round_step_size
 from dotenv import load_dotenv, find_dotenv
 import Constants as C
@@ -14,17 +15,17 @@ load_dotenv(find_dotenv('config.env'))
 
 
 class CEX:
-    def create_pair(self, base, quote):
+    def create_pair(self, base: str, quote: str) -> str:
         return f'{base}{quote}'
 
 
 class AlpacaEx(CEX):
     def __init__(
             self,
-            token=os.environ.get('ALPACA'),
-            secret=os.environ.get('ALPACA_SECRET'),
-            paper=False
-    ):
+            token: str | None = os.environ.get('ALPACA'),
+            secret: str | None = os.environ.get('ALPACA_SECRET'),
+            paper: bool = False
+    ) -> None:
         super().__init__()
         self.base = (f'https://{"paper-" if paper or C.TEST else ""}'
                      'api.alpaca.markets')
@@ -36,7 +37,12 @@ class AlpacaEx(CEX):
         if not (self.token and self.secret):
             raise Exception('missing Alpaca credentials')
 
-    def fill_orders(self, symbols, func, **kwargs):
+    def fill_orders(
+            self,
+            symbols: Iterable[str],
+            func: callable,
+            **kwargs: dict[str, any]
+    ) -> list[dict[str, any]]:
         pending_orders = set()
         completed_orders = []
         for symbol in symbols:
@@ -54,7 +60,12 @@ class AlpacaEx(CEX):
             sleep(1)
         return completed_orders
 
-    def make_request(self, method, route, payload={}):
+    def make_request(
+            self,
+            method: str,
+            route: str,
+            payload: dict[str, any] | None = {}
+    ) -> any:
         parts = [self.base, self.version, route]
         url = '/'.join(parts)
         headers = {
@@ -68,19 +79,24 @@ class AlpacaEx(CEX):
         else:
             raise Exception(response.text)
 
-    def get_positions(self):
+    def get_positions(self) -> any:
         return self.make_request('GET', 'positions')
 
-    def close_position(self, symbol):
+    def close_position(self, symbol: str) -> any:
         return self.make_request('DELETE', f'positions/{symbol}')
 
-    def get_order(self, id):
+    def get_order(self, id: str) -> any:
         return self.make_request('GET', f'orders/{id}')
 
-    def get_account(self):
+    def get_account(self) -> any:
         return self.make_request('GET', 'account')
 
-    def create_order(self, symbol, side, notional):
+    def create_order(
+            self,
+            symbol: str,
+            side: str,
+            notional: int | float | str
+    ) -> any:
         payload = {
             'symbol': symbol,
             'side': side.lower(),

@@ -17,7 +17,6 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.metrics import classification_report
 from imblearn.over_sampling import SMOTE
 from Calculus import Calculator
-from collections.abc import Callable
 import Constants as C
 
 
@@ -44,7 +43,7 @@ class Historian:
     def optimize_portfolio(
             self,
             close: pd.DataFrame,
-            indicator: Callable,
+            indicator: callable,
             top_n: int,
             period: str,
             init_cash: float,
