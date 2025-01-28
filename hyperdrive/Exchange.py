@@ -5,6 +5,7 @@ import base64
 import hashlib
 import requests
 import urllib.parse
+from time import sleep
 from binance import Client
 from binance.helpers import round_step_size
 from dotenv import load_dotenv, find_dotenv
@@ -34,6 +35,24 @@ class AlpacaEx(CEX):
             'ALPACA_PAPER_SECRET') if paper or C.TEST else secret
         if not (self.token and self.secret):
             raise Exception('missing Alpaca credentials')
+
+    def fill_orders(self, symbols, func, **kwargs):
+        pending_orders = set()
+        completed_orders = []
+        for symbol in symbols:
+            order = func(symbol, **kwargs)
+            if order['status'] == 'filled':
+                completed_orders.append(order)
+            else:
+                pending_orders.add(order['id'])
+        while pending_orders:
+            for id in list(pending_orders):
+                order = self.get_order(id)
+                if order['status'] == 'filled':
+                    completed_orders.append(order)
+                    pending_orders.discard(id)
+            sleep(1)
+        return completed_orders
 
     def make_request(self, method, route, payload={}):
         parts = [self.base, self.version, route]
