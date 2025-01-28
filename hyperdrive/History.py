@@ -65,15 +65,15 @@ class Historian:
             if prev_period != curr_period:
                 # Rank symbols by indicator and select top_n
                 top_symbols = set(signals.loc[day].nlargest(top_n).index)
+                minus, plus = self.calc.get_difference(
+                    prev_symbols, top_symbols)
                 # Sell old positions for the top symbols
-                minus = prev_symbols.difference(top_symbols)
                 for symbol in minus:
                     size = holdings[symbol]
                     positions.loc[day, symbol] = - size
                     holdings["cash"] += close.loc[day][symbol] * size
                     del holdings[symbol]
                 # Buy new positions for the top symbols
-                plus = top_symbols.difference(prev_symbols)
                 notional = holdings["cash"] / len(plus)
                 for symbol in plus:
                     size = notional / close.loc[day][symbol]

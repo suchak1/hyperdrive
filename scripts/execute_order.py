@@ -21,6 +21,7 @@ last_two_signals = signals_df[C.SIG].tail(2).to_numpy()
 num_unique_signals = len(set(last_two_signals))
 signal = last_two_signals[-1]
 should_order = num_unique_signals > 1
+should_order = False  # disable trading
 
 if should_order:
     side = C.BUY if signal else C.SELL
