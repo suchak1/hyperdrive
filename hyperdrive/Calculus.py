@@ -37,7 +37,7 @@ class Calculator:
             order
         )
 
-    def get_difference(old: set, new: set) -> tuple[set, set]:
+    def get_difference(self, old: set, new: set) -> tuple[set, set]:
         minus = old.difference(new)
         plus = new.difference(old)
         return minus, plus
