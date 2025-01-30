@@ -20,6 +20,17 @@ class TestAlpacaEx:
         assert hasattr(alpc, 'token')
         assert hasattr(alpc, 'secret')
 
+    def test_fill_orders(self):
+        positions = alpc.get_positions()
+        if any([position['symbol'] == 'LTC/USD' for position in positions]):
+            orders = alpc.fill_orders(['LTC/USD'], alpc.close_position)
+        else:
+            orders = alpc.fill_orders(
+                ['LTC/USD'], alpc.create_order, side='buy', notional=10)
+
+        for order in orders:
+            assert 'id' in order
+
     def test_make_request(self):
         acct = alpc.make_request('GET', 'account')
         assert acct['status'] == 'ACTIVE'

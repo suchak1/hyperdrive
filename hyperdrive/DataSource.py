@@ -8,6 +8,7 @@ from random import random
 from polygon import RESTClient, exceptions
 from dotenv import load_dotenv, find_dotenv
 from FileOps import FileReader, FileWriter
+from Calculus import Calculator
 from TimeMachine import TimeTraveller
 from Constants import PathFinder
 import Constants as C
@@ -27,6 +28,7 @@ class MarketData:
         self.reader = FileReader()
         self.finder = PathFinder()
         self.traveller = TimeTraveller()
+        self.calculator = Calculator()
         self.provider = 'polygon'
 
     def get_indexer(self, s1, s2):
@@ -419,8 +421,7 @@ class MarketData:
         before = set(self.standardize_ndx(saved)[C.SYMBOL])
         after = set(self.get_latest_ndx(**kwargs)[C.SYMBOL])
         today = datetime.now().strftime(C.DATE_FMT)
-        minus = before.difference(after)
-        plus = after.difference(before)
+        minus, plus = self.calculator.get_difference(before, after)
         union = list(minus.union(plus))
         to_append = pd.DataFrame({
             C.TIME: [today] * len(union),

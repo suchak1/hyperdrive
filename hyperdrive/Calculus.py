@@ -37,6 +37,11 @@ class Calculator:
             order
         )
 
+    def get_difference(self, old: set, new: set) -> tuple[set, set]:
+        minus = old.difference(new)
+        plus = new.difference(old)
+        return minus, plus
+
     def derive(self, y, x=np.array([0, 1])):
         if isinstance(x, pd.Series):
             x = x.to_numpy()

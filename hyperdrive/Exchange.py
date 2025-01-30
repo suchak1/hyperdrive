@@ -5,7 +5,9 @@ import base64
 import hashlib
 import requests
 import urllib.parse
+from time import sleep
 from binance import Client
+from typing import Iterable, Union, Optional
 from binance.helpers import round_step_size
 from dotenv import load_dotenv, find_dotenv
 import Constants as C
@@ -13,17 +15,17 @@ load_dotenv(find_dotenv('config.env'))
 
 
 class CEX:
-    def create_pair(self, base, quote):
+    def create_pair(self, base: str, quote: str) -> str:
         return f'{base}{quote}'
 
 
 class AlpacaEx(CEX):
     def __init__(
             self,
-            token=os.environ.get('ALPACA'),
-            secret=os.environ.get('ALPACA_SECRET'),
-            paper=False
-    ):
+            token: Optional[str] = os.environ.get('ALPACA'),
+            secret: Optional[str] = os.environ.get('ALPACA_SECRET'),
+            paper: bool = False
+    ) -> None:
         super().__init__()
         self.base = (f'https://{"paper-" if paper or C.TEST else ""}'
                      'api.alpaca.markets')
@@ -35,7 +37,35 @@ class AlpacaEx(CEX):
         if not (self.token and self.secret):
             raise Exception('missing Alpaca credentials')
 
-    def make_request(self, method, route, payload={}):
+    def fill_orders(
+            self,
+            symbols: Iterable[str],
+            func: callable,
+            **kwargs: dict[str, any]
+    ) -> list[dict[str, any]]:
+        pending_orders = set()
+        completed_orders = []
+        for symbol in symbols:
+            order = func(symbol, **kwargs)
+            if order['status'] == 'filled':
+                completed_orders.append(order)
+            else:
+                pending_orders.add(order['id'])
+        while pending_orders:
+            for id in list(pending_orders):
+                order = self.get_order(id)
+                if order['status'] == 'filled':
+                    completed_orders.append(order)
+                    pending_orders.discard(id)
+            sleep(1)
+        return completed_orders
+
+    def make_request(
+            self,
+            method: str,
+            route: str,
+            payload: Optional[dict[str, any]] = {}
+    ) -> any:
         parts = [self.base, self.version, route]
         url = '/'.join(parts)
         headers = {
@@ -49,19 +79,24 @@ class AlpacaEx(CEX):
         else:
             raise Exception(response.text)
 
-    def get_positions(self):
+    def get_positions(self) -> any:
         return self.make_request('GET', 'positions')
 
-    def close_position(self, symbol):
+    def close_position(self, symbol: str) -> any:
         return self.make_request('DELETE', f'positions/{symbol}')
 
-    def get_order(self, id):
+    def get_order(self, id: str) -> any:
         return self.make_request('GET', f'orders/{id}')
 
-    def get_account(self):
+    def get_account(self) -> any:
         return self.make_request('GET', 'account')
 
-    def create_order(self, symbol, side, notional):
+    def create_order(
+            self,
+            symbol: str,
+            side: str,
+            notional: Union[int, float, str]
+    ) -> any:
         payload = {
             'symbol': symbol,
             'side': side.lower(),
